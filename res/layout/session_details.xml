@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+
+   Copyright 2010 Roger Heim
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ -->
+
+<!-- This is the layout for the session details screen. -->
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@color/White"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	
+	<RelativeLayout
+		android:background="@color/DodgerBlue"
+		android:layout_width="fill_parent"
+		android:layout_height="60dp"
+		>
+		
+
+<!-- Using marquee for ellipsize only works when the TextView is selected and/or focused. This is AsIntended -->
+		<TextView
+			android:id="@+id/session_details_title"
+			android:textColor="@color/White"
+			android:text="The Session's Really, Really Long Full Title Goes Here"
+			android:ellipsize="end"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_marginTop="3dp"
+			android:layout_marginRight="10dp"
+			android:textSize="16sp"/>
+		
+		<TextView
+			android:id="@+id/session_details_when_and_where"
+			android:textColor="@color/White"
+			android:text="Sat, June 26, 2010 8:30 AM Rm:XX-999"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignLeft="@id/session_details_title"
+			android:layout_below="@id/session_details_title"
+			android:textSize="14sp"/>
+				
+			
+	</RelativeLayout>
+	
+	<!-- Main content; bunch of text and a speaker image. -->
+	<ScrollView
+		android:id="@+id/session_details_scroller"
+		android:layout_width="fill_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		>
+
+		<RelativeLayout android:id="@+id/session_details_layout"
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:paddingLeft="5dp"
+			android:paddingRight="5dp"
+			android:paddingTop="5dp"
+			android:paddingBottom="5dp"
+			>
+		
+		
+				
+			<TextView
+				android:id="@+id/session_details_presentedby_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Presented by: "
+				android:textStyle="bold"
+				android:layout_marginTop="5dp"
+				android:textColor="@color/Red"
+				/>
+	
+			<TextView
+				android:id="@+id/session_details_speaker_name"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignBaseline="@id/session_details_presentedby_label"
+				android:layout_toRightOf="@id/session_details_presentedby_label"
+				android:textColor="@color/Red"
+				android:text="Speaker Name"
+				/>
+				
+
+			<TextView
+				android:id="@+id/session_details_synopsis_text"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/session_details_presentedby_label"
+				android:layout_marginTop="8dp"
+				android:textColor="@color/Black"
+				android:text="Session synopsis goes here"
+				/>
+
+			<TextView
+				android:id="@+id/session_details_speaker_bio"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/session_details_synopsis_text"
+				android:layout_marginLeft="10dp"
+				android:textColor="@color/Black"
+				android:text="Speaker bio goes here"
+				/>
+							
+		</RelativeLayout>
+	</ScrollView>
+	
+	
+	<!-- Footer  -->
+	<RelativeLayout
+		android:orientation="horizontal"
+		android:background="@color/DodgerBlue"
+		android:layout_width="fill_parent"
+		android:layout_height="50dp"
+		>
+		
+		<ImageView
+			android:id="@+id/footer_logo"
+			android:src="@drawable/codestock_lowres_small"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_gravity="center_vertical"/>
+
+		<ImageView
+			android:src="@drawable/nerdetteskull_2010_lowres_small"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="10dp"
+			android:layout_marginTop="3dp"
+			/>
+	</RelativeLayout>
+</LinearLayout>

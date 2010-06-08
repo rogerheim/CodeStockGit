@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+
+   Copyright 2010 Roger Heim
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ -->
+
+<!-- Layout for the app entry screen in LANDSCAPE mode-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@color/White"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+	<RelativeLayout
+		android:background="@color/DodgerBlue"
+		android:layout_width="fill_parent"
+		android:layout_height="60dp"
+		>
+		
+		<TextView
+			android:id="@+id/header_title"
+			android:textColor="@color/White"
+			android:text="@string/header_title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_marginTop="3dp"
+			android:textSize="18sp"/>
+		<TextView
+			android:textColor="@color/White"
+			android:text="@string/header_slogan"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignLeft="@id/header_title"
+			android:layout_below="@id/header_title"/>
+			
+		<ImageView
+			android:src="@drawable/nerdetteskull_2010_lowres_small"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="10dp"
+			android:layout_marginTop="3dp"
+			/>
+			
+	</RelativeLayout>
+		  
+
+	<TableLayout
+		android:background="@color/White"
+		android:layout_weight="1"
+		android:layout_width="fill_parent"
+		android:layout_height="0px"
+		android:layout_marginTop="3dp"
+		android:layout_marginBottom="3dp"
+		android:layout_marginLeft="25dp"
+		android:layout_marginRight="25dp"
+		>
+		
+		<TableRow
+			>
+			<ImageButton
+				android:id="@+id/schedule_imagebutton"
+				android:src="@drawable/schedule_icon"
+				android:background="@color/White"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:layout_marginLeft="30dp"
+				/>
+			<ImageButton
+				android:id="@+id/map_imagebutton"
+				android:src="@drawable/map_icon"
+				android:background="@color/White"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:layout_marginLeft="40dp"
+				/>
+			<ImageButton
+				android:id="@+id/sessions_imagebutton"
+				android:src="@drawable/sessions_icon"
+				android:background="@color/White"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:layout_marginLeft="40dp"
+				/>
+		</TableRow>
+		
+		<TableRow
+			android:layout_marginTop="5dp"
+			>
+			<ImageButton
+				android:id="@+id/starred_imagebutton"
+				android:src="@drawable/starred_icon"
+				android:background="@color/White"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:layout_marginLeft="30dp"
+				/>
+			<ImageButton
+				android:id="@+id/mynotes_imagebutton"
+				android:src="@drawable/mynotes_icon"
+				android:background="@color/White"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:layout_marginLeft="40dp"
+				/>
+			<ImageButton
+				android:id="@+id/credits_imagebutton"
+				android:src="@drawable/credits_icon"
+				android:background="@color/White"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:layout_marginLeft="40dp"
+				/>
+		</TableRow>
+		
+	</TableLayout>
+	
+	<!-- Footer  -->
+	<LinearLayout
+		android:orientation="horizontal"
+		android:background="@color/DodgerBlue"
+		android:layout_width="fill_parent"
+		android:layout_height="50dp"
+		>
+
+		<ImageView
+			android:id="@+id/footer_logo"
+			android:src="@drawable/codestock_lowres_small"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_gravity="center_vertical"/>
+	</LinearLayout>		
+</LinearLayout>

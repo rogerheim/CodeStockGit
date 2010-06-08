@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+
+   Copyright 2010 Roger Heim
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ -->
+
+<!-- This is the layout for a session item in the ExpandableListView of tracks and sessions -->
+<!-- If you set a background color on the RelativeLayout so you can see it here
+	the colors will be messed up when they are actually run. -->
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="65dp"
+	android:paddingTop="8dp"
+	android:paddingBottom="8dp"
+	>
+	
+	<ImageView
+		android:id="@+id/sessionintrack_award"
+		android:layout_width="47px"
+		android:layout_height="65px"
+		android:scaleType="centerInside"
+		/>
+		
+	<!-- Move content further right than in expander parent. Also make font smaller -->
+	<TextView
+		android:id="@+id/sessionintrack_session_title"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/sessionintrack_award"
+		android:layout_marginRight="10dp"			
+		android:textSize="16sp"
+		android:textColor="@color/Black"
+		android:text="Session Title"
+		/>
+
+<!-- alignLeft accounts for margin of element being aligned to -->		
+	<TextView
+		android:id="@+id/sessionintrack_presentedby"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/sessionintrack_session_title"
+		android:layout_alignLeft="@id/sessionintrack_session_title"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:textStyle="italic"
+		android:text="Presented by: "
+		/>
+		
+	<TextView
+		android:id="@+id/sessionintrack_speaker_name"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/sessionintrack_session_title"
+		android:layout_toRightOf="@id/sessionintrack_presentedby"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:text="Speaker Name"
+		/>
+
+	<!-- 3rd line -->				
+	<TextView
+		android:id="@+id/sessionintrack_datetime"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/sessionintrack_presentedby"
+		android:layout_alignLeft="@id/sessionintrack_presentedby"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:text="Sat, May 29 2010 9:00 AM"
+		/>
+		
+	<TextView
+		android:id="@+id/sessionintrack_room_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/sessionintrack_datetime"
+		android:layout_below="@id/sessionintrack_presentedby"
+		android:layout_marginLeft="5dp"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:textStyle="italic"
+		android:text="Room:"
+		/>
+		
+	<TextView
+		android:id="@+id/sessionintrack_room"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/sessionintrack_room_label"
+		android:layout_below="@id/sessionintrack_presentedby"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:text="CS-101"
+		/>
+		
+	
+</RelativeLayout>

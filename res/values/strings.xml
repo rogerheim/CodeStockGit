@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+
+   Copyright 2010 Roger Heim
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ -->
+<resources>
+    <string name="app_name">CodeStock 2010</string>
+    <string name="header_title">CodeStock 2010</string>
+    <string name="header_slogan">The year we connect</string>
+    <string name="logging_tag">CodeStock2010</string>
+    <string name="about_title">About CodeStock 2010...</string>
+    
+    <string name="standard_where_when_format_string">EEE, MMM d yyyy h:mm a</string>
+    <string name="empty_db_msg">The current session list is empty\n\nWould you like to download the session list now?</string>
+    <string name="refresh_data_progress_dialog_msg">Downloading session list;\nPlease wait...</string>
+    <string name="update_db_progress_dialog_msg">Updating session list;\nPlease wait...</string>
+    <string name="json_data_url">http://codestock.org/api/v1.0.svc/AllSessionsJson</string>
+    
+    <string name="session_track_list_header_title">Session Tracks</string>
+    <string name="sessions_in_track_list_header_title">Track Sessions</string>
+    
+    <!--  Menu text -->
+    <string name="menu_refresh_text">Refresh</string>
+    <string name="menu_home_text">Home</string>
+    <string name="menu_search_text">Search</string>
+    
+    <!--  Intent names -->
+    <string name="sessions_intent_action">com.aremaitch.codestock2010.DISPLAY_SESSION_TRACKS</string>
+    <string name="sessions_intent_category">android.intent.category.DEFAULT</string>
+
+	<string name="session_details_intent_action">com.aremaitch.codestock2010.DISPLAY_SESSION_DETAILS</string>
+	<string name="session_details_intent_category">android.intent.category.DEFAULT</string>
+	<string name="session_details_intent_sessionid">com.aremaitch.codestock2010.SESSIONID</string>  
+	
+	<string name="conference_center_map_intent_action">com.aremaitch.codestock2010.DISPLAY_CONF_CENTER_MAP</string>
+	<string name="conference_center_map_intent_category">android.intent.category.DEFAULT</string>
+	
+	<string name="about_intent_action">com.aremaitch.codestock2010.DISPLAY_ABOUT</string>
+	<string name="about_intent_category">android.intent.category.DEFAULT</string>
+</resources>
