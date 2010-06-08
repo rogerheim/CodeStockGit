@@ -48,7 +48,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	private static ArrayList<Track> sessionTracks = null;
 	static DataHelper dh = null;
-	private static boolean layoutInflated = false;
+//	private static boolean layoutInflated = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

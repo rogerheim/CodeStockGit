@@ -23,15 +23,19 @@ import android.app.Application;
 import android.os.AsyncTask;
 
 public class CodeStockApp extends Application {
+	@SuppressWarnings("unchecked")
 	private Map<String, AsyncTask> _currentTasks = null;
 
+	@SuppressWarnings("unchecked")
 	public CodeStockApp() {
 		_currentTasks = new HashMap<String, AsyncTask>();
 	}
+	@SuppressWarnings("unchecked")
 	public void pushTask(String taskKey, AsyncTask task) {
 		_currentTasks.put(taskKey, task);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public AsyncTask getTask(String taskKey) {
 		return _currentTasks.get(taskKey);
 	}

@@ -36,9 +36,6 @@ import org.xml.sax.XMLReader;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -60,7 +57,7 @@ import com.aremaitch.codestock2010.repository.Session;
 
 public class DisplaySessionDetailsActivity extends Activity {
 
-	private boolean _gotSession = false;
+//	private boolean _gotSession = false;
 	TextView sessiontitletv = null;
 	TextView sessionwhenwhere = null;
 	TextView synopsistv = null;
@@ -123,7 +120,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 				Session s = getSessionInfo(sessionid);
 				
 				displaySessionInfo(s);
-				_gotSession = true;
+//				_gotSession = true;
 				
 //				QuerySessionDetails q = new QuerySessionDetails(sessionid);
 //				q.execute();
@@ -197,7 +194,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 		//	This technique for Linkifying Twitter comes from http://www.indelible.org/ink/android-linkify/
 		
 		Linkify.addLinks(speakerbiotv, twitterPattern, twitterScheme, null, twitterFilter);
-		_gotSession = true;
+//		_gotSession = true;
 
 	}
 	

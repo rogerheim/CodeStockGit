@@ -54,7 +54,7 @@ public class StartActivity extends Activity {
 	private static final String INITIALIZE_JODA_TASK_KEY = "init_joda";
 	private static final String UPDATE_DB_TASK_KEY = "update_db";
 	
-	private boolean jodaInit = false;
+//	private boolean jodaInit = false;
 	
 	//private static final DateTime dt = null;
 	
