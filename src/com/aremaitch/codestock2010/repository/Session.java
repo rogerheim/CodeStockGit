@@ -37,6 +37,7 @@ public class Session {
 	private Calendar endDate;
 	private String room;
 	private List<Speaker> additionalSpeakers;
+	private String voteRank;
 	
 	
 	public long getId() {
@@ -132,5 +133,12 @@ public class Session {
 			this.additionalSpeakers = new ArrayList<Speaker>();
 		}
 		this.additionalSpeakers.add(additionalSpeaker);
+	}
+	
+	public String getVoteRank() {
+		return voteRank;
+	}
+	public void setVoteRank(String voteRank) {
+		this.voteRank = voteRank;
 	}
 }

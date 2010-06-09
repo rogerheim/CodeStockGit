@@ -34,6 +34,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.aremaitch.codestock2010.datadownloader.Downloader;
+import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
@@ -377,7 +378,8 @@ public class StartActivity extends Activity {
 	private class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
 
 		ProgressDialog progress = null;
-		Downloader dl = null;
+//		Downloader dl = null;
+		DownloaderV2 dlv2 = null;
 		Activity _act = null;
 		
 		public RefreshCodeStockData(Activity act) {
@@ -420,20 +422,23 @@ public class StartActivity extends Activity {
 		
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
-			dl.getCodeStockData();
+//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
+			dlv2 = new DownloaderV2(_act, 
+					_act.getString(R.string.json_data_rooms_url_v2), 
+					_act.getString(R.string.json_data_speakers_url_v2), 
+					_act.getString(R.string.json_data_sessions_url_v2));
+			dlv2.getCodeStockData();
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Void result) {
-//			progress.dismiss();
 			
 			if (_act != null) {
+//				((CodeStockApp)getApplication()).pushTask(UPDATE_DB_TASK_KEY, 
+//						new SessionDatabaseUpdater(_act, dl).execute());
 				((CodeStockApp)getApplication()).pushTask(UPDATE_DB_TASK_KEY, 
-						new SessionDatabaseUpdater(_act, dl).execute());
-//				SessionDatabaseUpdater updater = new SessionDatabaseUpdater(_act, dl);
-//				updater.execute();
+						new SessionDatabaseUpdater(_act, dlv2).execute());
 				progress.dismiss();
 			}
 			clearActivity();
@@ -442,12 +447,19 @@ public class StartActivity extends Activity {
 
 	
 	private class SessionDatabaseUpdater extends AsyncTask<Void, Void, Void> {
-		Downloader dl = null;
+//		Downloader dl = null;
+		DownloaderV2 dlv2 = null;
+		
 		ProgressDialog progress = null;
 		Activity _act = null;
 		
-		public SessionDatabaseUpdater(Activity act, Downloader dl) {
-			this.dl = dl;
+//		public SessionDatabaseUpdater(Activity act, Downloader dl) {
+//			this.dl = dl;
+//			_act = act;
+//		}
+
+		public SessionDatabaseUpdater(Activity act, DownloaderV2 dlv2) {
+			this.dlv2 = dlv2;
 			_act = act;
 		}
 		
@@ -497,16 +509,16 @@ public class StartActivity extends Activity {
 			dh.clearAllData();
 			
 			try {
-				for (Track t : dl.getParsedTracks()) {
+				for (Track t : dlv2.getParsedTracks()) {
 					dh.insertTrack(t);
 				}
-				for (ExperienceLevel l : dl.getParsedLevels()) {
+				for (ExperienceLevel l : dlv2.getParsedLevels()) {
 					dh.insertXPLevel(l);
 				}
-				for (Speaker s : dl.getParsedSpeakers()) {
+				for (Speaker s : dlv2.getParsedSpeakers()) {
 					dh.insertSpeaker(s);
 				}
-				for (Session s : dl.getParsedSessions()) {
+				for (Session s : dlv2.getParsedSessions()) {
 					dh.insertSession(s);
 				}
 			} finally {

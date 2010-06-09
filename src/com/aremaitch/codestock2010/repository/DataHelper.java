@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 //import org.joda.time.DateTime;
 //import org.joda.time.format.ISODateTimeFormat;
@@ -31,6 +32,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+//	8-Jun-10	Updated to version 2 for VoteRank in session table and add
+//				additional speakers table.
 /**
  * Data helper for SQL access.
  * First drafg: 25-May-2010
@@ -40,12 +43,12 @@ import android.util.Log;
  */
 public class DataHelper {
 	private static final String DATABASE_NAME = "codestock2010.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final String XPLEVELS_TABLE_NAME = "xplevels";
 	private static final String TRACKS_TABLE_NAME = "tracks";
 	private static final String SPEAKERS_TABLE_NAME = "speakers";
 	private static final String SESSIONS_TABLE_NAME = "sessions";
-	
+	private static final String ADD_SPEAKERS_TABLE_NAME = "addspeakers";
 	private static final String LOG_TAG = "CodeStock2010";
 	
 	private Context context;
@@ -67,7 +70,7 @@ public class DataHelper {
 		
 		Cursor c = null;
 		try {
-			c = db.rawQuery("select count(*) from sessions", null);
+			c = db.rawQuery("select count(*) from " + SESSIONS_TABLE_NAME, null);
 			c.moveToFirst();
 			if (c.getInt(0) > 0) {
 				isEmpty = false;
@@ -125,7 +128,7 @@ public class DataHelper {
 		
 		Cursor c = null;
 		try {
-			c = this.db.rawQuery("select id, tracktitle from tracks order by tracktitle ", null);
+			c = this.db.rawQuery("select id, tracktitle from " + TRACKS_TABLE_NAME + " order by tracktitle ", null);
 			while (c.moveToNext()) {
 				Track t = new Track();
 				t.setId(c.getLong(0));
@@ -153,7 +156,8 @@ public class DataHelper {
 		Cursor c = null;
 		try {
 			c = this.db.rawQuery("select sessions.id, sessiontitle, award, startdatetime, room, speakers.speakername " +
-								"from sessions inner join speakers on speakers.id = sessions.fkspeaker " +
+								"from " + SESSIONS_TABLE_NAME + 
+									" inner join " + SPEAKERS_TABLE_NAME + " on speakers.id = sessions.fkspeaker " +
 								"where fktrack = ? order by sessiontitle", 
 					new String[] {Long.toString(trackid)});
 			while (c.moveToNext()) {
@@ -162,7 +166,6 @@ public class DataHelper {
 				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
 				s.setAward(c.getString(c.getColumnIndexOrThrow("award")));
 				
-				//s.setStartDateTime(new DateTime(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
 				s.setStartDateTime(cal);
@@ -211,6 +214,9 @@ public class DataHelper {
 				calEnd.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("enddatetime"))));
 				result.setEndDate(calEnd);
 				result.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				result.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				result.setAdditionalSpeakers(getAdditionalSpeakers(c.getLong(c.getColumnIndexOrThrow("id"))));
 			}
 		} finally {
 			if (c != null && !c.isClosed()) {
@@ -220,6 +226,24 @@ public class DataHelper {
 		return result;
 	}
 
+	private List<Speaker> getAdditionalSpeakers(long sessionid) {
+		ArrayList<Speaker> spkrs = new ArrayList<Speaker>();
+		
+		Cursor c = null;
+		try {
+			c = this.db.rawQuery(
+					"select * from addspeakers where fksession = ?", new String[] {Long.toString(sessionid)});
+			while (c.moveToNext()) {
+				spkrs.add(getSpeaker(c.getLong(c.getColumnIndexOrThrow("fkspeaker"))));
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		return spkrs;
+	}
+	
 	/**
 	 * Returns full details about a conference track.
 	 * @param trackid	The id of the track whose information we want.
@@ -331,6 +355,11 @@ public class DataHelper {
 	public long insertSpeaker(Speaker newSpeaker) {
 		Log.v(LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
 		ContentValues newRow = new ContentValues();
+		
+		//	Speaker ID is now set by the host service
+		if (newSpeaker.getId() != 0) {
+			newRow.put("id", newSpeaker.getId());
+		}
 		newRow.put("speakername", newSpeaker.getSpeakerName());
 		newRow.put("speakerbio", newSpeaker.getSpeakerBio());
 		newRow.put("twitterhandle", newSpeaker.getTwitterHandle());
@@ -348,6 +377,11 @@ public class DataHelper {
 	public long insertSession(Session newSession) {
 		Log.v(LOG_TAG, "insertSession:" + newSession.getSessionTitle());
 		ContentValues newRow = new ContentValues();
+		
+		//	Session ID is now set by the host service
+		if (newSession.getId() != 0) {
+			newRow.put("id", newSession.getId());
+		}
 		newRow.put("sessiontitle", newSession.getSessionTitle());
 		newRow.put("synopsis", newSession.getSynopsis());
 		newRow.put("fktrack", getOrAddTrack(newSession.getTrack()));
@@ -359,7 +393,20 @@ public class DataHelper {
 		newRow.put("startdatetime", String.valueOf(newSession.getStartDate().getTimeInMillis()));
 		newRow.put("enddatetime", String.valueOf(newSession.getEndDate().getTimeInMillis()));
 		newRow.put("room", newSession.getRoom());
-		return db.insert(SESSIONS_TABLE_NAME, null, newRow);
+		newRow.put("voterank", newSession.getVoteRank());
+
+		Long sessionID = db.insert(SESSIONS_TABLE_NAME, null, newRow);
+		//	support additional speakers
+		if (newSession.getAdditionalSpeakers().size() > 0) {
+			for (Speaker s : newSession.getAdditionalSpeakers()) {
+				ContentValues newAddSpeakers = new ContentValues();
+				newAddSpeakers.put("fksession", sessionID);
+				newAddSpeakers.put("fkspeaker", s.getId());
+				db.insert(ADD_SPEAKERS_TABLE_NAME, null, newAddSpeakers);
+				
+			}
+		}
+		return sessionID;
 	}
 	
 	/**
@@ -371,6 +418,7 @@ public class DataHelper {
 		db.delete(SPEAKERS_TABLE_NAME, null, null);
 		db.delete(TRACKS_TABLE_NAME, null, null);
 		db.delete(XPLEVELS_TABLE_NAME, null, null);
+		db.delete(ADD_SPEAKERS_TABLE_NAME, null, null);
 	}
 	
 	/**
@@ -523,7 +571,13 @@ public class DataHelper {
 				.append("technologies text,")
 				.append("startdatetime text,")			// sqlite has no datetime datatype
 				.append("enddatetime text,")			// these fields hold the time in milliseconds since 1/1/1970 as a string
-				.append("room text)"));
+				.append("room text,")
+				.append("voterank text)"));
+			tables.add(new StringBuilder()
+				.append("create table " + ADD_SPEAKERS_TABLE_NAME)
+				.append("(id integer primary key,")
+				.append("fksession integer,")
+				.append("fkspeaker integer)"));
 			//	Don't need to create an index on the primary key; sqlite will do that automatically.
 			indexes.add(new StringBuilder()
 				.append("create index ix_" + XPLEVELS_TABLE_NAME + "_name on " + XPLEVELS_TABLE_NAME)
@@ -546,7 +600,9 @@ public class DataHelper {
 			indexes.add(new StringBuilder()
 				.append("create index ix_" + SESSIONS_TABLE_NAME + "_startdatetime on " + SESSIONS_TABLE_NAME)
 				.append("(startdatetime)"));
-			
+			indexes.add(new StringBuilder()
+				.append("create index ix_" + ADD_SPEAKERS_TABLE_NAME + "_session on " + ADD_SPEAKERS_TABLE_NAME)
+				.append("(fksession)"));
 			for (StringBuilder step : tables) {
 				db.execSQL(step.toString());
 			}
@@ -564,6 +620,7 @@ public class DataHelper {
 			db.execSQL("drop table if exists " + SPEAKERS_TABLE_NAME);
 			db.execSQL("drop table if exists " + TRACKS_TABLE_NAME);
 			db.execSQL("drop table if exists " + XPLEVELS_TABLE_NAME);
+			db.execSQL("drop table if exists " + ADD_SPEAKERS_TABLE_NAME);
 			onCreate(db);
 			
 		}

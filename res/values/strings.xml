@@ -28,6 +28,15 @@
     <string name="refresh_data_progress_dialog_msg">Downloading session list;\nPlease wait...</string>
     <string name="update_db_progress_dialog_msg">Updating session list;\nPlease wait...</string>
     <string name="json_data_url">http://codestock.org/api/v1.0.svc/AllSessionsJson</string>
+    <string name="json_data_rooms_url_v2">http://codestock.org/api/v2.0.svc/AllRoomsJson</string>
+    <string name="json_data_speakers_url_v2">http://codestock.org/api/v2.0.svc/AllSpeakersJson</string>
+    <string name="json_data_sessions_url_v2">http://codestock.org/api/v2.0.svc/AllSessionsJson</string>
+    
+    <!-- Vote rank strings -->
+    <string name="voterank_none">NONE</string>
+    <string name="voterank_top20">TOP20</string>
+    <string name="voterank_top5">TOP5</string>
+    <string name="voterank_top1">TOP1</string>
     
     <string name="session_track_list_header_title">Session Tracks</string>
     <string name="sessions_in_track_list_header_title">Track Sessions</string>
