@@ -449,12 +449,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 		private boolean isSpeakerPhotoCached(String speakerPhotoName) {
 			boolean result = false;
 		
-			// 10-Jun-2010:  Bug fix: if external storage is not ready, getCachedPhotoName() returns
-			//		null which causes a NPE.
-			File photo = getCachedPhotoName(speakerPhotoName);
-			if (photo != null) {
-				result = photo.exists();
-			}
+			result = getCachedPhotoName(speakerPhotoName).exists();
 			return result;
 		}
 		

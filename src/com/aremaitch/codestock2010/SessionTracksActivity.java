@@ -199,15 +199,15 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			holder.sessionid = ms.getId();
 			holder.sessionTitleTV.setText(ms.getSessionTitle());
 			
-			if (ms.getAward() == null) {
+			if (ms.getVoteRank() == null || ms.getVoteRank().equalsIgnoreCase(convertView.getContext().getString(R.string.voterank_none))) {
 				holder.awardIV.setVisibility(View.INVISIBLE);
-			} else 	if (ms.getAward().equalsIgnoreCase("top1")) {
+			} else 	if (ms.getVoteRank().equalsIgnoreCase(convertView.getContext().getString(R.string.voterank_top1))) {
 				holder.awardIV.setImageResource(R.drawable.top1);
 				holder.awardIV.setVisibility(View.VISIBLE);
-			} else if (ms.getAward().equalsIgnoreCase("top5")) {
+			} else if (ms.getVoteRank().equalsIgnoreCase(convertView.getContext().getString(R.string.voterank_top5))) {
 				holder.awardIV.setImageResource(R.drawable.top5);
 				holder.awardIV.setVisibility(View.VISIBLE);
-			} else if (ms.getAward().equalsIgnoreCase("top20")) {
+			} else if (ms.getVoteRank().equalsIgnoreCase(convertView.getContext().getString(R.string.voterank_top20))) {
 				holder.awardIV.setImageResource(R.drawable.top20);
 				holder.awardIV.setVisibility(View.VISIBLE);
 			}

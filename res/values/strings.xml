@@ -31,6 +31,8 @@
     <string name="json_data_rooms_url_v2">http://codestock.org/api/v2.0.svc/AllRoomsJson</string>
     <string name="json_data_speakers_url_v2">http://codestock.org/api/v2.0.svc/AllSpeakersJson</string>
     <string name="json_data_sessions_url_v2">http://codestock.org/api/v2.0.svc/AllSessionsJson</string>
+    <string name="schedule_builder_url">http://codestock.org/api/v2.0.svc/GetScheduleJson</string>
+    <string name="schedule_builder_parameter">ScheduleID</string>
     
     <!-- Vote rank strings -->
     <string name="voterank_none">NONE</string>
@@ -59,4 +61,7 @@
 	
 	<string name="about_intent_action">com.aremaitch.codestock2010.DISPLAY_ABOUT</string>
 	<string name="about_intent_category">android.intent.category.DEFAULT</string>
+	
+	<string name="mysessions_intent_action">com.aremaitch.codestock2010.DISPLAY_MY_SESSIONS</string>
+	<string name="mysessions_intent_cateogry">android.intent.category.DEFAULT</string>
 </resources>

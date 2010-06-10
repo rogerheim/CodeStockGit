@@ -281,6 +281,10 @@ public class StartActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(getString(R.string.logging_tag), "Starred button onClick");
+				Intent i = new Intent();
+				i.setAction(getString(R.string.mysessions_intent_action))
+					.addCategory(Intent.CATEGORY_DEFAULT);
+				startActivity(i);
 				
 			}
 		});

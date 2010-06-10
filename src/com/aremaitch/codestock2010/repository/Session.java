@@ -31,7 +31,7 @@ public class Session {
 	private Speaker speaker;
 	private ExperienceLevel generalExperienceLevel;
 	private ExperienceLevel specificExperienceLevel;
-	private String award;
+//	private String award;
 	private String technologies;
 	private Calendar startDate;
 	private Calendar endDate;
@@ -89,12 +89,12 @@ public class Session {
 	public void setSpecificExperienceLevel(ExperienceLevel specificExperienceLevel) {
 		this.specificExperienceLevel = specificExperienceLevel;
 	}
-	public String getAward() {
-		return award;
-	}
-	public void setAward(String award) {
-		this.award = award;
-	}
+//	public String getAward() {
+//		return award;
+//	}
+//	public void setAward(String award) {
+//		this.award = award;
+//	}
 	public String getTechnologies() {
 		return technologies;
 	}

@@ -153,9 +153,10 @@ public class DataHelper {
 	public ArrayList<MiniSession> getListOfMiniSessions(long trackid) {
 		ArrayList<MiniSession> sessions = new ArrayList<MiniSession>();
 		
+		// 9-Jun-10: Changed 'award' to 'voterank'
 		Cursor c = null;
 		try {
-			c = this.db.rawQuery("select sessions.id, sessiontitle, award, startdatetime, room, speakers.speakername " +
+			c = this.db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername " +
 								"from " + SESSIONS_TABLE_NAME + 
 									" inner join " + SPEAKERS_TABLE_NAME + " on speakers.id = sessions.fkspeaker " +
 								"where fktrack = ? order by sessiontitle", 
@@ -164,7 +165,7 @@ public class DataHelper {
 				MiniSession s = new MiniSession();
 				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
 				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
-				s.setAward(c.getString(c.getColumnIndexOrThrow("award")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
 				
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
@@ -207,7 +208,7 @@ public class DataHelper {
 				result.setSpeaker(getSpeaker(c.getLong(c.getColumnIndexOrThrow("fkspeaker"))));
 				result.setGeneralExperienceLevel(getXPLevel(c.getLong(c.getColumnIndexOrThrow("fkgeneralxplevel"))));
 				result.setSpecificExperienceLevel(getXPLevel(c.getLong(c.getColumnIndexOrThrow("fkspecificxplevel"))));
-				result.setAward(c.getString(c.getColumnIndexOrThrow("award")));
+//				result.setAward(c.getString(c.getColumnIndexOrThrow("award")));
 				result.setTechnologies(c.getString(c.getColumnIndexOrThrow("technologies")));
 				calStart.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
 				result.setStartDate(calStart);
@@ -388,7 +389,7 @@ public class DataHelper {
 		newRow.put("fkspeaker", getOrAddSpeaker(newSession.getSpeaker()));
 		newRow.put("fkgeneralxplevel", getOrAddXPLevel(newSession.getGeneralExperienceLevel()));
 		newRow.put("fkspecificxplevel", getOrAddXPLevel(newSession.getSpecificExperienceLevel()));
-		newRow.put("award", newSession.getAward());
+//		newRow.put("award", newSession.getAward());
 		newRow.put("technologies", newSession.getTechnologies());
 		newRow.put("startdatetime", String.valueOf(newSession.getStartDate().getTimeInMillis()));
 		newRow.put("enddatetime", String.valueOf(newSession.getEndDate().getTimeInMillis()));
