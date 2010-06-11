@@ -21,10 +21,13 @@ package com.aremaitch.codestock2010;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +43,8 @@ import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 //	Theme.NoTitleBar hides the app's title bar.
 //	Theme.NoTitleBar.Fullscreen also covers the notification bar.
@@ -278,14 +283,19 @@ public class StartActivity extends Activity {
 		ImageButton starredButton = (ImageButton) findViewById(R.id.starred_imagebutton);
 		starredButton.setOnClickListener(new OnClickListener() {
 			
+			//	This works however, after the scan an error occurs in MySessionsActivity.
+			//	Running it again (after the userid has been pref'd) results in no error.
 			@Override
 			public void onClick(View v) {
 				Log.i(getString(R.string.logging_tag), "Starred button onClick");
-				Intent i = new Intent();
-				i.setAction(getString(R.string.mysessions_intent_action))
-					.addCategory(Intent.CATEGORY_DEFAULT);
-				startActivity(i);
-				
+				SharedPreferences settings = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE);
+				long userid = settings.getLong("userid", 0);
+				if (userid == 0) {
+					promptUserToScanQRCode();
+				} else {
+					startMySessions(userid);
+				}
+			
 			}
 		});
 		
@@ -314,8 +324,60 @@ public class StartActivity extends Activity {
 			}
 		});
 	}
-
 	
+	private void promptUserToScanQRCode() {
+		
+		// This dialog doesn't show until onCreate() shows.
+
+		new AlertDialog.Builder(this).setCancelable(false)
+			.setMessage("To use My Sessions you need to first build your schedule using the CodeStock website. " +
+				 "The web site will show you a QR barcode you can scan that will link it with your phone. "	 +
+				 "Note that you need a free barcode scanning app on your phone, which you will be prompted to "	 +
+				 "download if you don't have it. Do you want to continue?")
+			.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			})
+			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog,	int which) {
+					IntentIntegrator.initiateScan(StartActivity.this);
+					dialog.dismiss();
+				}
+			})
+			.setTitle("Schedule Builder")
+			.show();
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+		if (scanResult != null) {
+			//	result should be the url: http://codestock.org/ViewSchedule.aspx?id=111
+			//	find the last position of 'id=', bump by 3 to point to number, then parse it to a long.
+			String result = scanResult.getContents();
+			if (!TextUtils.isEmpty(result)) {
+				Long userid = Long.parseLong(result.substring(result.lastIndexOf("id=") + 3));
+				SharedPreferences.Editor editor = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE).edit();
+				editor.putLong("userid", userid);
+				editor.commit();
+				startMySessions(userid);
+			}
+		}
+	}
+
+	private void startMySessions(long userid) {
+		Intent i = new Intent();
+		i.setAction(getString(R.string.mysessions_intent_action))
+			.addCategory(Intent.CATEGORY_DEFAULT)
+			.putExtra("userid", userid);
+		startActivity(i);
+		
+
+	}
 //	private class InitializeJodaAsync extends AsyncTask<Void, Void, Void >{
 //		ProgressDialog progress = null;
 //		Activity _act = null;

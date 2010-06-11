@@ -30,6 +30,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 //	8-Jun-10	Updated to version 2 for VoteRank in session table and add
@@ -182,6 +183,50 @@ public class DataHelper {
 		}
 		return sessions;
 	}
+	
+	public ArrayList<MiniSession> getListOfMiniSessionsFromListOfIDS(ArrayList<Long> listOfIds) {
+		ArrayList<MiniSession> sessions = new ArrayList<MiniSession>();
+		
+		Cursor c = null;
+		try {
+			c = db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername from sessions inner join speakers on speakers.id = sessions.fkspeaker " +
+					"where sessions.id in (" + TextUtils.join(",", listOfIds) + ") order by startdatetime", null);
+			while (c.moveToNext()) {
+				MiniSession s = new MiniSession();
+				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
+				s.setStartDateTime(cal);
+				
+				s.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				s.setSpeakerName(c.getString(c.getColumnIndexOrThrow("speakername")));
+				sessions.add(s);
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		
+		
+		
+		return sessions;
+	}
+	
+//	private String toInPhrase(ArrayList<Long> theList) {
+//		StringBuilder work = new StringBuilder();
+//		String result = "";
+//		for (Long l : theList) {
+//			work.append(l).append(',');
+//		}
+//		result = work.toString();
+//		
+//		return TextUtils.join(",", theList);
+//	
+//	}
 	
 	/**
 	 * Returns full details about a session.

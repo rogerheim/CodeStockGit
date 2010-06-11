@@ -48,14 +48,14 @@ public class ScheduleBuilder {
 		_builderID = builderID;
 	}
 	
-	public List<Long> getBuiltSchedule() {
+	public ArrayList<Long> getBuiltSchedule() {
 		ArrayList<Long> result = new ArrayList<Long>();
 		
 		JsonParser jp = null;
 		JsonFactory f = new JsonFactory();
 		
 		try {
-			URL theUrl = new URL(scheduleBuilderURL + "/" + scheduleBuilderSvc + "?" + Long.toString(this._builderID));
+			URL theUrl = new URL(scheduleBuilderURL + "?" + scheduleBuilderSvc + "=" + Long.toString(this._builderID));
 			
 			jp = f.createJsonParser(theUrl);
 			
