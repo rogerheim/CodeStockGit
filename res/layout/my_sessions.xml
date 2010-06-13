@@ -46,7 +46,8 @@
 		
 	</RelativeLayout>
 	
-	<ViewFlipper
+	<!-- Uses my own overload of ViewFlipper to workaround Android issue 6191 -->
+	<com.aremaitch.codestock2010.MyViewFlipper
 		android:id="@+id/my_sessions_flipper"
 		android:layout_width="fill_parent"
 		android:layout_height="0dp"
@@ -57,7 +58,7 @@
 		<include layout="@layout/my_sessions_flipper_contents" android:id="@+id/my_sessions_day_2"/>
 		<!-- my_sessions_flipper_contents will be inflated here twice; once for each day -->
 		
-	</ViewFlipper>
+	</com.aremaitch.codestock2010.MyViewFlipper>
 	
 	<RelativeLayout
 		android:background="@color/DodgerBlue"

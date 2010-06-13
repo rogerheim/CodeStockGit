@@ -77,10 +77,13 @@ public class StartActivity extends Activity {
 		
 		wireupListeners();
 		
+		
 		DataHelper localdh = new DataHelper(this);
+		boolean databaseIsEmpty = localdh.isDatabaseEmpty();
+		localdh.close();
 		//	If the database is empty and we are not curently loading it, ask the user if they
 		//	want to load it.
-		if (localdh.isDatabaseEmpty() && !isDataLoading()) {
+		if (databaseIsEmpty && !isDataLoading()) {
 			new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setMessage(getString(R.string.empty_db_msg))
@@ -96,11 +99,11 @@ public class StartActivity extends Activity {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
 						((CodeStockApp)getApplication()).pushTask(DOWNLOAD_TASK_KEY, 
 								new RefreshCodeStockData(StartActivity.this).execute());
 //						RefreshCodeStockData task = new RefreshCodeStockData();
 //						task.execute();
-						dialog.dismiss();
 					}
 				})
 				.setTitle(getString(R.string.app_name))
@@ -345,8 +348,8 @@ public class StartActivity extends Activity {
 
 				@Override
 				public void onClick(DialogInterface dialog,	int which) {
-					IntentIntegrator.initiateScan(StartActivity.this);
 					dialog.dismiss();
+					IntentIntegrator.initiateScan(StartActivity.this);
 				}
 			})
 			.setTitle("Schedule Builder")
