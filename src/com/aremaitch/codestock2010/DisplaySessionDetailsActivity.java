@@ -449,7 +449,10 @@ public class DisplaySessionDetailsActivity extends Activity {
 		private boolean isSpeakerPhotoCached(String speakerPhotoName) {
 			boolean result = false;
 		
-			result = getCachedPhotoName(speakerPhotoName).exists();
+			File photo = getCachedPhotoName(speakerPhotoName);
+			if (photo != null) {
+				result = photo.exists();
+			}
 			return result;
 		}
 		
@@ -458,6 +461,17 @@ public class DisplaySessionDetailsActivity extends Activity {
 			if (!cacheDirectory.exists()) {
 				result = cacheDirectory.mkdirs();
 			}
+			
+			//	Add a .nomedia file to the photo cache so the Gallery app does not index it.
+			File flag = new File(cacheDirectory, ".nomedia");
+			if (!flag.exists()) {
+				try {
+					flag.createNewFile();
+				} catch (IOException e) {
+					//	Not a fatal error; basically re-try on the next go round.
+				}
+			}
+			
 			return result;
 		}
 		

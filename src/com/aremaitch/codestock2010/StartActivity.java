@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.aremaitch.codestock2010.datadownloader.Downloader;
 import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
@@ -362,7 +363,14 @@ public class StartActivity extends Activity {
 			//	result should be the url: http://codestock.org/ViewSchedule.aspx?id=111
 			//	find the last position of 'id=', bump by 3 to point to number, then parse it to a long.
 			String result = scanResult.getContents();
-			if (!TextUtils.isEmpty(result)) {
+			if (!result.startsWith("http://codestock.org/ViewSchedule.aspx?id=")) {
+				Toast.makeText(this, 
+						"Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder", 
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
+			if (!TextUtils.isEmpty(result) && result.lastIndexOf("id=") != -1) {
 				Long userid = Long.parseLong(result.substring(result.lastIndexOf("id=") + 3));
 				SharedPreferences.Editor editor = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE).edit();
 				editor.putLong("userid", userid);

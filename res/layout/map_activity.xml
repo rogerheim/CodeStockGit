@@ -64,7 +64,7 @@
 				android:adjustViewBounds="false"
 				android:cropToPadding="false"
 				android:scaleType="matrix"
-				android:src="@drawable/conf_center_4thfloor_map"
+				android:src="@drawable/codestock_floorlayout"
 				/>
 		
 		</HorizontalScrollView>		

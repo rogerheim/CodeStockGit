@@ -43,8 +43,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.View.OnTouchListener;
+
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -56,13 +60,15 @@ import android.widget.ViewFlipper;
  * should be able to flip back and forth between the two day by flinging (it is a touchscreen
  * after all.)
  */
-public class MySessionsActivity extends Activity {
+public class MySessionsActivity extends Activity 
+		implements OnTouchListener, AdapterView.OnItemClickListener {
 	ViewFlipper flipper;
 	ArrayList<MiniSession> day1Sessions = null;
 	ArrayList<MiniSession> day2Sessions = null;
 	long userid = 0;
 	private SimpleDateFormat dateFormatter;
-
+	float downXValue;
+	int currentView = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +98,10 @@ public class MySessionsActivity extends Activity {
 		ListView day2LV = (ListView)day2View.findViewById(android.R.id.list);
 		
 		View day1ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
+		day1ViewHeader.setTag("day:friday");
 		View day2ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
+		day2ViewHeader.setTag("day:saturday");
+		
 		TextView tv1 = (TextView) day1ViewHeader.findViewById(R.id.my_sessions_listheader_date);
 		TextView tv2 = (TextView) day2ViewHeader.findViewById(R.id.my_sessions_listheader_date);
 		tv1.setText("Friday");
@@ -101,8 +110,13 @@ public class MySessionsActivity extends Activity {
 		//	Must add headerview before calling setAdapter()
 		day1LV.addHeaderView(day1ViewHeader);
 		day2LV.addHeaderView(day2ViewHeader);
+		day1LV.setOnItemClickListener(this);
+		day2LV.setOnItemClickListener(this);
+		
 		day1LV.setAdapter(new DayAdapter(this, day1Sessions));
 		day2LV.setAdapter(new DayAdapter(this, day2Sessions));
+		LinearLayout my_sessions_main = (LinearLayout) findViewById(R.id.my_sessions_main);
+		my_sessions_main.setOnTouchListener((OnTouchListener) this);
 	}
 	
 	
@@ -233,12 +247,57 @@ public class MySessionsActivity extends Activity {
 		ImageView awardIV;
 	}
 	
-	//	Technique from http://www.codeshogun.com/blog/2009/04/16/how-to-implement-swipe-action-in-android
-	class MyGestureDetector extends SimpleOnGestureListener {
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			return super.onFling(e1, e2, velocityX, velocityY);
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN: {
+				downXValue = event.getX();
+				break;
+			}
+			case MotionEvent.ACTION_UP: {
+				float currentX = event.getX();
+				if (downXValue < currentX && currentView == 1) {
+					flipViewBackToFriday();
+				} else if (downXValue > currentX && currentView == 0) {
+					flipViewToSaturday();
+				}
+				break;
+			}
 		}
+		return true;
+	}
+	
+	private void flipViewBackToFriday() {
+		flipper.setInAnimation(this, R.anim.slide_right_in);
+		flipper.setOutAnimation(this, R.anim.slide_right_out);
+		flipper.showPrevious();
+		currentView = 0;
+	}
+	
+	private void flipViewToSaturday() {
+		flipper.setInAnimation(this, R.anim.slide_left_in);
+		flipper.setOutAnimation(this, R.anim.slide_left_out);
+		flipper.showNext();
+		currentView = 1;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		//	If they click the day header, flip to the other day.
+		if (v instanceof LinearLayout) {
+			String tag = v.getTag().toString();
+			if (tag.equalsIgnoreCase("day:friday")) {
+				flipViewToSaturday();
+			} else if (tag.equalsIgnoreCase("day:saturday")) {
+				flipViewBackToFriday();
+			}
+			return;
+		}
+		
+		//	Otherwise, show the details about the selected session.
+		startActivity(new Intent()
+			.setAction(getString(R.string.session_details_intent_action))
+			.addCategory(Intent.CATEGORY_DEFAULT)
+			.putExtra(getString(R.string.session_details_intent_sessionid), id));
 	}
 }
