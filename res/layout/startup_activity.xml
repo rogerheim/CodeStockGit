@@ -65,6 +65,8 @@
 		>
 		
 		<TableRow
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
 			>
 			<ImageButton
 				android:id="@+id/schedule_imagebutton"
@@ -72,7 +74,7 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="20dp"
+				android:layout_marginRight="20dp"
 				/>
 			<ImageButton
 				android:id="@+id/map_imagebutton"
@@ -80,12 +82,14 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
+				android:layout_marginLeft="20dp"
 				/>
 		</TableRow>
 		
 		<TableRow
 			android:layout_marginTop="25dp"
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
 			>
 			<ImageButton
 				android:id="@+id/sessions_imagebutton"
@@ -93,7 +97,7 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="20dp"
+				android:layout_marginRight="20dp"
 				/>
 			<ImageButton
 				android:id="@+id/starred_imagebutton"
@@ -101,28 +105,22 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
+				android:layout_marginLeft="20dp"
 				/>
 		</TableRow>
 		
 		<TableRow
 			android:layout_marginTop="25dp"
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
 			>
-			<ImageButton
-				android:id="@+id/mynotes_imagebutton"
-				android:src="@drawable/mynotes_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="20dp"
-				/>
 			<ImageButton
 				android:id="@+id/credits_imagebutton"
 				android:src="@drawable/credits_icon"
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
+				android:layout_marginLeft="10dp"
 				/>
 		</TableRow>
 	</TableLayout>

@@ -59,76 +59,74 @@
 			
 	</RelativeLayout>
 		  
-
-	<TableLayout
+	<RelativeLayout
+		android:gravity="center"
 		android:background="@color/White"
 		android:layout_weight="1"
 		android:layout_width="fill_parent"
-		android:layout_height="0px"
-		android:layout_marginTop="3dp"
-		android:layout_marginBottom="3dp"
-		android:layout_marginLeft="25dp"
-		android:layout_marginRight="25dp"
+		android:layout_height="0dp"
 		>
-		
-		<TableRow
-			>
-			<ImageButton
-				android:id="@+id/schedule_imagebutton"
-				android:src="@drawable/schedule_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="30dp"
-				/>
-			<ImageButton
-				android:id="@+id/map_imagebutton"
-				android:src="@drawable/map_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
-				/>
-			<ImageButton
-				android:id="@+id/sessions_imagebutton"
-				android:src="@drawable/sessions_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
-				/>
-		</TableRow>
-		
-		<TableRow
-			android:layout_marginTop="5dp"
-			>
-			<ImageButton
-				android:id="@+id/starred_imagebutton"
-				android:src="@drawable/starred_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="30dp"
-				/>
-			<ImageButton
-				android:id="@+id/mynotes_imagebutton"
-				android:src="@drawable/mynotes_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
-				/>
-			<ImageButton
-				android:id="@+id/credits_imagebutton"
-				android:src="@drawable/credits_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
-				/>
-		</TableRow>
-		
-	</TableLayout>
+	
+		<!-- Column 1 -->
+		<ImageButton
+			android:id="@+id/schedule_imagebutton"
+			android:src="@drawable/schedule_icon"
+			android:background="@color/White"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_marginRight="20dp"
+			/>
+		<ImageButton
+			android:id="@+id/sessions_imagebutton"
+			android:src="@drawable/sessions_icon"
+			android:background="@color/White"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_marginRight="20dp"
+			android:layout_marginTop="3dp"
+			android:layout_below="@id/schedule_imagebutton"
+			android:layout_alignLeft="@id/schedule_imagebutton"
+			/>
+
+		<!-- Column 2 -->
+		<ImageButton
+			android:id="@+id/map_imagebutton"
+			android:src="@drawable/map_icon"
+			android:background="@color/White"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_marginLeft="20dp"
+			android:layout_marginRight="20dp"
+			android:layout_toRightOf="@id/schedule_imagebutton"
+			/>
+		<ImageButton
+			android:id="@+id/starred_imagebutton"
+			android:src="@drawable/starred_icon"
+			android:background="@color/White"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_marginLeft="20dp"
+			android:layout_marginRight="20dp"
+			android:layout_marginTop="3dp"
+			android:layout_below="@id/map_imagebutton"
+			android:layout_toRightOf="@id/sessions_imagebutton"
+			/>
+
+		<!-- Column 3 -->
+		<ImageButton
+			android:layout_centerInParent="true"
+			android:id="@+id/credits_imagebutton"
+			android:src="@drawable/credits_icon"
+			android:background="@color/White"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_marginLeft="20dp"
+			android:layout_toRightOf="@id/map_imagebutton"
+			/>
+
+	</RelativeLayout>
+	
+	
 	
 	<!-- Footer  -->
 	<LinearLayout

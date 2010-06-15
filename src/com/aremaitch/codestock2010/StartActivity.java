@@ -304,15 +304,6 @@ public class StartActivity extends Activity {
 		});
 		
 		
-		ImageButton mynotesButton = (ImageButton) findViewById(R.id.mynotes_imagebutton);
-		mynotesButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "MyNotes button onClick");
-				
-			}
-		});
 		
 		
 		ImageButton creditsButton = (ImageButton) findViewById(R.id.credits_imagebutton);
