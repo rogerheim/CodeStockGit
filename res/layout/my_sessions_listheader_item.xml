@@ -21,19 +21,35 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="25dp"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
 	android:background="@color/LightGray"
 	>
 	
-	<TextView
-		android:id="@+id/my_sessions_listheader_date"
+	<ImageButton
+		android:id="@+id/hide_my_session_back_button"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_vertical"
-		android:layout_marginLeft="10dp"
-		android:textColor="@color/Black"
-		
-		android:text="Fri, Jun 25, 2010"
+		android:layout_height="40dp"
+		android:src="@drawable/ic_menu_back"
+		android:scaleType="fitXY"
 		/>
 		
+	<TextView
+		android:id="@+id/hide_my_sessions_listheader_date"
+		android:layout_width="0dp"
+		android:layout_weight="1"
+		android:layout_height="40dp"
+		android:layout_marginLeft="10dp"
+		android:textColor="@color/Black"
+		android:text="Fri, Jun 25, 2010"
+		android:gravity="center"
+		/>
+	
+	<ImageButton
+		android:id="@+id/hide_my_sessions_forward_button"
+		android:layout_width="wrap_content"
+		android:layout_height="40dp"
+		android:src="@drawable/ic_menu_forward"
+		android:scaleType="fitXY"
+		/>
 </LinearLayout>

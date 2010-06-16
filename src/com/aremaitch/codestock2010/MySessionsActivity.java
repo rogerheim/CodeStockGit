@@ -43,10 +43,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -97,19 +99,52 @@ public class MySessionsActivity extends Activity
 		ListView day1LV = (ListView)day1View.findViewById(android.R.id.list);
 		ListView day2LV = (ListView)day2View.findViewById(android.R.id.list);
 		
-		View day1ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
-		day1ViewHeader.setTag("day:friday");
-		View day2ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
-		day2ViewHeader.setTag("day:saturday");
+//		View day1ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
+//		day1ViewHeader.setTag("day:friday");
+//		View day2ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
+//		day2ViewHeader.setTag("day:saturday");
 		
-		TextView tv1 = (TextView) day1ViewHeader.findViewById(R.id.my_sessions_listheader_date);
-		TextView tv2 = (TextView) day2ViewHeader.findViewById(R.id.my_sessions_listheader_date);
+		TextView tv1 = (TextView) day1View.findViewById(R.id.my_sessions_header_date);
+		TextView tv2 = (TextView) day2View.findViewById(R.id.my_sessions_header_date);
 		tv1.setText("Friday");
 		tv2.setText("Saturday");
 		
+		ImageButton nextButton0 = (ImageButton)day1View.findViewById(R.id.my_sessions_forward_button);
+		nextButton0.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				flipViewToSaturday();
+			}
+		});
+		ImageButton prevButton0 = (ImageButton)day1View.findViewById(R.id.my_sessions_back_button);
+		prevButton0.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// Do nothing; don't flip backwards from Friday.
+			}
+		});
+		ImageButton nextButton1 = (ImageButton)day2View.findViewById(R.id.my_sessions_forward_button);
+		nextButton1.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// Do nothing; don't flip forwards from Saturday.
+			}
+		});
+		ImageButton prevButton1 = (ImageButton)day2View.findViewById(R.id.my_sessions_back_button);
+		prevButton1.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				flipViewBackToFriday();
+			}
+		});
+		
 		//	Must add headerview before calling setAdapter()
-		day1LV.addHeaderView(day1ViewHeader);
-		day2LV.addHeaderView(day2ViewHeader);
+//		day1LV.addHeaderView(day1ViewHeader);
+//		day2LV.addHeaderView(day2ViewHeader);
 		day1LV.setOnItemClickListener(this);
 		day2LV.setOnItemClickListener(this);
 		
