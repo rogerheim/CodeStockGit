@@ -246,11 +246,17 @@ public class StartActivity extends Activity {
 	
 	
 	private void wireupListeners() {
+		//	Agenda
 		ImageButton scheduleButton = (ImageButton) findViewById(R.id.schedule_imagebutton);
 		scheduleButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Log.i(getString(R.string.logging_tag), "Schedule button onClick");
+				startActivity(
+						new Intent()
+							.setAction(getString(R.string.agenda_intent_action))
+							.addCategory(Intent.CATEGORY_DEFAULT));
+				
 			}
 		});
 		

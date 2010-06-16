@@ -64,4 +64,7 @@
 	
 	<string name="mysessions_intent_action">com.aremaitch.codestock2010.DISPLAY_MY_SESSIONS</string>
 	<string name="mysessions_intent_cateogry">android.intent.category.DEFAULT</string>
+	
+	<string name="agenda_intent_action">com.aremaitch.codestock2010.DISPLAY_AGENDA</string>
+	<string name="agenda_intent_category">android.intent.category.DEFAULT</string>
 </resources>

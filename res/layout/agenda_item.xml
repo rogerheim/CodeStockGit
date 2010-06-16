@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="65dp"
+	android:paddingTop="8dp"
+	android:paddingBottom="8dp">
+	
+	<ImageView
+		android:id="@+id/agenda_item_session_award"
+		android:layout_width="47px"
+		android:layout_height="65px"
+		android:scaleType="centerInside"
+		/>
+		
+	<TextView
+		android:id="@+id/agenda_item_session_title"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/agenda_item_session_award"
+		android:layout_marginRight="10dp"
+		android:textSize="16sp"
+		android:textColor="@color/Black"
+		/>
+
+	<TextView
+		android:id="@+id/agenda_item_presentedby"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/agenda_item_session_title"
+		android:layout_alignLeft="@id/agenda_item_session_title"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:textStyle="italic"
+		android:text="Presented by: "
+		/>
+		
+	<TextView
+		android:id="@+id/agenda_item_speaker_name"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/agenda_item_session_title"
+		android:layout_toRightOf="@id/agenda_item_presentedby"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:text="Speaker Name"
+		/>
+
+	<TextView
+		android:id="@+id/agenda_item_room_label"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/agenda_item_presentedby"
+		android:layout_alignLeft="@id/agenda_item_presentedby"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:textStyle="italic"
+		android:text="Room:"
+		/>
+		
+	<TextView
+		android:id="@+id/agenda_item_room"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/agenda_item_room_label"
+		android:layout_below="@id/agenda_item_presentedby"
+		android:textSize="12sp"
+		android:textColor="@color/Black"
+		android:text="CS-101"
+		/>
+</RelativeLayout>

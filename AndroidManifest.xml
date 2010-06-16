@@ -65,6 +65,13 @@
         		<category android:name="android.intent.category.DEFAULT"/>
         	</intent-filter>
         </activity>
+        
+        <activity android:name=".AgendaActivity">
+			<intent-filter>
+				<action android:name="com.aremaitch.codestock2010.DISPLAY_AGENDA"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>        
+        </activity>
     </application>
     <uses-sdk android:minSdkVersion="3" />
 

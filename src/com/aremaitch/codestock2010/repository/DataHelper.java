@@ -184,6 +184,82 @@ public class DataHelper {
 		return sessions;
 	}
 	
+	/**
+	 * Returns a list of sessions in a specific timeslot.
+	 * @param
+	 * desiredTimeSlot <br>A Calendar object containing the desired timeslot.
+	 * @return An ArrayList&lt;AgendaSession&gt; containing the sessions sorted by room number
+	 * or an empty ArrayList if there are no sessions in the desired timeslot.
+	 */
+	public ArrayList<AgendaSession> getAgendaSessionsInTimeslot(Calendar desiredTimeSlot) {
+		ArrayList<AgendaSession> sessions = new ArrayList<AgendaSession>();
+		
+		Cursor c = null;
+		try {
+			c = db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername, " +
+					"tracks.tracktitle " +
+					"from sessions inner join speakers on speakers.id = sessions.fkspeaker, " +
+					"tracks on tracks.id = sessions.fktrack " +
+					"where startdatetime = ? " +
+					"order by room", new String[] {Long.toString(desiredTimeSlot.getTimeInMillis())});
+			while (c.moveToNext()) {
+				AgendaSession s = new AgendaSession();
+				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
+				s.setStartDateTime(cal);
+				
+				s.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				s.setSpeakerName(c.getString(c.getColumnIndexOrThrow("speakername")));
+				s.setTrackName(c.getString(c.getColumnIndexOrThrow("tracktitle")));
+				sessions.add(s);
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		return sessions;
+	}
+
+	
+	public ArrayList<AgendaSession> getListOfAgendaSessionsChronologically() {
+		ArrayList<AgendaSession> sessions = new ArrayList<AgendaSession>();
+		
+		Cursor c = null;
+		try {
+			c = db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername, " +
+					"tracks.tracktitle " +
+					"from sessions inner join speakers on speakers.id = sessions.fkspeaker, " +
+					"tracks on tracks.id = sessions.fktrack " +
+					"order by startdatetime, room", null);
+			while (c.moveToNext()) {
+				AgendaSession s = new AgendaSession();
+				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
+				s.setStartDateTime(cal);
+				
+				s.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				s.setSpeakerName(c.getString(c.getColumnIndexOrThrow("speakername")));
+				s.setTrackName(c.getString(c.getColumnIndexOrThrow("tracktitle")));
+				sessions.add(s);
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		return sessions;
+	}
+
+	
 	public ArrayList<MiniSession> getListOfMiniSessionsFromListOfIDS(ArrayList<Long> listOfIds) {
 		ArrayList<MiniSession> sessions = new ArrayList<MiniSession>();
 		
