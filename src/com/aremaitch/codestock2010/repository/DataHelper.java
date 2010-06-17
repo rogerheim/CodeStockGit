@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.aremaitch.utils.ACLogger;
+
 //import org.joda.time.DateTime;
 //import org.joda.time.format.ISODateTimeFormat;
 
@@ -451,7 +453,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted experience level.
 	 */
 	public long insertXPLevel(ExperienceLevel newLevel) {
-		Log.v(LOG_TAG, "insertXPLevel:" + newLevel.getLevelName());
+		ACLogger.verbose(LOG_TAG, "insertXPLevel:" + newLevel.getLevelName());
 		ContentValues newRow = new ContentValues();
 		newRow.put("levelname", newLevel.getLevelName());
 		return db.insert(XPLEVELS_TABLE_NAME, null, newRow);
@@ -463,7 +465,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted track.
 	 */
 	public long insertTrack(Track newTrack) {
-		Log.v(LOG_TAG, "insertTrack:" + newTrack.getTrackTitle());
+		ACLogger.verbose(LOG_TAG, "insertTrack:" + newTrack.getTrackTitle());
 		ContentValues newRow = new ContentValues();
 		newRow.put("tracktitle", newTrack.getTrackTitle());
 		return db.insert(TRACKS_TABLE_NAME, null, newRow);
@@ -475,7 +477,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted speaker.
 	 */
 	public long insertSpeaker(Speaker newSpeaker) {
-		Log.v(LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
+		ACLogger.verbose(LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
 		ContentValues newRow = new ContentValues();
 		
 		//	Speaker ID is now set by the host service
@@ -497,7 +499,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted session.
 	 */
 	public long insertSession(Session newSession) {
-		Log.v(LOG_TAG, "insertSession:" + newSession.getSessionTitle());
+		ACLogger.verbose(LOG_TAG, "insertSession:" + newSession.getSessionTitle());
 		ContentValues newRow = new ContentValues();
 		
 		//	Session ID is now set by the host service
@@ -535,7 +537,7 @@ public class DataHelper {
 	 * Drops all data and tables from the database.
 	 */
 	public void clearAllData() {
-		Log.v(LOG_TAG, "Clearing data");
+		ACLogger.verbose(LOG_TAG, "Clearing data");
 		db.delete(SESSIONS_TABLE_NAME, null, null);
 		db.delete(SPEAKERS_TABLE_NAME, null, null);
 		db.delete(TRACKS_TABLE_NAME, null, null);
@@ -658,7 +660,7 @@ public class DataHelper {
 		public void onCreate(SQLiteDatabase db) {
 			// Called to create the database
 			// Actually by this point the db already exists; we must need to create the tables.
-			Log.v(LOG_TAG, "OpenHelper.onCreate");
+			ACLogger.verbose(LOG_TAG, "OpenHelper.onCreate");
 
 			ArrayList<StringBuilder> tables = new ArrayList<StringBuilder>();
 			ArrayList<StringBuilder> indexes = new ArrayList<StringBuilder>();
@@ -737,7 +739,7 @@ public class DataHelper {
 		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.v(LOG_TAG, "OpenHelper.onUpgrade");
+			ACLogger.verbose(LOG_TAG, "OpenHelper.onUpgrade");
 			db.execSQL("drop table if exists " + SESSIONS_TABLE_NAME);
 			db.execSQL("drop table if exists " + SPEAKERS_TABLE_NAME);
 			db.execSQL("drop table if exists " + TRACKS_TABLE_NAME);

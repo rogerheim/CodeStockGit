@@ -35,7 +35,9 @@ import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
+import com.aremaitch.utils.ACLogger;
 
+@Deprecated
 public class Downloader {
 	Context context = null;
 	String url = "";
@@ -308,7 +310,7 @@ public class Downloader {
 			String sFieldName = jp.getCurrentName();
 
 			if (sFieldName == null) {
-				Log.e("parseSpeaker", "sFieldName is null");
+				ACLogger.error("parseSpeaker", "sFieldName is null");
 			}
 			if (sFieldName.equalsIgnoreCase("__type")) {
 				jp.nextToken();

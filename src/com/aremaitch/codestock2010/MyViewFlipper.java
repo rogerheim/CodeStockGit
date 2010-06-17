@@ -16,6 +16,8 @@
 
 package com.aremaitch.codestock2010;
 
+import com.aremaitch.utils.ACLogger;
+
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -41,7 +43,7 @@ public class MyViewFlipper extends ViewFlipper {
 			try {
 				super.onDetachedFromWindow();
 			} catch (IllegalArgumentException e) {
-				Log.w("MyViewFlipper", "Android project issue 6191 workaround");
+				ACLogger.warn("MyViewFlipper", "Android project issue 6191 workaround");
 			} finally {
 				super.stopFlipping();
 			}

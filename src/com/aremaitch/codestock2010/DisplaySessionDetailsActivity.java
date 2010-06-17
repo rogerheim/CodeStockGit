@@ -54,6 +54,7 @@ import android.widget.TextView;
 
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.Session;
+import com.aremaitch.utils.ACLogger;
 
 public class DisplaySessionDetailsActivity extends Activity {
 
@@ -392,7 +393,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 				}
 			} catch (MalformedURLException e) {
 				photo = null;
-				Log.e(getString(R.string.logging_tag), "Bad speaker photo url");
+				ACLogger.error(getString(R.string.logging_tag), "Bad speaker photo url");
 			}
 			return photo;
 		}
@@ -508,9 +509,9 @@ public class DisplaySessionDetailsActivity extends Activity {
 				}
 				
 			} catch (SocketTimeoutException e) {
-				Log.i(getString(R.string.logging_tag), "Timeout getting speaker photo");
+				ACLogger.info(getString(R.string.logging_tag), "Timeout getting speaker photo");
 			} catch (Exception e) {
-				Log.e(getString(R.string.logging_tag), "Error getting speaker photo");
+				ACLogger.error(getString(R.string.logging_tag), "Error getting speaker photo");
 			} finally {
 				if (bis != null) {
 					try {

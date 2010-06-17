@@ -37,6 +37,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
+import com.aremaitch.utils.ACLogger;
 
 //	Orientation change fires onPause, then onCreate, then onStart.
 //	Going to a new activity fires onPause then onStop. On return, onStart will be called
@@ -52,7 +53,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.v(this.getString(R.string.logging_tag), "SessionTracksActivity.onCreate");
+		ACLogger.verbose(this.getString(R.string.logging_tag), "SessionTracksActivity.onCreate");
 		
 		super.onCreate(savedInstanceState);
 
@@ -97,7 +98,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onPause() {
-		Log.v(getString(R.string.logging_tag), "SessionTracksActivity.onPause");
+		ACLogger.verbose(getString(R.string.logging_tag), "SessionTracksActivity.onPause");
 		super.onPause();
 		
 		//	Don't close the db onPause() but do close it onStop();
@@ -105,7 +106,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onStart() {
-		Log.v(getString(R.string.logging_tag), "SessionTracksActivity.onStart");
+		ACLogger.verbose(getString(R.string.logging_tag), "SessionTracksActivity.onStart");
 		super.onStart();
 
 		createDataHelperIfNeeded();
@@ -155,7 +156,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
 		@Override
 		public Object getChild(int groupPosition, int childPosition) {
-//			Log.v(savedContext.getString(R.string.logging_tag), "getChild");
+//			ACLogger.verbose(savedContext.getString(R.string.logging_tag), "getChild");
 			Track selectedTrack = sessionTracks.get(groupPosition);
 			if (selectedTrack.getMiniSessions() == null) {
 				return null;
@@ -166,7 +167,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
 		@Override
 		public long getChildId(int groupPosition, int childPosition) {
-//			Log.v(savedContext.getString(R.string.logging_tag), "getChildId");
+//			ACLogger.verbose(savedContext.getString(R.string.logging_tag), "getChildId");
 			Track selectedTrack = sessionTracks.get(groupPosition);
 			if (selectedTrack.getMiniSessions() == null) {
 				return -1;
@@ -179,7 +180,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		@Override
 		public View getChildView(int groupPosition, int childPosition,
 				boolean isLastChild, View convertView, ViewGroup parent) {
-//			Log.v(savedContext.getString(R.string.logging_tag), "getChildView");
+//			ACLogger.verbose(savedContext.getString(R.string.logging_tag), "getChildView");
 			
 			SessionViewHolder holder;
 			MiniSession ms = sessionTracks.get(groupPosition).getMiniSessions().get(childPosition);
@@ -231,7 +232,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		public int getChildrenCount(int groupPosition) {
 			//NOTE: getChildrenCount() is called before onGroupExpanded() fires!
 			//		If this returns zero then none of the other getChild* methods fire.
-//			Log.v(savedContext.getString(R.string.logging_tag), "getChildrenCount");
+//			ACLogger.verbose(savedContext.getString(R.string.logging_tag), "getChildrenCount");
 			Track selectedTrack = sessionTracks.get(groupPosition);
 			if (selectedTrack.getMiniSessions() == null) {
 				selectedTrack.setMiniSessions(getSessionsInTrack(selectedTrack.getId()));

@@ -80,8 +80,8 @@ public class DownloaderV2 {
 		
 		//	not actually using room data
 		try {
-		getSpeakerData(this.speakersUrl);
-		getSessionData(this.sessionsUrl);
+			getSpeakerData(this.speakersUrl);
+			getSessionData(this.sessionsUrl);
 		} catch (Exception ex) {
 			result = false;
 		}

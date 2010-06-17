@@ -44,6 +44,7 @@ import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
+import com.aremaitch.utils.ACLogger;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -69,7 +70,7 @@ public class StartActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		//	Called once when the activity is started.
 		super.onCreate(savedInstanceState);
-		Log.v(getString(R.string.logging_tag), "StartActivity onCreate");
+		ACLogger.verbose(getString(R.string.logging_tag), "StartActivity onCreate");
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.startup_activity);
@@ -143,7 +144,7 @@ public class StartActivity extends Activity {
 		//	Called after onCreate() or after the application was previously not visible
 		//	(but still running) and is now visible.
 		super.onStart();
-		Log.v(getString(R.string.logging_tag), "StartActivity onStart");
+		ACLogger.verbose(getString(R.string.logging_tag), "StartActivity onStart");
 	}
 	
 	@Override
@@ -151,14 +152,14 @@ public class StartActivity extends Activity {
 		//	Called when another activity comes in front of this one. This activity may
 		//	still be visible but is no longer on top.
 		super.onPause();
-		Log.v(getString(R.string.logging_tag), "StartActivity onPause");
+		ACLogger.verbose(getString(R.string.logging_tag), "StartActivity onPause");
 	}
 
 	@Override
 	protected void onStop() {
 		//	Called when we are no longer visible.
 		super.onStop();
-		Log.v(getString(R.string.logging_tag), "StartActivity onStop");
+		ACLogger.verbose(getString(R.string.logging_tag), "StartActivity onStop");
 
 		clearActivityFromAsyncTasks();
 		
@@ -167,7 +168,7 @@ public class StartActivity extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Log.v(getString(R.string.logging_tag), "StartActivity onSaveInstanceState");
+		ACLogger.verbose(getString(R.string.logging_tag), "StartActivity onSaveInstanceState");
 		clearActivityFromAsyncTasks();
 		
 	}
@@ -176,7 +177,7 @@ public class StartActivity extends Activity {
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		//	This is called after onStart()
 		super.onRestoreInstanceState(savedInstanceState);
-		Log.v(getString(R.string.logging_tag), "StartActivity onRestoreInstanceState");
+		ACLogger.verbose(getString(R.string.logging_tag), "StartActivity onRestoreInstanceState");
 		assignActivityToAsyncTasks();
 	}
 	
@@ -204,7 +205,7 @@ public class StartActivity extends Activity {
 		
 		RefreshCodeStockData task1 = (RefreshCodeStockData)theApp.getTask(DOWNLOAD_TASK_KEY);
 		if (task1 != null) {
-			Log.v(getString(R.string.logging_tag), "Clearing download task activity");
+			ACLogger.verbose(getString(R.string.logging_tag), "Clearing download task activity");
 			task1.setActivity(null);
 		}
 		
@@ -216,7 +217,7 @@ public class StartActivity extends Activity {
 		
 		SessionDatabaseUpdater task3 = (SessionDatabaseUpdater)theApp.getTask(UPDATE_DB_TASK_KEY);
 		if (task3 != null) {
-			Log.v(getString(R.string.logging_tag), "Clearing update db task activity");
+			ACLogger.verbose(getString(R.string.logging_tag), "Clearing update db task activity");
 			task3.setActivity(null);
 		}
 	}
@@ -224,8 +225,8 @@ public class StartActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh_text)).setIcon(R.drawable.ic_menu_refresh);
-		menu.add(0, MENU_HOME, 0, getString(R.string.menu_home_text)).setIcon(R.drawable.ic_menu_home);
-		menu.add(0, MENU_SEARCH, 0, getString(R.string.menu_search_text)).setIcon(android.R.drawable.ic_menu_search);
+//		menu.add(0, MENU_HOME, 0, getString(R.string.menu_home_text)).setIcon(R.drawable.ic_menu_home);
+//		menu.add(0, MENU_SEARCH, 0, getString(R.string.menu_search_text)).setIcon(android.R.drawable.ic_menu_search);
 		return true;
 	}
 	
@@ -251,7 +252,7 @@ public class StartActivity extends Activity {
 		scheduleButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Schedule button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Schedule button onClick");
 				startActivity(
 						new Intent()
 							.setAction(getString(R.string.agenda_intent_action))
@@ -265,7 +266,7 @@ public class StartActivity extends Activity {
 		mapButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Map button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Map button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.conference_center_map_intent_action))
 					.addCategory(getString(R.string.conference_center_map_intent_category));
@@ -280,7 +281,7 @@ public class StartActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Sessions button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Sessions button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.sessions_intent_action))
 					.addCategory(getString(R.string.sessions_intent_category));
@@ -297,7 +298,7 @@ public class StartActivity extends Activity {
 			//	Running it again (after the userid has been pref'd) results in no error.
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Starred button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Starred button onClick");
 				SharedPreferences settings = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE);
 				long userid = settings.getLong("userid", 0);
 				if (userid == 0) {
@@ -317,7 +318,7 @@ public class StartActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Credits button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Credits button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.about_intent_action))
 					.addCategory(getString(R.string.about_intent_category));
@@ -359,21 +360,42 @@ public class StartActivity extends Activity {
 		if (scanResult != null) {
 			//	result should be the url: http://codestock.org/ViewSchedule.aspx?id=111
 			//	find the last position of 'id=', bump by 3 to point to number, then parse it to a long.
+			
+			//	17-Jun-10: In the emulator the call to initiateScan() returns immediately. scanResult is 
+			//				a valid object but getContents() returns null.
+			
 			String result = scanResult.getContents();
-			if (!result.startsWith("http://codestock.org/ViewSchedule.aspx?id=")) {
-				Toast.makeText(this, 
-						"Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder", 
-						Toast.LENGTH_SHORT).show();
+			if (TextUtils.isEmpty(result)) {
+//				Toast.makeText(this, "Scan results contents were empty; do you not have a camera?", Toast.LENGTH_SHORT).show();
 				return;
 			}
 			
-			if (!TextUtils.isEmpty(result) && result.lastIndexOf("id=") != -1) {
-				Long userid = Long.parseLong(result.substring(result.lastIndexOf("id=") + 3));
-				SharedPreferences.Editor editor = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE).edit();
-				editor.putLong("userid", userid);
-				editor.commit();
-				startMySessions(userid);
+			//	17-Jun-10:	Looks like the format of the link changed. I love moving targets.
+			if (result.toLowerCase().startsWith("http://codestock.org/viewschedule.aspx?id=")) {
+				parseWebsiteLink(result);
+				return;
 			}
+			
+			if (result.toLowerCase().startsWith("http://codestock.org/m/viewschedule.aspx?id=")) {
+				parseWebsiteLink(result);
+				return;
+			}
+			
+			Toast.makeText(this, 
+					"Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder", 
+					Toast.LENGTH_LONG).show();
+			return;
+			
+		}
+	}
+
+	private void parseWebsiteLink(String link) {
+		if (link.lastIndexOf("id=") != -1) {
+			Long userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
+			SharedPreferences.Editor editor = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE).edit();
+			editor.putLong("userid", userid);
+			editor.commit();
+			startMySessions(userid);
 		}
 	}
 

@@ -24,6 +24,7 @@ import com.aremaitch.codestock2010.datadownloader.ScheduleBuilder;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Session;
+import com.aremaitch.utils.ACLogger;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -77,7 +78,7 @@ public class MySessionsActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_sessions);
 
-		Log.d("MySessionsActivity", "onStart");
+		ACLogger.debug("MySessionsActivity", "onStart");
 		day1Sessions = new ArrayList<MiniSession>();
 		day2Sessions = new ArrayList<MiniSession>();
 		
