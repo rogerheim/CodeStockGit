@@ -18,8 +18,8 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.aremaitch.codestock2010"
-      android:versionCode="5"
-      android:versionName="1.0.0RC1">
+      android:versionCode="6"
+      android:versionName="1.0.0">
     <application android:name=".CodeStockApp"
     			android:icon="@drawable/nerdetteskull_2010_icon" android:label="@string/app_name"
     			android:theme="@android:style/Theme.NoTitleBar">
