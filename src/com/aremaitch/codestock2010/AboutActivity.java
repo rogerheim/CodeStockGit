@@ -26,19 +26,22 @@ import android.widget.TextView;
 public class AboutActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.about_activity);
-		
+
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.about_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText("");
 		
 		TextView versiontv = (TextView) this.findViewById(R.id.about_version);
 		try {
 			PackageManager pmgr = this.getPackageManager();
 			PackageInfo pi = pmgr.getPackageInfo(this.getPackageName(), 0);
 			
-			versiontv.setText("Version " + pi.versionName);
+			versiontv.setText(getString(R.string.about_version_template) + " " + pi.versionName);
 		} catch(Exception e) {
-			versiontv.setText("Unable to retrieve version");
+			versiontv.setText(getString(R.string.about_bad_version));
 		}
 	}
 }

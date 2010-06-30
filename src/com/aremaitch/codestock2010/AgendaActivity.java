@@ -77,10 +77,15 @@ public class AgendaActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.agenda_activity);
 		
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.agenda_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText("");
+		
 		buildSessionStartTimes();
 		
 		//	Format for listview header
-		dateFormatter = new SimpleDateFormat("EEEE, h:mm a");
+		dateFormatter = new SimpleDateFormat(getString(R.string.agenda_date_format));
 		flipper = (ViewFlipper) findViewById(R.id.agenda_flipper);
 
 		//	Somewhere we need to add the first view to the flipper. This view will be for

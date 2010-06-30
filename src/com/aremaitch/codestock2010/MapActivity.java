@@ -18,13 +18,17 @@ package com.aremaitch.codestock2010;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class MapActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
-		
+
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.map_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText("");
 	}
 }

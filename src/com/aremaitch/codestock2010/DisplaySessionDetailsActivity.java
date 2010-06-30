@@ -102,8 +102,8 @@ public class DisplaySessionDetailsActivity extends Activity {
 		super.onStart();
 		
 //		if (!_gotSession) {
-			sessiontitletv = (TextView) findViewById(R.id.session_details_title);
-			sessionwhenwhere = (TextView) findViewById(R.id.session_details_when_and_where);
+			sessiontitletv = (TextView) findViewById(R.id.header_title);
+			sessionwhenwhere = (TextView) findViewById(R.id.header_subtitle);
 			synopsistv = (TextView) findViewById(R.id.session_details_synopsis_text);
 			speakernametv = (TextView) findViewById(R.id.session_details_speaker_name);
 			speakerbiotv = (TextView) findViewById(R.id.session_details_speaker_bio);
@@ -143,6 +143,11 @@ public class DisplaySessionDetailsActivity extends Activity {
 		return s;
 	}
 	
+	//	There was a complaint in the Market about not using AsyncTask; this is probably what the user was
+	//	complaing about. While getting the session data from the db is fairly quick, formatting and linkifying
+	//	the text is not. This is primarily because several speakers either provided mini-novels for their
+	//	bio/synopsis or they pasted in MS Word docs saved as HTML (including all the Word object model crap.)
+	
 	private void displaySessionInfo(Session s) {
 		
 		String fullName = s.getSpeaker().getSpeakerName();
@@ -158,10 +163,11 @@ public class DisplaySessionDetailsActivity extends Activity {
 		SimpleDateFormat df = new SimpleDateFormat(getString(R.string.standard_where_when_format_string));	//  Sat, June 26 2010 8:30 AM
 		
 		
-		sessionwhenwhere.setText(df.format(s.getStartDate().getTime()) + " Rm:" + s.getRoom());
+		sessionwhenwhere.setText(df.format(s.getStartDate().getTime()) + " " + 
+				getString(R.string.session_details_room_label) + s.getRoom());
 		
 		if (TextUtils.isEmpty(s.getSynopsis()) || s.getSynopsis().equalsIgnoreCase("null")) {
-			synopsistv.setText(Html.fromHtml("<i>To be announced</i>"));
+			synopsistv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_synopsis_tba_msg) + "</i>"));
 		} else {
 			synopsistv.setText(Html.fromHtml(hackText(s.getSynopsis()), 
 					null, 
@@ -176,7 +182,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 		//	Then call setCompoundDrawables() on the TextView.
 		
 		if (TextUtils.isEmpty(s.getSpeaker().getSpeakerBio()) || s.getSpeaker().getSpeakerBio().equalsIgnoreCase("null")) {
-			speakerbiotv.setText(Html.fromHtml("<i>Speaker bio not provided</i>"));
+			speakerbiotv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_bio_missing_msg) + "</i>"));
 		} else {
 			speakerbiotv.setText(Html.fromHtml(
 					hackText(s.getSpeaker().getSpeakerBio())

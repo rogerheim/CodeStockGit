@@ -17,28 +17,30 @@
 
  -->
 
-<!-- This is an ExpandableListView of tracks and sessions -->
-<LinearLayout
+<!-- Standard footer for all views -->
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:background="@color/White"
-	android:orientation="vertical"
+	android:orientation="horizontal"
+	android:background="@color/DodgerBlue"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="50dp"
+	>
 
-	<include layout="@layout/std_header"/>	
-	
-	<!-- Maybe you can't change the color when using a simple entries setting
-		Maybe you have to getView before you can change colors  -->
-	
-	<ExpandableListView
-		android:id="@android:id/list"
-		android:layout_width="fill_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:choiceMode="singleChoice"
-		android:cacheColorHint="#00000000"
+	<ImageView
+		android:id="@+id/footer_logo"
+		android:src="@drawable/codestock_lowres_small"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="10dp"
+		android:layout_gravity="center_vertical"/>
+
+	<ImageView
+		android:src="@drawable/nerdetteskull_2010_lowres_small"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_marginRight="10dp"
+		android:layout_marginTop="3dp"
 		/>
 
-	<include layout="@layout/std_footer"/>		
-	
-</LinearLayout>
+</RelativeLayout>		

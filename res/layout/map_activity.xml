@@ -24,26 +24,8 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	>
-	
-	<RelativeLayout
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="60dp"
-		>
-		
-		<TextView
-			android:id="@+id/header_title"
-			android:textColor="@color/White"
-			android:text="Conference Center Map"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_marginTop="3dp"
-			android:textSize="18sp"/>
-			
-		
-			
-	</RelativeLayout>
+
+	<include layout="@layout/std_header"/>	
 		
 	<ScrollView
 		android:id="@+id/map_imagescroller"
@@ -70,27 +52,6 @@
 		</HorizontalScrollView>		
 	</ScrollView>
 
-	<RelativeLayout
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="50dp"
-		>
-
-		<ImageView
-			android:id="@+id/footer_logo"
-			android:src="@drawable/codestock_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_centerVertical="true"/>
-		<ImageView
-			android:src="@drawable/nerdetteskull_2010_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="3dp"
-			/>
-	</RelativeLayout>		
+	<include layout="@layout/std_footer"/>
 	
 </LinearLayout>

@@ -78,6 +78,11 @@ public class MySessionsActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_sessions);
 
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.mysessions_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText("");
+		
 		ACLogger.debug("MySessionsActivity", "onStart");
 		day1Sessions = new ArrayList<MiniSession>();
 		day2Sessions = new ArrayList<MiniSession>();
@@ -86,7 +91,7 @@ public class MySessionsActivity extends Activity
 		//	the scanner.
 		//	Userid is passed into the activity via an extra in the Intent.
 		Intent i = getIntent();
-		userid = i.getLongExtra("userid", 0);
+		userid = i.getLongExtra(getString(R.string.shared_prefs_userid), 0);
 		
 		
 		getUserSessions();
@@ -107,8 +112,8 @@ public class MySessionsActivity extends Activity
 		
 		TextView tv1 = (TextView) day1View.findViewById(R.id.my_sessions_header_date);
 		TextView tv2 = (TextView) day2View.findViewById(R.id.my_sessions_header_date);
-		tv1.setText("Friday");
-		tv2.setText("Saturday");
+		tv1.setText(getString(R.string.friday_string));
+		tv2.setText(getString(R.string.saturday_string));
 		
 		ImageButton nextButton0 = (ImageButton)day1View.findViewById(R.id.my_sessions_forward_button);
 		nextButton0.setOnClickListener(new OnClickListener() {

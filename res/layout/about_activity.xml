@@ -23,24 +23,8 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	>
-	
-	<RelativeLayout
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="60dp"
-		>
-		
-		<TextView
-			android:id="@+id/header_title"
-			android:textColor="@color/White"
-			android:text="@string/about_title"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_marginTop="3dp"
-			android:textSize="18sp"/>
-			
-	</RelativeLayout>
+
+	<include layout="@layout/std_header"/>
 	
 	<ScrollView
 		android:id="@+id/about_scroller"
@@ -68,7 +52,7 @@
 				android:id="@+id/about_codestock"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="CodeStock 2010"
+				android:text="@string/app_name"
 				android:textColor="@color/Black"
 				android:textSize="18sp"
 				android:layout_toRightOf="@id/about_codestock_logo"
@@ -91,7 +75,7 @@
 				android:id="@+id/about_copyright"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Copyright &#169; 2010 Roger&#160;Heim, All rights reserved"
+				android:text="@string/about_copyright"
 				android:textColor="@color/Black"
 				android:textSize="12sp"
 				android:layout_below="@id/about_version"
@@ -104,7 +88,7 @@
 				android:id="@+id/about_regtm"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="CodeStock and the CodeStock logos are Registered Trademarks of the East Tennessee .NET Users Group, Inc."
+				android:text="@string/about_regtm"
 				android:textColor="@color/Black"
 				android:textSize="12sp"
 				android:layout_below="@id/about_copyright"
@@ -117,7 +101,7 @@
 				android:id="@+id/about_license"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License."
+				android:text="@string/about_apache_license"
 				android:textColor="@color/Black"
 				android:textSize="10sp"
 				android:layout_below="@id/about_regtm"
@@ -129,30 +113,6 @@
 	</ScrollView>
 	
 	<!-- Footer  -->
-	<RelativeLayout
-		android:orientation="horizontal"
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="50dp"
-		>
-
-		<ImageView
-			android:id="@+id/footer_logo"
-			android:src="@drawable/codestock_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_gravity="center_vertical"/>
-
-		<ImageView
-			android:src="@drawable/nerdetteskull_2010_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="3dp"
-			/>
-
-	</RelativeLayout>		
+	<include layout="@layout/std_footer"/>
 	
 </LinearLayout>

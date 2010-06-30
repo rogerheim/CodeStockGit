@@ -25,39 +25,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 	
-	
-	<RelativeLayout
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="60dp"
-		>
-		
-
-<!-- Using marquee for ellipsize only works when the TextView is selected and/or focused. This is AsIntended -->
-		<TextView
-			android:id="@+id/session_details_title"
-			android:textColor="@color/White"
-			android:text="The Session's Really, Really Long Full Title Goes Here"
-			android:ellipsize="end"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_marginTop="3dp"
-			android:layout_marginRight="10dp"
-			android:textSize="16sp"/>
-		
-		<TextView
-			android:id="@+id/session_details_when_and_where"
-			android:textColor="@color/White"
-			android:text="Sat, June 26, 2010 8:30 AM Rm:XX-999"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignLeft="@id/session_details_title"
-			android:layout_below="@id/session_details_title"
-			android:textSize="14sp"/>
-				
-			
-	</RelativeLayout>
+	<include layout="@layout/std_header"/>
 	
 	<!-- Main content; bunch of text and a speaker image. -->
 	<ScrollView
@@ -82,7 +50,7 @@
 				android:id="@+id/session_details_presentedby_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Presented by: "
+				android:text="@string/session_details_presentedby"
 				android:textStyle="bold"
 				android:layout_marginTop="5dp"
 				android:textColor="@color/Red"
@@ -124,28 +92,5 @@
 	
 	
 	<!-- Footer  -->
-	<RelativeLayout
-		android:orientation="horizontal"
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="50dp"
-		>
-		
-		<ImageView
-			android:id="@+id/footer_logo"
-			android:src="@drawable/codestock_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_gravity="center_vertical"/>
-
-		<ImageView
-			android:src="@drawable/nerdetteskull_2010_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="3dp"
-			/>
-	</RelativeLayout>
+	<include layout="@layout/std_footer"/>
 </LinearLayout>

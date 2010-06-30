@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aremaitch.codestock2010.datadownloader.Downloader;
@@ -75,6 +76,14 @@ public class StartActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.startup_activity);
 		
+		
+		
+		//	Header is a standard include; change the text.
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.header_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText(getString(R.string.header_slogan));
+		
 		initializeApp();
 		
 		wireupListeners();
@@ -89,7 +98,7 @@ public class StartActivity extends Activity {
 			new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setMessage(getString(R.string.empty_db_msg))
-				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -97,7 +106,7 @@ public class StartActivity extends Activity {
 						
 					}
 				})
-				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -299,8 +308,8 @@ public class StartActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				ACLogger.info(getString(R.string.logging_tag), "Starred button onClick");
-				SharedPreferences settings = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE);
-				long userid = settings.getLong("userid", 0);
+				SharedPreferences settings = getSharedPreferences(getString(R.string.shared_prefs_name), Context.MODE_PRIVATE);
+				long userid = settings.getLong(getString(R.string.shared_prefs_userid), 0);
 				if (userid == 0) {
 					promptUserToScanQRCode();
 				} else {
@@ -332,18 +341,15 @@ public class StartActivity extends Activity {
 		// This dialog doesn't show until onCreate() shows.
 
 		new AlertDialog.Builder(this).setCancelable(false)
-			.setMessage("To use My Sessions you need to first build your schedule using the CodeStock website. " +
-				 "The web site will show you a QR barcode you can scan that will link it with your phone. "	 +
-				 "Note that you need a free barcode scanning app on your phone, which you will be prompted to "	 +
-				 "download if you don't have it. Do you want to continue?")
-			.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			.setMessage(getString(R.string.mysessions_qrscan_prompt_msg))
+			.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
 				}
 			})
-			.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
 
 				@Override
 				public void onClick(DialogInterface dialog,	int which) {
@@ -351,7 +357,7 @@ public class StartActivity extends Activity {
 					IntentIntegrator.initiateScan(StartActivity.this);
 				}
 			})
-			.setTitle("Schedule Builder")
+			.setTitle(getString(R.string.mysessions_qrscan_prompt_title))
 			.show();
 	}
 
@@ -382,7 +388,7 @@ public class StartActivity extends Activity {
 			}
 			
 			Toast.makeText(this, 
-					"Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder", 
+					getString(R.string.mysessions_qrscan_badscan_msg), 
 					Toast.LENGTH_LONG).show();
 			return;
 			
@@ -392,8 +398,8 @@ public class StartActivity extends Activity {
 	private void parseWebsiteLink(String link) {
 		if (link.lastIndexOf("id=") != -1) {
 			Long userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
-			SharedPreferences.Editor editor = getSharedPreferences("CodeStock2010Prefs", Context.MODE_PRIVATE).edit();
-			editor.putLong("userid", userid);
+			SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_prefs_name), Context.MODE_PRIVATE).edit();
+			editor.putLong(getString(R.string.shared_prefs_userid), userid);
 			editor.commit();
 			startMySessions(userid);
 		}
@@ -403,7 +409,7 @@ public class StartActivity extends Activity {
 		Intent i = new Intent();
 		i.setAction(getString(R.string.mysessions_intent_action))
 			.addCategory(Intent.CATEGORY_DEFAULT)
-			.putExtra("userid", userid);
+			.putExtra(getString(R.string.shared_prefs_userid), userid);
 		startActivity(i);
 		
 
@@ -500,7 +506,8 @@ public class StartActivity extends Activity {
 		
 		private void showProgressDialog() {
 			if (_act != null) {
-				progress = ProgressDialog.show(_act, "Refresh",  getString(R.string.refresh_data_progress_dialog_msg));
+				progress = ProgressDialog.show(_act, getString(R.string.refresh_data_progress_dialog_title),  
+						getString(R.string.refresh_data_progress_dialog_msg));
 			}
 		}
 		@Override
@@ -575,7 +582,8 @@ public class StartActivity extends Activity {
 		}
 		
 		private void showProgressDialog() {
-			progress = ProgressDialog.show(_act, "Refresh", _act.getString(R.string.update_db_progress_dialog_msg));
+			progress = ProgressDialog.show(_act, getString(R.string.refresh_data_progress_dialog_title), 
+					_act.getString(R.string.update_db_progress_dialog_msg));
 		}
 		
 		@Override

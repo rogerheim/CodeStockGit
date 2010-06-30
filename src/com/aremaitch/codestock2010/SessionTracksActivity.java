@@ -61,6 +61,12 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
 		//	Orientation changes must re-inflate the layout.
 		setContentView(R.layout.sessiontracks_list);
+		
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.session_track_list_header_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText("");
+		
 		getExpandableListView().setOnChildClickListener(new OnChildClickListener() {
 			
 			@Override
