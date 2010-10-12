@@ -36,12 +36,10 @@ import android.content.Context;
  */
 public class ScheduleBuilder {
 	long _builderID = 0;
-	Context context = null;
 	String scheduleBuilderURL = "";
 	String scheduleBuilderSvc = "";
 	
-	public ScheduleBuilder(Context currentContext, String scheduleBuilderURL, String scheduleBuilderSvc, long builderID) {
-		context = currentContext;
+	public ScheduleBuilder(String scheduleBuilderURL, String scheduleBuilderSvc, long builderID) {
 		this.scheduleBuilderURL = scheduleBuilderURL;
 		this.scheduleBuilderSvc = scheduleBuilderSvc;
 		

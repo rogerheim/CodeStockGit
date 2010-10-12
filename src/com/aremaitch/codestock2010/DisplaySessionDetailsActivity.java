@@ -28,13 +28,13 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -48,7 +48,6 @@ import android.text.TextUtils;
 import android.text.style.TypefaceSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.TransformFilter;
-import android.util.Log;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -72,6 +71,9 @@ public class DisplaySessionDetailsActivity extends Activity {
 	String twitterScheme = "http://twitter.com/";	// I can't find a standard for calling a default Twitter activity
 	final String photoCachePath = "com.aremaitch.codestock2010/speakerphotocache/";
 	
+	UUID backgroundTaskID = null;
+	final String TASK_KEY = "getSpeakerPhotoTaskID";
+	
 	//	Orientation change fires onPause(), onCreate(), onStart()
 	//		(there may be a different layout for landscape vs. portrait so Android will
 	//			need the layout re-inflated.)
@@ -79,9 +81,29 @@ public class DisplaySessionDetailsActivity extends Activity {
 	//	Returning to this activity fires onStart()
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.session_details);
+
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(TASK_KEY)) {
+				backgroundTaskID = UUID.fromString(savedInstanceState.getString(TASK_KEY));
+			}
+		}
 		
+		if (backgroundTaskID != null) {
+			if (CodeStockApp.getTaskManagerInstance().isTaskStillRunning(backgroundTaskID)) {
+				CodeStockApp.getTaskManagerInstance()
+					.setTaskParent(backgroundTaskID, this);
+			} else {
+				backgroundTaskID = null;
+			}
+		}
+		setupTwitterFilter();
+		
+	}
+
+	
+	private void setupTwitterFilter() {
 		twitterFilter = new TransformFilter() {
 			
 			@Override
@@ -90,9 +112,8 @@ public class DisplaySessionDetailsActivity extends Activity {
 			}
 		};
 		twitterPattern = Pattern.compile("@([A-Za-z0-9_-]+)");
-		
-		setContentView(R.layout.session_details);
 	}
+	
 	
 	@Override
 	protected void onStart() {
@@ -101,34 +122,38 @@ public class DisplaySessionDetailsActivity extends Activity {
 		// get it again.
 		super.onStart();
 		
-//		if (!_gotSession) {
-			sessiontitletv = (TextView) findViewById(R.id.header_title);
-			sessionwhenwhere = (TextView) findViewById(R.id.header_subtitle);
-			synopsistv = (TextView) findViewById(R.id.session_details_synopsis_text);
-			speakernametv = (TextView) findViewById(R.id.session_details_speaker_name);
-			speakerbiotv = (TextView) findViewById(R.id.session_details_speaker_bio);
-			sessiontitletv.setText("");
-			synopsistv.setText("");
-			speakernametv.setText("");
-			speakerbiotv.setText("");
+		sessiontitletv = (TextView) findViewById(R.id.header_title);
+		sessionwhenwhere = (TextView) findViewById(R.id.header_subtitle);
+		synopsistv = (TextView) findViewById(R.id.session_details_synopsis_text);
+		speakernametv = (TextView) findViewById(R.id.session_details_speaker_name);
+		speakerbiotv = (TextView) findViewById(R.id.session_details_speaker_bio);
+		sessiontitletv.setText("");
+		synopsistv.setText("");
+		speakernametv.setText("");
+		speakerbiotv.setText("");
 
-			presentedby = (TextView) findViewById(R.id.session_details_presentedby_label);
-			scroller = (ScrollView) findViewById(R.id.session_details_scroller);
-			Intent i = getIntent();
-			long sessionid = i.getLongExtra(getString(R.string.session_details_intent_sessionid), -1);
-			if (sessionid >= 0) {
-				
-				Session s = getSessionInfo(sessionid);
-				
-				displaySessionInfo(s);
-//				_gotSession = true;
-				
-//				QuerySessionDetails q = new QuerySessionDetails(sessionid);
-//				q.execute();
-				
-			}
-//		}
+		presentedby = (TextView) findViewById(R.id.session_details_presentedby_label);
+		scroller = (ScrollView) findViewById(R.id.session_details_scroller);
+		Intent i = getIntent();
+		long sessionid = i.getLongExtra(getString(R.string.session_details_intent_sessionid), -1);
+		if (sessionid >= 0) {
+
+			Session s = getSessionInfo(sessionid);
+
+			displaySessionInfo(s);
+
+		}
 	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		if (backgroundTaskID != null) {
+			CodeStockApp.getTaskManagerInstance().clearTaskParent(backgroundTaskID);
+			outState.putString(TASK_KEY, backgroundTaskID.toString());
+		}
+		super.onSaveInstanceState(outState);
+	}
+	
 	
 	//	Since this is coming from a local database and is fairly quick we can probably
 	//	get away with not using an AsyncTask.
@@ -143,10 +168,6 @@ public class DisplaySessionDetailsActivity extends Activity {
 		return s;
 	}
 	
-	//	There was a complaint in the Market about not using AsyncTask; this is probably what the user was
-	//	complaing about. While getting the session data from the db is fairly quick, formatting and linkifying
-	//	the text is not. This is primarily because several speakers either provided mini-novels for their
-	//	bio/synopsis or they pasted in MS Word docs saved as HTML (including all the Word object model crap.)
 	
 	private void displaySessionInfo(Session s) {
 		
@@ -188,24 +209,38 @@ public class DisplaySessionDetailsActivity extends Activity {
 					hackText(s.getSpeaker().getSpeakerBio())
 					, null, new MyTagHandler()));
 		}
-		
-		String speakerPhotoUrl = s.getSpeaker().getSpeakerPhotoUrl();
-		if (TextUtils.isEmpty(speakerPhotoUrl) || speakerPhotoUrl.equalsIgnoreCase("null")) {
-			//	No photo
-		} else {
-			GetSpeakerPhoto gsp = new GetSpeakerPhoto(speakerPhotoUrl);
-			gsp.execute();
-		}
 		Linkify.addLinks(speakerbiotv, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
 		
 		//	This technique for Linkifying Twitter comes from http://www.indelible.org/ink/android-linkify/
 		
 		Linkify.addLinks(speakerbiotv, twitterPattern, twitterScheme, null, twitterFilter);
-//		_gotSession = true;
+
+		
+		String speakerPhotoUrl = s.getSpeaker().getSpeakerPhotoUrl();
+		if (TextUtils.isEmpty(speakerPhotoUrl) || speakerPhotoUrl.equalsIgnoreCase("null")) {
+			//	No photo
+		} else {
+			//	Another option could be passing the 'presentedby' TextView to the AsyncTask (which will
+			//	save it as a WeakReference. Then the AsyncTask's onPostExecute() will get the TextView
+			//	from the WeakReference and call setCompoundDrawablesWithIntrinsicBounds() itself, eliminating
+			//	the need for the callback. But wouldn't that still leave the problem of recycled views
+			//	because of an orientation change?
+			GetSpeakerPhoto gsp = new GetSpeakerPhoto(speakerPhotoUrl, "displaySpeakerPhotoCallback");
+			backgroundTaskID = CodeStockApp.getTaskManagerInstance()
+				.createTask(gsp, this);
+			gsp.execute();
+		}
 
 	}
 	
-	
+	public void displaySpeakerPhotoCallback(Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+		if (arg0 instanceof Drawable) {
+			Drawable photo = (Drawable)arg0;
+			presentedby.setCompoundDrawablesWithIntrinsicBounds(null, null, null, photo);
+			backgroundTaskID = null;
+		}
+		
+	}
 	private void displaySpeakerPhoto(Drawable photo) {
 //		photo.setBounds(0, 0, 60, 60);
 //		presentedby.setCompoundDrawables(null, null, null, photo);
@@ -378,11 +413,14 @@ public class DisplaySessionDetailsActivity extends Activity {
 		
 	}
 	
+	
 	private class GetSpeakerPhoto extends AsyncTask<Void, Void, Drawable> {
 		private String _urlString;
-
-		public GetSpeakerPhoto(String urlString) {
-			_urlString = urlString;
+		private String callbackMethod = "";
+		
+		public GetSpeakerPhoto(String urlString, String callbackMethod) {
+			this._urlString = urlString;
+			this.callbackMethod = callbackMethod;
 		}
 		
 		@Override
@@ -404,6 +442,18 @@ public class DisplaySessionDetailsActivity extends Activity {
 			return photo;
 		}
 		
+		@Override
+		protected void onPostExecute(Drawable result) {
+			//	Cannot just call 'displaySpeakerPhoto' because the activity might have
+			//	recycled.
+			if (!TextUtils.isEmpty(this.callbackMethod)) {
+				CodeStockApp.getTaskManagerInstance().invokeOnActivity(this, this.callbackMethod, result, null, null, null, null);
+			}
+			CodeStockApp.getTaskManagerInstance().clearTaskParent(this);
+			CodeStockApp.getTaskManagerInstance().removeTask(this, false);
+			//displaySpeakerPhoto(result);
+		}
+
 		
 		private String stripFileName(String longFileName) {
 			//	Takes /Assets/Speakers/guid.jpg and just returns guid.jpg
@@ -420,10 +470,6 @@ public class DisplaySessionDetailsActivity extends Activity {
 		}
 		
 
-		@Override
-		protected void onPostExecute(Drawable result) {
-			displaySpeakerPhoto(result);
-		}
 		
 		/**
 		 * Returns a File object containing the full path to the cached speaker photo.<br>
@@ -466,6 +512,11 @@ public class DisplaySessionDetailsActivity extends Activity {
 		private boolean createPhotoCacheDirectoryIfNecessary(File cacheDirectory) {
 			boolean result = true;
 			if (!cacheDirectory.exists()) {
+				//	All of a sudden writing to the sdcard is failing?
+				//	Because of re-targeting 2.1?
+				//	Yes! Prior to 1.6 an app didn't need specific permission to write to external
+				//	storage so by default all apps could (even if they were running on newer firmware.)
+				//	
 				result = cacheDirectory.mkdirs();
 			}
 			
@@ -481,6 +532,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 			
 			return result;
 		}
+		
 		
 		private Drawable downloadSpeakerPhoto(URL theUrl) {
 			InputStream is = null;
@@ -515,9 +567,11 @@ public class DisplaySessionDetailsActivity extends Activity {
 				}
 				
 			} catch (SocketTimeoutException e) {
-				ACLogger.info(getString(R.string.logging_tag), "Timeout getting speaker photo");
+				ACLogger.info(getString(R.string.logging_tag), "Timeout getting speaker photo: ");
+				e.printStackTrace();
 			} catch (Exception e) {
-				ACLogger.error(getString(R.string.logging_tag), "Error getting speaker photo");
+				ACLogger.error(getString(R.string.logging_tag), "Error getting speaker photo: ");
+				e.printStackTrace();
 			} finally {
 				if (bis != null) {
 					try {
@@ -543,7 +597,9 @@ public class DisplaySessionDetailsActivity extends Activity {
 				out.write(data);
 				out.flush();
 			} catch (FileNotFoundException e) {
+				e.printStackTrace();
 			} catch (IOException e) {
+				e.printStackTrace();
 			} finally {
 				if (out != null) {
 					try {
@@ -557,39 +613,39 @@ public class DisplaySessionDetailsActivity extends Activity {
 		}
 	}
 	
-	public class QuerySessionDetails extends AsyncTask<Void, Void, Session> {
-
-		long _sessionid = -1;
-		ProgressDialog progress;
-		
-		public QuerySessionDetails(long sessionid) {
-			_sessionid = sessionid;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			progress = ProgressDialog.show(DisplaySessionDetailsActivity.this, "CodeStock 2010", "Getting session...");
-		}
-		
-		@Override
-		protected Session doInBackground(Void... params) {
-			DataHelper dh = new DataHelper(DisplaySessionDetailsActivity.this);
-			Session s = null;
-			try {
-				s = dh.getSession(_sessionid);
-			} finally {
-				dh.close();
-			}
-			return s;
-		}
-		
-		@Override
-		protected void onPostExecute(Session result) {
-			progress.dismiss();
-			displaySessionInfo(result);
-		}
-
-	}
+//	public class QuerySessionDetails extends AsyncTask<Void, Void, Session> {
+//
+//		long _sessionid = -1;
+//		ProgressDialog progress;
+//		
+//		public QuerySessionDetails(long sessionid) {
+//			_sessionid = sessionid;
+//		}
+//
+//		@Override
+//		protected void onPreExecute() {
+//			progress = ProgressDialog.show(DisplaySessionDetailsActivity.this, "CodeStock 2010", "Getting session...");
+//		}
+//		
+//		@Override
+//		protected Session doInBackground(Void... params) {
+//			DataHelper dh = new DataHelper(DisplaySessionDetailsActivity.this);
+//			Session s = null;
+//			try {
+//				s = dh.getSession(_sessionid);
+//			} finally {
+//				dh.close();
+//			}
+//			return s;
+//		}
+//		
+//		@Override
+//		protected void onPostExecute(Session result) {
+//			progress.dismiss();
+//			displaySessionInfo(result);
+//		}
+//
+//	}
 
 
 	

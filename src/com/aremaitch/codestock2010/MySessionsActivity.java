@@ -31,10 +31,12 @@ import com.google.zxing.integration.android.IntentResult;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -73,6 +75,10 @@ public class MySessionsActivity extends Activity
 	float downXValue;
 	int currentView = 0;
 	
+	ListView day1LV = null;
+	ListView day2LV = null;
+	ProgressDialog dlg = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -93,8 +99,13 @@ public class MySessionsActivity extends Activity
 		Intent i = getIntent();
 		userid = i.getLongExtra(getString(R.string.shared_prefs_userid), 0);
 		
+		dlg = new ProgressDialog(this);
 		
-		getUserSessions();
+		//	There was a complaint in the Market about not using AsyncTask; this is probably what the user was
+		//	complaining about.
+		
+		GetScheduleBuilderSessions gsb = new GetScheduleBuilderSessions(this, userid);
+		gsb.execute();
 		
 		dateFormatter = new SimpleDateFormat(getString(R.string.standard_where_when_format_string));
 		flipper = (ViewFlipper) findViewById(R.id.my_sessions_flipper);
@@ -102,8 +113,8 @@ public class MySessionsActivity extends Activity
 		View day1View = findViewById(R.id.my_sessions_day_1);
 		View day2View = findViewById(R.id.my_sessions_day_2);
 		
-		ListView day1LV = (ListView)day1View.findViewById(android.R.id.list);
-		ListView day2LV = (ListView)day2View.findViewById(android.R.id.list);
+		day1LV = (ListView)day1View.findViewById(android.R.id.list);
+		day2LV = (ListView)day2View.findViewById(android.R.id.list);
 		
 //		View day1ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
 //		day1ViewHeader.setTag("day:friday");
@@ -154,55 +165,166 @@ public class MySessionsActivity extends Activity
 		day1LV.setOnItemClickListener(this);
 		day2LV.setOnItemClickListener(this);
 		
+		//	Can we still do this before the async task has completed?
+		//	Or do we have to move it to the onComplete call from async?
 		day1LV.setAdapter(new DayAdapter(this, day1Sessions));
 		day2LV.setAdapter(new DayAdapter(this, day2Sessions));
+		
+		
 		LinearLayout my_sessions_main = (LinearLayout) findViewById(R.id.my_sessions_main);
 		my_sessions_main.setOnTouchListener((OnTouchListener) this);
 	}
 	
-	
-
-	
-	private void getUserSessions() {
-		ScheduleBuilder sb = new ScheduleBuilder(this, 
-				getString(R.string.schedule_builder_url),
-				getString(R.string.schedule_builder_parameter),
-				userid);
-		
-		//	This list is already sorted chronoloically.
-		ArrayList<Long> userSessions = sb.getBuiltSchedule();
-		splitUserSessions(userSessions);
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (dlg != null) {
+			dlg.dismiss();
+			
+		}
 	}
 	
-	/**
-	 * Splits array of long session id's into MiniSessions by day.
-	 * @param userSessions
-	 */
-	private void splitUserSessions(ArrayList<Long> userSessions) {
-		DataHelper dh = new DataHelper(this);
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN: {
+				downXValue = event.getX();
+				break;
+			}
+			case MotionEvent.ACTION_UP: {
+				float currentX = event.getX();
+				if (downXValue < currentX && currentView == 1) {
+					flipViewBackToFriday();
+				} else if (downXValue > currentX && currentView == 0) {
+					flipViewToSaturday();
+				}
+				break;
+			}
+		}
+		return true;
+	}
+	
+	private void flipViewBackToFriday() {
+		flipper.setInAnimation(this, R.anim.slide_right_in);
+		flipper.setOutAnimation(this, R.anim.slide_right_out);
+		flipper.showPrevious();
+		currentView = 0;
+	}
+	
+	private void flipViewToSaturday() {
+		flipper.setInAnimation(this, R.anim.slide_left_in);
+		flipper.setOutAnimation(this, R.anim.slide_left_out);
+		flipper.showNext();
+		currentView = 1;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		//	If they click the day header, flip to the other day.
+		if (v instanceof LinearLayout) {
+			String tag = v.getTag().toString();
+			if (tag.equalsIgnoreCase("day:friday")) {
+				flipViewToSaturday();
+			} else if (tag.equalsIgnoreCase("day:saturday")) {
+				flipViewBackToFriday();
+			}
+			return;
+		}
 		
-		try {
-			for (Long sessionid : userSessions) {
-				Session s = dh.getSession(sessionid);
-				if (s != null) {
-					MiniSession ms = new MiniSession();
-					ms.setId(s.getId());
-					ms.setRoom(s.getRoom());
-					ms.setSessionTitle(s.getSessionTitle());
-					ms.setSpeakerName(s.getSpeaker().getSpeakerName());
-					ms.setStartDateTime(s.getStartDate());
-					ms.setVoteRank(s.getVoteRank());
-					
-					if (s.getStartDate().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
-						day1Sessions.add(ms);
-					} else if (s.getStartDate().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-						day2Sessions.add(ms);
+		//	Otherwise, show the details about the selected session.
+		startActivity(new Intent()
+			.setAction(getString(R.string.session_details_intent_action))
+			.addCategory(Intent.CATEGORY_DEFAULT)
+			.putExtra(getString(R.string.session_details_intent_sessionid), id));
+	}
+	
+	//	This needs the same protection against leaking windows
+	private class GetScheduleBuilderSessions extends AsyncTask<Void, Void, Void> {
+
+		long userid = 0;
+//		Activity act = null;
+		
+		public GetScheduleBuilderSessions(Activity act, long userid) {
+			//	Java rules state that the compiler will insert a call to the 
+			//	parameterless constructor if there isn't already one.
+			this.userid = userid;
+//			this.act = act;
+			
+				
+		
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			//TODO: move strings for localization
+//			dlg = ProgressDialog.show(this.act, "Schedule Builder", "Getting your schedule;\nplease wait...");
+			
+			//	This moves ownership of the progress dialog to the activity instead of this class.
+			dlg.setTitle("Schedule Builder");
+			dlg.setMessage("Getting your schedule;\nplease wait...");
+			dlg.show();
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			ArrayList<Long> userSessions = getUserSessions();
+			splitUserSessions(userSessions);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			if (dlg != null)
+				dlg.dismiss();
+			((BaseAdapter)day1LV.getAdapter()).notifyDataSetChanged();
+			((BaseAdapter)day2LV.getAdapter()).notifyDataSetChanged();
+		}
+		
+		private ArrayList<Long> getUserSessions() {
+			ScheduleBuilder sb = new ScheduleBuilder( 
+					getString(R.string.schedule_builder_url),
+					getString(R.string.schedule_builder_parameter),
+					this.userid);
+			
+			//	This list is already sorted chronoloically.
+			ArrayList<Long> userSessions = sb.getBuiltSchedule();
+			return userSessions;
+//			splitUserSessions(userSessions);
+		}
+		
+		/**
+		 * Splits array of long session id's into MiniSessions by day.
+		 * @param userSessions
+		 */
+		private void splitUserSessions(ArrayList<Long> userSessions) {
+//			DataHelper dh = new DataHelper(this.act);
+			DataHelper dh = new DataHelper(getApplicationContext());
+			
+			try {
+				for (Long sessionid : userSessions) {
+					Session s = dh.getSession(sessionid);
+					if (s != null) {
+						MiniSession ms = new MiniSession();
+						ms.setId(s.getId());
+						ms.setRoom(s.getRoom());
+						ms.setSessionTitle(s.getSessionTitle());
+						ms.setSpeakerName(s.getSpeaker().getSpeakerName());
+						ms.setStartDateTime(s.getStartDate());
+						ms.setVoteRank(s.getVoteRank());
+						
+						if (s.getStartDate().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+							day1Sessions.add(ms);
+						} else if (s.getStartDate().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+							day2Sessions.add(ms);
+						}
 					}
 				}
+			} finally {
+				dh.close();
 			}
-		} finally {
-			dh.close();
 		}
+	
+		
 	}
 	
 	/**
@@ -288,57 +410,4 @@ public class MySessionsActivity extends Activity
 		ImageView awardIV;
 	}
 	
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN: {
-				downXValue = event.getX();
-				break;
-			}
-			case MotionEvent.ACTION_UP: {
-				float currentX = event.getX();
-				if (downXValue < currentX && currentView == 1) {
-					flipViewBackToFriday();
-				} else if (downXValue > currentX && currentView == 0) {
-					flipViewToSaturday();
-				}
-				break;
-			}
-		}
-		return true;
-	}
-	
-	private void flipViewBackToFriday() {
-		flipper.setInAnimation(this, R.anim.slide_right_in);
-		flipper.setOutAnimation(this, R.anim.slide_right_out);
-		flipper.showPrevious();
-		currentView = 0;
-	}
-	
-	private void flipViewToSaturday() {
-		flipper.setInAnimation(this, R.anim.slide_left_in);
-		flipper.setOutAnimation(this, R.anim.slide_left_out);
-		flipper.showNext();
-		currentView = 1;
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-		//	If they click the day header, flip to the other day.
-		if (v instanceof LinearLayout) {
-			String tag = v.getTag().toString();
-			if (tag.equalsIgnoreCase("day:friday")) {
-				flipViewToSaturday();
-			} else if (tag.equalsIgnoreCase("day:saturday")) {
-				flipViewBackToFriday();
-			}
-			return;
-		}
-		
-		//	Otherwise, show the details about the selected session.
-		startActivity(new Intent()
-			.setAction(getString(R.string.session_details_intent_action))
-			.addCategory(Intent.CATEGORY_DEFAULT)
-			.putExtra(getString(R.string.session_details_intent_sessionid), id));
-	}
 }
