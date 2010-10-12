@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.aremaitch.utils.ACLogger;
+
 //import org.joda.time.DateTime;
 //import org.joda.time.format.ISODateTimeFormat;
 
@@ -30,6 +32,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 //	8-Jun-10	Updated to version 2 for VoteRank in session table and add
@@ -153,9 +156,10 @@ public class DataHelper {
 	public ArrayList<MiniSession> getListOfMiniSessions(long trackid) {
 		ArrayList<MiniSession> sessions = new ArrayList<MiniSession>();
 		
+		// 9-Jun-10: Changed 'award' to 'voterank'
 		Cursor c = null;
 		try {
-			c = this.db.rawQuery("select sessions.id, sessiontitle, award, startdatetime, room, speakers.speakername " +
+			c = this.db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername " +
 								"from " + SESSIONS_TABLE_NAME + 
 									" inner join " + SPEAKERS_TABLE_NAME + " on speakers.id = sessions.fkspeaker " +
 								"where fktrack = ? order by sessiontitle", 
@@ -164,7 +168,7 @@ public class DataHelper {
 				MiniSession s = new MiniSession();
 				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
 				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
-				s.setAward(c.getString(c.getColumnIndexOrThrow("award")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
 				
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
@@ -181,6 +185,126 @@ public class DataHelper {
 		}
 		return sessions;
 	}
+	
+	/**
+	 * Returns a list of sessions in a specific timeslot.
+	 * @param
+	 * desiredTimeSlot <br>A Calendar object containing the desired timeslot.
+	 * @return An ArrayList&lt;AgendaSession&gt; containing the sessions sorted by room number
+	 * or an empty ArrayList if there are no sessions in the desired timeslot.
+	 */
+	public ArrayList<AgendaSession> getAgendaSessionsInTimeslot(Calendar desiredTimeSlot) {
+		ArrayList<AgendaSession> sessions = new ArrayList<AgendaSession>();
+		
+		Cursor c = null;
+		try {
+			c = db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername, " +
+					"tracks.tracktitle " +
+					"from sessions inner join speakers on speakers.id = sessions.fkspeaker, " +
+					"tracks on tracks.id = sessions.fktrack " +
+					"where startdatetime = ? " +
+					"order by room", new String[] {Long.toString(desiredTimeSlot.getTimeInMillis())});
+			while (c.moveToNext()) {
+				AgendaSession s = new AgendaSession();
+				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
+				s.setStartDateTime(cal);
+				
+				s.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				s.setSpeakerName(c.getString(c.getColumnIndexOrThrow("speakername")));
+				s.setTrackName(c.getString(c.getColumnIndexOrThrow("tracktitle")));
+				sessions.add(s);
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		return sessions;
+	}
+
+	
+	public ArrayList<AgendaSession> getListOfAgendaSessionsChronologically() {
+		ArrayList<AgendaSession> sessions = new ArrayList<AgendaSession>();
+		
+		Cursor c = null;
+		try {
+			c = db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername, " +
+					"tracks.tracktitle " +
+					"from sessions inner join speakers on speakers.id = sessions.fkspeaker, " +
+					"tracks on tracks.id = sessions.fktrack " +
+					"order by startdatetime, room", null);
+			while (c.moveToNext()) {
+				AgendaSession s = new AgendaSession();
+				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
+				s.setStartDateTime(cal);
+				
+				s.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				s.setSpeakerName(c.getString(c.getColumnIndexOrThrow("speakername")));
+				s.setTrackName(c.getString(c.getColumnIndexOrThrow("tracktitle")));
+				sessions.add(s);
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		return sessions;
+	}
+
+	
+	public ArrayList<MiniSession> getListOfMiniSessionsFromListOfIDS(ArrayList<Long> listOfIds) {
+		ArrayList<MiniSession> sessions = new ArrayList<MiniSession>();
+		
+		Cursor c = null;
+		try {
+			c = db.rawQuery("select sessions.id, sessiontitle, voterank, startdatetime, room, speakers.speakername from sessions inner join speakers on speakers.id = sessions.fkspeaker " +
+					"where sessions.id in (" + TextUtils.join(",", listOfIds) + ") order by startdatetime", null);
+			while (c.moveToNext()) {
+				MiniSession s = new MiniSession();
+				s.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+				s.setSessionTitle(c.getString(c.getColumnIndexOrThrow("sessiontitle")));
+				s.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
+				s.setStartDateTime(cal);
+				
+				s.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
+				s.setSpeakerName(c.getString(c.getColumnIndexOrThrow("speakername")));
+				sessions.add(s);
+			}
+		} finally {
+			if (c != null && !c.isClosed()) {
+				c.close();
+			}
+		}
+		
+		
+		
+		return sessions;
+	}
+	
+//	private String toInPhrase(ArrayList<Long> theList) {
+//		StringBuilder work = new StringBuilder();
+//		String result = "";
+//		for (Long l : theList) {
+//			work.append(l).append(',');
+//		}
+//		result = work.toString();
+//		
+//		return TextUtils.join(",", theList);
+//	
+//	}
 	
 	/**
 	 * Returns full details about a session.
@@ -207,7 +331,7 @@ public class DataHelper {
 				result.setSpeaker(getSpeaker(c.getLong(c.getColumnIndexOrThrow("fkspeaker"))));
 				result.setGeneralExperienceLevel(getXPLevel(c.getLong(c.getColumnIndexOrThrow("fkgeneralxplevel"))));
 				result.setSpecificExperienceLevel(getXPLevel(c.getLong(c.getColumnIndexOrThrow("fkspecificxplevel"))));
-				result.setAward(c.getString(c.getColumnIndexOrThrow("award")));
+//				result.setAward(c.getString(c.getColumnIndexOrThrow("award")));
 				result.setTechnologies(c.getString(c.getColumnIndexOrThrow("technologies")));
 				calStart.setTimeInMillis(Long.parseLong(c.getString(c.getColumnIndexOrThrow("startdatetime"))));
 				result.setStartDate(calStart);
@@ -329,7 +453,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted experience level.
 	 */
 	public long insertXPLevel(ExperienceLevel newLevel) {
-		Log.v(LOG_TAG, "insertXPLevel:" + newLevel.getLevelName());
+		ACLogger.verbose(LOG_TAG, "insertXPLevel:" + newLevel.getLevelName());
 		ContentValues newRow = new ContentValues();
 		newRow.put("levelname", newLevel.getLevelName());
 		return db.insert(XPLEVELS_TABLE_NAME, null, newRow);
@@ -341,7 +465,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted track.
 	 */
 	public long insertTrack(Track newTrack) {
-		Log.v(LOG_TAG, "insertTrack:" + newTrack.getTrackTitle());
+		ACLogger.verbose(LOG_TAG, "insertTrack:" + newTrack.getTrackTitle());
 		ContentValues newRow = new ContentValues();
 		newRow.put("tracktitle", newTrack.getTrackTitle());
 		return db.insert(TRACKS_TABLE_NAME, null, newRow);
@@ -353,7 +477,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted speaker.
 	 */
 	public long insertSpeaker(Speaker newSpeaker) {
-		Log.v(LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
+		ACLogger.verbose(LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
 		ContentValues newRow = new ContentValues();
 		
 		//	Speaker ID is now set by the host service
@@ -375,7 +499,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted session.
 	 */
 	public long insertSession(Session newSession) {
-		Log.v(LOG_TAG, "insertSession:" + newSession.getSessionTitle());
+		ACLogger.verbose(LOG_TAG, "insertSession:" + newSession.getSessionTitle());
 		ContentValues newRow = new ContentValues();
 		
 		//	Session ID is now set by the host service
@@ -388,7 +512,7 @@ public class DataHelper {
 		newRow.put("fkspeaker", getOrAddSpeaker(newSession.getSpeaker()));
 		newRow.put("fkgeneralxplevel", getOrAddXPLevel(newSession.getGeneralExperienceLevel()));
 		newRow.put("fkspecificxplevel", getOrAddXPLevel(newSession.getSpecificExperienceLevel()));
-		newRow.put("award", newSession.getAward());
+//		newRow.put("award", newSession.getAward());
 		newRow.put("technologies", newSession.getTechnologies());
 		newRow.put("startdatetime", String.valueOf(newSession.getStartDate().getTimeInMillis()));
 		newRow.put("enddatetime", String.valueOf(newSession.getEndDate().getTimeInMillis()));
@@ -413,7 +537,7 @@ public class DataHelper {
 	 * Drops all data and tables from the database.
 	 */
 	public void clearAllData() {
-		Log.v(LOG_TAG, "Clearing data");
+		ACLogger.verbose(LOG_TAG, "Clearing data");
 		db.delete(SESSIONS_TABLE_NAME, null, null);
 		db.delete(SPEAKERS_TABLE_NAME, null, null);
 		db.delete(TRACKS_TABLE_NAME, null, null);
@@ -536,7 +660,7 @@ public class DataHelper {
 		public void onCreate(SQLiteDatabase db) {
 			// Called to create the database
 			// Actually by this point the db already exists; we must need to create the tables.
-			Log.v(LOG_TAG, "OpenHelper.onCreate");
+			ACLogger.verbose(LOG_TAG, "OpenHelper.onCreate");
 
 			ArrayList<StringBuilder> tables = new ArrayList<StringBuilder>();
 			ArrayList<StringBuilder> indexes = new ArrayList<StringBuilder>();
@@ -615,7 +739,7 @@ public class DataHelper {
 		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.v(LOG_TAG, "OpenHelper.onUpgrade");
+			ACLogger.verbose(LOG_TAG, "OpenHelper.onUpgrade");
 			db.execSQL("drop table if exists " + SESSIONS_TABLE_NAME);
 			db.execSQL("drop table if exists " + SPEAKERS_TABLE_NAME);
 			db.execSQL("drop table if exists " + TRACKS_TABLE_NAME);

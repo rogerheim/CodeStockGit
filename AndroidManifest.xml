@@ -18,9 +18,9 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.aremaitch.codestock2010"
-      android:versionCode="2"
-      android:versionName="0.5.1">
-    <application android:name=".CodeStockApp" 
+      android:versionCode="7"
+      android:versionName="1.1.0">
+    <application android:name=".CodeStockApp"
     			android:icon="@drawable/nerdetteskull_2010_icon" android:label="@string/app_name"
     			android:theme="@android:style/Theme.NoTitleBar">
         <activity android:name=".StartActivity">
@@ -58,9 +58,24 @@
         		<category android:name="android.intent.category.DEFAULT"/>
         	</intent-filter>
         </activity>
+        
+        <activity android:name=".MySessionsActivity">
+        	<intent-filter>
+        		<action android:name="com.aremaitch.codestock2010.DISPLAY_MY_SESSIONS"/>
+        		<category android:name="android.intent.category.DEFAULT"/>
+        	</intent-filter>
+        </activity>
+        
+        <activity android:name=".AgendaActivity">
+			<intent-filter>
+				<action android:name="com.aremaitch.codestock2010.DISPLAY_AGENDA"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>        
+        </activity>
     </application>
-    <uses-sdk android:minSdkVersion="3" />
+    <uses-sdk android:minSdkVersion="7" />
 
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 </manifest> 

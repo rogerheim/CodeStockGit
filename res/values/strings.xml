@@ -14,8 +14,9 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
  -->
+ 
+ <!-- Strings in this part of the file need to be localized. -->
 <resources>
     <string name="app_name">CodeStock 2010</string>
     <string name="header_title">CodeStock 2010</string>
@@ -23,29 +24,69 @@
     <string name="logging_tag">CodeStock2010</string>
     <string name="about_title">About CodeStock 2010...</string>
     
+    <string name="yes_string">Yes</string>
+    <string name="no_string">No</string>
+    
     <string name="standard_where_when_format_string">EEE, MMM d yyyy h:mm a</string>
     <string name="empty_db_msg">The current session list is empty\n\nWould you like to download the session list now?</string>
     <string name="refresh_data_progress_dialog_msg">Downloading session list;\nPlease wait...</string>
+    <string name="refresh_data_progress_dialog_title">Refresh</string>
     <string name="update_db_progress_dialog_msg">Updating session list;\nPlease wait...</string>
+    
+    <string name="session_track_list_header_title">Session Tracks</string>
+    <string name="sessions_in_track_list_header_title">Track Sessions</string>
+    <string name="sessions_in_track_presentedby">Presented by:&#160;</string>
+    <string name="sessions_in_track_room">Room:&#160;</string>
+    
+    <string name="mysessions_title">My Sessions</string>
+    <string name="mysessions_qrscan_prompt_msg">To use My Sessions you need to first build your schedule using the CodeStock website. The web site will show you a QR barcode you can scan that will link it with your phone. Note that you need a free barcode scanning app on your phone, which you will be prompted to download if you don\'t have it. Do you want to continue?</string>
+    <string name="mysessions_qrscan_prompt_title">Schedule Builder</string>
+    <string name="mysessions_qrscan_badscan_msg">Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder</string>
+    <string name="mysessions_presentedby">Presented by:&#160;</string>
+    <string name="mysessions_room">Room:&#160;</string>
+    
+    <string name="map_title">Conference Center Map</string>
+    
+    <string name="session_details_room_label">Rm:</string>
+    <string name="session_details_presentedby">Presented by:&#160;</string>
+    <string name="session_details_synopsis_tba_msg">To be announced</string>
+    <string name="session_details_bio_missing_msg">Speaker bio not provided</string>
+    
+    <string name="agenda_title">Agenda</string>
+    <string name="agenda_date_format">EEEE, h:mm a</string>
+    <string name="agenda_presentedby">Presented by:&#160;</string>
+    <string name="agenda_room">Room:&#160;</string>
+    
+    <string name="about_version_template">Version</string>
+    <string name="about_bad_version">Unable to retrieve version</string>
+    <string name="about_copyright">Copyright &#169; 2010 Roger&#160;Heim, All rights reserved</string>
+    <string name="about_regtm">CodeStock and the CodeStock logos are Registered Trademarks of the East Tennessee .NET Users Group, Inc.</string>
+    <string name="about_apache_license">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
+    
+    <string name="friday_string">Friday</string>
+    <string name="saturday_string">Saturday</string>
+    
+    <!--  Menu text -->
+    <string name="menu_refresh_text">Refresh</string>
+    <string name="menu_home_text">Home</string>
+    <string name="menu_search_text">Search</string>
+
+
+	<!-- Put strings that do not need to be localized below this marker -->
+    <!-- Data feed url's -->
     <string name="json_data_url">http://codestock.org/api/v1.0.svc/AllSessionsJson</string>
     <string name="json_data_rooms_url_v2">http://codestock.org/api/v2.0.svc/AllRoomsJson</string>
     <string name="json_data_speakers_url_v2">http://codestock.org/api/v2.0.svc/AllSpeakersJson</string>
     <string name="json_data_sessions_url_v2">http://codestock.org/api/v2.0.svc/AllSessionsJson</string>
+    <string name="schedule_builder_url">http://codestock.org/api/v2.0.svc/GetScheduleJson</string>
+    <string name="schedule_builder_parameter">ScheduleID</string>
     
     <!-- Vote rank strings -->
     <string name="voterank_none">NONE</string>
     <string name="voterank_top20">TOP20</string>
     <string name="voterank_top5">TOP5</string>
     <string name="voterank_top1">TOP1</string>
-    
-    <string name="session_track_list_header_title">Session Tracks</string>
-    <string name="sessions_in_track_list_header_title">Track Sessions</string>
-    
-    <!--  Menu text -->
-    <string name="menu_refresh_text">Refresh</string>
-    <string name="menu_home_text">Home</string>
-    <string name="menu_search_text">Search</string>
-    
+
     <!--  Intent names -->
     <string name="sessions_intent_action">com.aremaitch.codestock2010.DISPLAY_SESSION_TRACKS</string>
     <string name="sessions_intent_category">android.intent.category.DEFAULT</string>
@@ -59,4 +100,15 @@
 	
 	<string name="about_intent_action">com.aremaitch.codestock2010.DISPLAY_ABOUT</string>
 	<string name="about_intent_category">android.intent.category.DEFAULT</string>
+	
+	<string name="mysessions_intent_action">com.aremaitch.codestock2010.DISPLAY_MY_SESSIONS</string>
+	<string name="mysessions_intent_cateogry">android.intent.category.DEFAULT</string>
+	
+	<string name="agenda_intent_action">com.aremaitch.codestock2010.DISPLAY_AGENDA</string>
+	<string name="agenda_intent_category">android.intent.category.DEFAULT</string>
+	
+	<!-- Miscellaneous strings -->
+	<string name="shared_prefs_name">CodeStock2010Prefs</string>
+	<string name="shared_prefs_userid">userid</string>
+	
 </resources>

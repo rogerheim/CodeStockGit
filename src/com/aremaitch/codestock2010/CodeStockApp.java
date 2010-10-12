@@ -16,32 +16,30 @@
  */
 package com.aremaitch.codestock2010;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.Application;
-import android.os.AsyncTask;
+
+import com.aremaitch.AsyncManager.AsyncTaskManager;
 
 public class CodeStockApp extends Application {
-	@SuppressWarnings("unchecked")
-	private Map<String, AsyncTask> _currentTasks = null;
-
-	@SuppressWarnings("unchecked")
+	
+	private static CodeStockApp theApp;
+	private static AsyncTaskManager taskMgr;
+	
+	
 	public CodeStockApp() {
-		_currentTasks = new HashMap<String, AsyncTask>();
-	}
-	@SuppressWarnings("unchecked")
-	public void pushTask(String taskKey, AsyncTask task) {
-		_currentTasks.put(taskKey, task);
+		super();
+		theApp = this;
+		taskMgr = AsyncTaskManager.getInstance();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public AsyncTask getTask(String taskKey) {
-		return _currentTasks.get(taskKey);
+	public static CodeStockApp getInstance() {
+		return theApp;
 	}
 	
-	public void clearTask(String taskKey) {
-		_currentTasks.remove(taskKey);
+	public static AsyncTaskManager getTaskManagerInstance() {
+		if (taskMgr == null) {
+			taskMgr = AsyncTaskManager.getInstance();
+		}
+		return taskMgr;
 	}
-	
 }

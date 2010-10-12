@@ -23,117 +23,96 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	>
+
+	<include layout="@layout/std_header"/>
 	
-	<RelativeLayout
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="60dp"
-		>
-		
-		<TextView
-			android:id="@+id/header_title"
-			android:textColor="@color/White"
-			android:text="@string/about_title"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_marginTop="3dp"
-			android:textSize="18sp"/>
-			
-	</RelativeLayout>
-	
-	
-	<RelativeLayout
+	<ScrollView
+		android:id="@+id/about_scroller"
 		android:layout_width="fill_parent"
 		android:layout_height="0px"
 		android:layout_weight="1"
 		>
 		
-		<!-- This logo is 182X200 -->
-		<ImageView
-			android:id="@+id/about_codestock_logo"
-			android:src="@drawable/nerdetteskull_2010_lowres"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			/>
+		<RelativeLayout
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:paddingLeft="10dp"
+			android:paddingRight="10dp"
+			>
 			
-		<TextView
-			android:id="@+id/about_codestock"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="CodeStock 2010"
-			android:textColor="@color/Black"
-			android:textSize="18sp"
-			android:layout_toRightOf="@id/about_codestock_logo"
-			android:layout_marginTop="20dp"
-			/>
-			
-		<TextView
-			android:id="@+id/about_version"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Version x.x.x"
-			android:textColor="@color/Black"
-			android:textSize="10sp"
-			android:layout_below="@id/about_codestock"
-			android:layout_alignLeft="@id/about_codestock"
-			/>
-			
-			
-		<TextView
-			android:id="@+id/about_copyright"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Copyright (C) 2010 Roger Heim, All rights reserved"
-			android:textColor="@color/Black"
-			android:textSize="12sp"
-			android:layout_below="@id/about_version"
-			android:layout_alignLeft="@id/about_version"
-			android:layout_marginTop="10dp"
-			/>
-			
-			
-		<TextView
-			android:id="@+id/about_regtm"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="CodeStock and the CodeStock logos are Registered Trademarks of the East Tennessee .NET Users Group, Inc."
-			android:textColor="@color/Black"
-			android:textSize="12sp"
-			android:layout_below="@id/about_copyright"
-			android:layout_alignLeft="@id/about_copyright"
-			android:layout_marginTop="10dp"
-			/>
-			
-	</RelativeLayout>
-	
+			<!-- This logo is 182X200 -->
+			<ImageView
+				android:id="@+id/about_codestock_logo"
+				android:src="@drawable/nerdetteskull_2010_lowres"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				/>
+				
+			<TextView
+				android:id="@+id/about_codestock"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/app_name"
+				android:textColor="@color/Black"
+				android:textSize="18sp"
+				android:layout_toRightOf="@id/about_codestock_logo"
+				android:layout_marginTop="20dp"
+				/>
+				
+			<TextView
+				android:id="@+id/about_version"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Version x.x.x"
+				android:textColor="@color/Black"
+				android:textSize="10sp"
+				android:layout_below="@id/about_codestock"
+				android:layout_alignLeft="@id/about_codestock"
+				/>
+				
+				
+			<TextView
+				android:id="@+id/about_copyright"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/about_copyright"
+				android:textColor="@color/Black"
+				android:textSize="12sp"
+				android:layout_below="@id/about_version"
+				android:layout_alignLeft="@id/about_version"
+				android:layout_marginTop="10dp"
+				/>
+				
+				
+			<TextView
+				android:id="@+id/about_regtm"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/about_regtm"
+				android:textColor="@color/Black"
+				android:textSize="12sp"
+				android:layout_below="@id/about_copyright"
+				android:layout_alignLeft="@id/about_copyright"
+				android:layout_marginTop="10dp"
+				/>
+				
+			<!-- 9-Jun-10  Add license text -->
+			<TextView
+				android:id="@+id/about_license"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/about_apache_license"
+				android:textColor="@color/Black"
+				android:textSize="10sp"
+				android:layout_below="@id/about_regtm"
+				android:layout_alignLeft="@id/about_codestock_logo"
+				android:layout_marginTop="25dp"
+				/>
+				
+		</RelativeLayout>
+	</ScrollView>
 	
 	<!-- Footer  -->
-	<RelativeLayout
-		android:orientation="horizontal"
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="50dp"
-		>
-
-		<ImageView
-			android:id="@+id/footer_logo"
-			android:src="@drawable/codestock_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_gravity="center_vertical"/>
-
-		<ImageView
-			android:src="@drawable/nerdetteskull_2010_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="3dp"
-			/>
-
-	</RelativeLayout>		
+	<include layout="@layout/std_footer"/>
 	
 </LinearLayout>

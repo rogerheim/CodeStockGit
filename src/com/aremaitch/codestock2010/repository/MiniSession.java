@@ -32,7 +32,8 @@ public class MiniSession {
 	private Calendar _startDateTime;
 	private String _room;
 	private String _speakerName;
-	private String _award;
+	private String _voteRank;
+	// 9-Jun-10:	Changed 'award' to 'voterank'
 	
 	public long getId() {
 		return _id;
@@ -68,10 +69,10 @@ public class MiniSession {
 		_speakerName = speakerName;
 	}
 	
-	public String getAward() {
-		return _award;
+	public String getVoteRank() {
+		return _voteRank;
 	}
-	public void setAward(String award) {
-		_award = award;
+	public void setVoteRank(String voteRank) {
+		_voteRank = voteRank;
 	}
 }

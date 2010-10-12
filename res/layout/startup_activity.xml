@@ -25,32 +25,7 @@
     android:layout_height="fill_parent"
     >
 
-	<RelativeLayout
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="60dp"
-		>
-		
-		<TextView
-			android:id="@+id/header_title"
-			android:textColor="@color/White"
-			android:text="@string/header_title"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_marginTop="3dp"
-			android:textSize="18sp"/>
-		<TextView
-			android:textColor="@color/White"
-			android:text="@string/header_slogan"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignLeft="@id/header_title"
-			android:layout_below="@id/header_title"/>
-			
-			
-	</RelativeLayout>
-		  
+	<include layout="@layout/std_header"/>
 
 	<TableLayout
 		android:background="@color/White"
@@ -65,6 +40,8 @@
 		>
 		
 		<TableRow
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
 			>
 			<ImageButton
 				android:id="@+id/schedule_imagebutton"
@@ -72,7 +49,7 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="20dp"
+				android:layout_marginRight="20dp"
 				/>
 			<ImageButton
 				android:id="@+id/map_imagebutton"
@@ -80,12 +57,14 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
+				android:layout_marginLeft="20dp"
 				/>
 		</TableRow>
 		
 		<TableRow
 			android:layout_marginTop="25dp"
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
 			>
 			<ImageButton
 				android:id="@+id/sessions_imagebutton"
@@ -93,7 +72,7 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="20dp"
+				android:layout_marginRight="20dp"
 				/>
 			<ImageButton
 				android:id="@+id/starred_imagebutton"
@@ -101,56 +80,26 @@
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
+				android:layout_marginLeft="20dp"
 				/>
 		</TableRow>
 		
 		<TableRow
 			android:layout_marginTop="25dp"
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
 			>
-			<ImageButton
-				android:id="@+id/mynotes_imagebutton"
-				android:src="@drawable/mynotes_icon"
-				android:background="@color/White"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:layout_marginLeft="20dp"
-				/>
 			<ImageButton
 				android:id="@+id/credits_imagebutton"
 				android:src="@drawable/credits_icon"
 				android:background="@color/White"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
-				android:layout_marginLeft="40dp"
+				android:layout_marginLeft="10dp"
 				/>
 		</TableRow>
 	</TableLayout>
 	
 	<!-- Footer  -->
-	<RelativeLayout
-		android:orientation="horizontal"
-		android:background="@color/DodgerBlue"
-		android:layout_width="fill_parent"
-		android:layout_height="50dp"
-		>
-
-		<ImageView
-			android:id="@+id/footer_logo"
-			android:src="@drawable/codestock_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dp"
-			android:layout_gravity="center_vertical"/>
-
-		<ImageView
-			android:src="@drawable/nerdetteskull_2010_lowres_small"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="10dp"
-			android:layout_marginTop="3dp"
-			/>
-
-	</RelativeLayout>		
+	<include layout="@layout/std_footer"/>
 </LinearLayout>

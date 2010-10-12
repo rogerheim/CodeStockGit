@@ -18,13 +18,18 @@ package com.aremaitch.codestock2010;
 
 //import org.joda.time.DateTime;
 
+import java.util.UUID;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +37,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aremaitch.codestock2010.datadownloader.Downloader;
 import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
@@ -40,46 +47,89 @@ import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
+import com.aremaitch.utils.ACLogger;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 //	Theme.NoTitleBar hides the app's title bar.
 //	Theme.NoTitleBar.Fullscreen also covers the notification bar.
 //	See http://developer.android.com/intl/fr/reference/android/R.style.html
 
 public class StartActivity extends Activity {
-	//private static final String CODESTOCK_TAG = "CodeStock2010";
 	private static final int MENU_REFRESH = Menu.FIRST;
-	private static final int MENU_HOME = Menu.FIRST + 1;
-	private static final int MENU_SEARCH = Menu.FIRST + 2;
+
+	UUID backgroundTaskID = null;
+	final String TASK_KEY = "backgroundTaskID";
 	
-	private static final String DOWNLOAD_TASK_KEY = "download_data";
-	private static final String INITIALIZE_JODA_TASK_KEY = "init_joda";
-	private static final String UPDATE_DB_TASK_KEY = "update_db";
+	@Override
+	protected void onDestroy() {
+		ACLogger.info(getString(R.string.logging_tag), "StartActivity onDestroy");
+		super.onDestroy();
+	}
 	
-//	private boolean jodaInit = false;
-	
-	//private static final DateTime dt = null;
+	@Override
+	protected void finalize() throws Throwable {
+		ACLogger.info(getString(R.string.logging_tag), "StartActivity finalize");
+		super.finalize();
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//	Called once when the activity is started.
 		super.onCreate(savedInstanceState);
-		Log.v(getString(R.string.logging_tag), "StartActivity onCreate");
+		ACLogger.info(getString(R.string.logging_tag), "StartActivity onCreate");
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.startup_activity);
 		
-		initializeApp();
+		
+		
+		//	Header is a standard include; change the text.
+		TextView headerTitle = (TextView)findViewById(R.id.header_title);
+		headerTitle.setText(getString(R.string.header_title));
+		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
+		headerSubTitle.setText(getString(R.string.header_slogan));
+		
 		
 		wireupListeners();
 		
-		DataHelper localdh = new DataHelper(this);
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(TASK_KEY)) {
+				backgroundTaskID = UUID.fromString(savedInstanceState.getString(TASK_KEY));
+			}
+		}
+		
+		boolean databaseIsEmpty = false;
+		boolean isDataLoading = false;
+		if (backgroundTaskID != null) {
+			//  We were restarted during a data load (probably because of an orientation change.)
+			//	Reshow the progress dialog.
+			if (CodeStockApp.getTaskManagerInstance().isTaskStillRunning(backgroundTaskID)) {
+				isDataLoading = true;
+				CodeStockApp.getTaskManagerInstance()
+					.setTaskParentAndShowProgressDialog(
+							backgroundTaskID, 
+							this, 
+							getString(R.string.refresh_data_progress_dialog_title), 
+							getString(R.string.refresh_data_progress_dialog_msg));
+			} else {
+				//	Background task id was set but the task is no longer running (or was already removed
+				//	from task table;) null out the backgroundtask id.
+				backgroundTaskID = null;
+			}
+		} else {
+			DataHelper localdh = new DataHelper(this);
+			databaseIsEmpty = localdh.isDatabaseEmpty();
+			localdh.close();
+		}
+		
 		//	If the database is empty and we are not curently loading it, ask the user if they
 		//	want to load it.
-		if (localdh.isDatabaseEmpty() && !isDataLoading()) {
+		if (databaseIsEmpty && !isDataLoading) {
 			new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setMessage(getString(R.string.empty_db_msg))
-				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+				.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -87,136 +137,56 @@ public class StartActivity extends Activity {
 						
 					}
 				})
-				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						((CodeStockApp)getApplication()).pushTask(DOWNLOAD_TASK_KEY, 
-								new RefreshCodeStockData(StartActivity.this).execute());
-//						RefreshCodeStockData task = new RefreshCodeStockData();
-//						task.execute();
 						dialog.dismiss();
+						startDataLoad();
 					}
 				})
 				.setTitle(getString(R.string.app_name))
 				.show();
-			
 		}
 	}
 	
-	private boolean isDataLoading() {
-		boolean result = false;
-		CodeStockApp theApp = (CodeStockApp)getApplication();
-		
-		if (theApp.getTask(DOWNLOAD_TASK_KEY) != null ||
-			theApp.getTask(UPDATE_DB_TASK_KEY) != null) {
-			result = true;
-		}
-		return result;
-		
+	private void startDataLoad() {
+		//	No callback here. Actually we could do one to determine if we completed or were cancelled.
+		RefreshCodeStockData task = new RefreshCodeStockData("");
+		backgroundTaskID = CodeStockApp.getTaskManagerInstance()
+			.createTask(task, 
+					this, 
+					getString(R.string.refresh_data_progress_dialog_title), 
+					getString(R.string.refresh_data_progress_dialog_msg));
+		task.execute();
 	}
 	
-	private void initializeApp() {
-		if (((CodeStockApp)getApplication()).getTask(INITIALIZE_JODA_TASK_KEY) != null) {
-			//	Already a task running; just return
-			return;
-		}
-		
-//		if (!jodaInit) {
-//			((CodeStockApp)getApplication()).pushTask(INITIALIZE_JODA_TASK_KEY, 
-//				new InitializeJodaAsync(this).execute());
-//			jodaInit = true;
-//		}
-	}
-
-	@Override
-	protected void onStart() {
-		//	Called after onCreate() or after the application was previously not visible
-		//	(but still running) and is now visible.
-		super.onStart();
-		Log.v(getString(R.string.logging_tag), "StartActivity onStart");
-	}
 	
-	@Override
-	protected void onPause() {
-		//	Called when another activity comes in front of this one. This activity may
-		//	still be visible but is no longer on top.
-		super.onPause();
-		Log.v(getString(R.string.logging_tag), "StartActivity onPause");
-	}
-
-	@Override
-	protected void onStop() {
-		//	Called when we are no longer visible.
-		super.onStop();
-		Log.v(getString(R.string.logging_tag), "StartActivity onStop");
-
-		clearActivityFromAsyncTasks();
-		
-	}
 	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Log.v(getString(R.string.logging_tag), "StartActivity onSaveInstanceState");
-		clearActivityFromAsyncTasks();
+		//	If the progress dialog is showing, dismiss it before Android
+		//	saves our state.
 		
-	}
-	
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		//	This is called after onStart()
-		super.onRestoreInstanceState(savedInstanceState);
-		Log.v(getString(R.string.logging_tag), "StartActivity onRestoreInstanceState");
-		assignActivityToAsyncTasks();
-	}
-	
-	private void assignActivityToAsyncTasks() {
-		CodeStockApp theApp = (CodeStockApp)getApplication();
-		
-		RefreshCodeStockData task1 = (RefreshCodeStockData)theApp.getTask(DOWNLOAD_TASK_KEY);
-		if (task1 != null) {
-			task1.setActivity(this);
-		}
-		
-//		InitializeJodaAsync task2 = (InitializeJodaAsync)theApp.getTask(INITIALIZE_JODA_TASK_KEY);
-//		if (task2 != null) {
-//			task2.setActivity(this);
-//		}
-		
-		SessionDatabaseUpdater task3 = (SessionDatabaseUpdater)theApp.getTask(UPDATE_DB_TASK_KEY);
-		if (task3 != null) {
-			task3.setActivity(this);
-		}
-	}
-	
-	private void clearActivityFromAsyncTasks() {
-		CodeStockApp theApp = (CodeStockApp)getApplication();
-		
-		RefreshCodeStockData task1 = (RefreshCodeStockData)theApp.getTask(DOWNLOAD_TASK_KEY);
-		if (task1 != null) {
-			Log.v(getString(R.string.logging_tag), "Clearing download task activity");
-			task1.setActivity(null);
-		}
-		
-//		InitializeJodaAsync task2 = (InitializeJodaAsync)theApp.getTask(INITIALIZE_JODA_TASK_KEY);
-//		if (task2 != null) {
-//			Log.v(getString(R.string.logging_tag), "Clearing init joda task activity");
-//			task2.setActivity(null);
-//		}
-		
-		SessionDatabaseUpdater task3 = (SessionDatabaseUpdater)theApp.getTask(UPDATE_DB_TASK_KEY);
-		if (task3 != null) {
-			Log.v(getString(R.string.logging_tag), "Clearing update db task activity");
-			task3.setActivity(null);
-		}
-	}
+		ACLogger.info(getString(R.string.logging_tag), "StartActivity onSaveInstanceState");
 
+		if (backgroundTaskID != null) {
+			
+			//	If the AsyncTaskWrapper uses WeakReferences to the activity do we need to
+			//	worry about clearing the task parent?
+			//	Still need to nuke progress dialog (or not?)
+//			CodeStockApp.getTaskManagerInstance().clearTaskParent(backgroundTaskID);
+			CodeStockApp.getTaskManagerInstance().clearProgressDialog(backgroundTaskID);
+			outState.putString(TASK_KEY, backgroundTaskID.toString());
+		}
+		super.onSaveInstanceState(outState);
+	}
+	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh_text)).setIcon(R.drawable.ic_menu_refresh);
-		menu.add(0, MENU_HOME, 0, getString(R.string.menu_home_text)).setIcon(R.drawable.ic_menu_home);
-		menu.add(0, MENU_SEARCH, 0, getString(R.string.menu_search_text)).setIcon(android.R.drawable.ic_menu_search);
 		return true;
 	}
 	
@@ -224,11 +194,7 @@ public class StartActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_REFRESH:
-			((CodeStockApp)getApplication()).pushTask(DOWNLOAD_TASK_KEY, 
-					new RefreshCodeStockData(StartActivity.this).execute());
-//			RefreshCodeStockData task = new RefreshCodeStockData();
-//			task.execute();
-			
+			startDataLoad();
 			return true;
 		}
 		
@@ -237,11 +203,17 @@ public class StartActivity extends Activity {
 	
 	
 	private void wireupListeners() {
+		//	Agenda
 		ImageButton scheduleButton = (ImageButton) findViewById(R.id.schedule_imagebutton);
 		scheduleButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Schedule button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Schedule button onClick");
+				startActivity(
+						new Intent()
+							.setAction(getString(R.string.agenda_intent_action))
+							.addCategory(Intent.CATEGORY_DEFAULT));
+				
 			}
 		});
 		
@@ -250,7 +222,7 @@ public class StartActivity extends Activity {
 		mapButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Map button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Map button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.conference_center_map_intent_action))
 					.addCategory(getString(R.string.conference_center_map_intent_category));
@@ -265,7 +237,7 @@ public class StartActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Sessions button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Sessions button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.sessions_intent_action))
 					.addCategory(getString(R.string.sessions_intent_category));
@@ -278,23 +250,23 @@ public class StartActivity extends Activity {
 		ImageButton starredButton = (ImageButton) findViewById(R.id.starred_imagebutton);
 		starredButton.setOnClickListener(new OnClickListener() {
 			
+			//	This works however, after the scan an error occurs in MySessionsActivity.
+			//	Running it again (after the userid has been pref'd) results in no error.
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Starred button onClick");
-				
-			}
-		});
-		
-		
-		ImageButton mynotesButton = (ImageButton) findViewById(R.id.mynotes_imagebutton);
-		mynotesButton.setOnClickListener(new OnClickListener() {
+				ACLogger.info(getString(R.string.logging_tag), "Starred button onClick");
+				SharedPreferences settings = getSharedPreferences(getString(R.string.shared_prefs_name), Context.MODE_PRIVATE);
+				long userid = settings.getLong(getString(R.string.shared_prefs_userid), 0);
+				if (userid == 0) {
+					promptUserToScanQRCode();
+				} else {
+					startMySessions(userid);
+				}
 			
-			@Override
-			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "MyNotes button onClick");
-				
 			}
 		});
+		
+		
 		
 		
 		ImageButton creditsButton = (ImageButton) findViewById(R.id.credits_imagebutton);
@@ -302,7 +274,7 @@ public class StartActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				Log.i(getString(R.string.logging_tag), "Credits button onClick");
+				ACLogger.info(getString(R.string.logging_tag), "Credits button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.about_intent_action))
 					.addCategory(getString(R.string.about_intent_category));
@@ -310,204 +282,113 @@ public class StartActivity extends Activity {
 			}
 		});
 	}
-
 	
-//	private class InitializeJodaAsync extends AsyncTask<Void, Void, Void >{
-//		ProgressDialog progress = null;
-//		Activity _act = null;
-//		
-//		public InitializeJodaAsync(Activity act) {
-//			super();
-//			_act = act;
-//		}
-//		
-//		public void setActivity(Activity act ) {
-//			_act = act;
-//			if (_act == null) {
-//				if (progress != null) {
-//					progress.dismiss();
-//				}
-//			} else {
-//				showProgressDialog();
-//			}
-//		}
-//		
-//		private void clearActivity() {
-//			if (_act != null) {
-//				((CodeStockApp)_act.getApplication()).clearTask(INITIALIZE_JODA_TASK_KEY);
-//			}
-//		}
-//		
-//		private void showProgressDialog() {
-//			if (_act != null) {
-////				progress = ProgressDialog.show(_act, "Initializing", "Initializing CodeStock 2010;\n\nPlease wait...");
-//			}
-//		}
-//		@Override
-//		protected void onPreExecute() {
-//			if (_act != null) {
-//				showProgressDialog();
-//			}
-//		}
-//		
-//		@Override
-//		protected void onCancelled() {
-//			if (progress != null) {
-//				progress.dismiss();
-//			}
-//			clearActivity();
-//		}
-//		
-//		@Override
-//		protected Void doInBackground(Void... params) {
-//			//	New up a DateTime object so Joda can create its static objects.
-//			new DateTime();
-//			return null;
-//		}
-//		
-//		@Override
-//		protected void onPostExecute(Void result) {
-//			if (_act != null && progress != null) {
-//				progress.dismiss();
-//			}
-//			clearActivity();
-//		}
-//	}
-
-	
-	private class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
-
-		ProgressDialog progress = null;
-//		Downloader dl = null;
-		DownloaderV2 dlv2 = null;
-		Activity _act = null;
+	private void promptUserToScanQRCode() {
 		
-		public RefreshCodeStockData(Activity act) {
-			super();
-			_act = act;
-		}
-		
-		public void setActivity(Activity act) {
-			_act = act;
-			if (_act == null) {
-				if (progress != null) {
-					progress.dismiss();
+		// This dialog doesn't show until onCreate() shows.
+
+		new AlertDialog.Builder(this).setCancelable(false)
+			.setMessage(getString(R.string.mysessions_qrscan_prompt_msg))
+			.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
 				}
-			} else {
-				showProgressDialog();
-			}
-		}
+			})
+			.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
 
-		private void clearActivity() {
-			((CodeStockApp)_act.getApplication()).clearTask(DOWNLOAD_TASK_KEY);
-		}
-		
-		private void showProgressDialog() {
-			if (_act != null) {
-				progress = ProgressDialog.show(_act, "Refresh",  getString(R.string.refresh_data_progress_dialog_msg));
-			}
-		}
-		@Override
-		protected void onPreExecute() {
-			if (_act != null) {
-				showProgressDialog();
-			}
-		}
-		
-		@Override
-		protected void onCancelled() {
-			progress.dismiss();
-			clearActivity();
-		}
-		
-		@Override
-		protected Void doInBackground(Void... arg0) {
-//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
-			dlv2 = new DownloaderV2(_act, 
-					_act.getString(R.string.json_data_rooms_url_v2), 
-					_act.getString(R.string.json_data_speakers_url_v2), 
-					_act.getString(R.string.json_data_sessions_url_v2));
-			dlv2.getCodeStockData();
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
+				@Override
+				public void onClick(DialogInterface dialog,	int which) {
+					dialog.dismiss();
+					IntentIntegrator.initiateScan(StartActivity.this);
+				}
+			})
+			.setTitle(getString(R.string.mysessions_qrscan_prompt_title))
+			.show();
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+		if (scanResult != null) {
+			//	result should be the url: http://codestock.org/ViewSchedule.aspx?id=111
+			//	find the last position of 'id=', bump by 3 to point to number, then parse it to a long.
 			
-			if (_act != null) {
-//				((CodeStockApp)getApplication()).pushTask(UPDATE_DB_TASK_KEY, 
-//						new SessionDatabaseUpdater(_act, dl).execute());
-				((CodeStockApp)getApplication()).pushTask(UPDATE_DB_TASK_KEY, 
-						new SessionDatabaseUpdater(_act, dlv2).execute());
-				progress.dismiss();
+			//	17-Jun-10: In the emulator the call to initiateScan() returns immediately. scanResult is 
+			//				a valid object but getContents() returns null.
+			
+			String result = scanResult.getContents();
+			if (TextUtils.isEmpty(result)) {
+//				Toast.makeText(this, "Scan results contents were empty; do you not have a camera?", Toast.LENGTH_SHORT).show();
+				return;
 			}
-			clearActivity();
+			
+			//	17-Jun-10:	Looks like the format of the link changed. I love moving targets.
+			if (result.toLowerCase().startsWith("http://codestock.org/viewschedule.aspx?id=")) {
+				parseWebsiteLink(result);
+				return;
+			}
+			
+			if (result.toLowerCase().startsWith("http://codestock.org/m/viewschedule.aspx?id=")) {
+				parseWebsiteLink(result);
+				return;
+			}
+			
+			Toast.makeText(this, 
+					getString(R.string.mysessions_qrscan_badscan_msg), 
+					Toast.LENGTH_LONG).show();
+			return;
+			
 		}
 	}
 
-	
-	private class SessionDatabaseUpdater extends AsyncTask<Void, Void, Void> {
-//		Downloader dl = null;
-		DownloaderV2 dlv2 = null;
-		
-		ProgressDialog progress = null;
-		Activity _act = null;
-		
-//		public SessionDatabaseUpdater(Activity act, Downloader dl) {
-//			this.dl = dl;
-//			_act = act;
-//		}
+	private void parseWebsiteLink(String link) {
+		if (link.lastIndexOf("id=") != -1) {
+			Long userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
+			SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_prefs_name), Context.MODE_PRIVATE).edit();
+			editor.putLong(getString(R.string.shared_prefs_userid), userid);
+			editor.commit();
+			startMySessions(userid);
+		}
+	}
 
-		public SessionDatabaseUpdater(Activity act, DownloaderV2 dlv2) {
-			this.dlv2 = dlv2;
-			_act = act;
-		}
+	private void startMySessions(long userid) {
+		Intent i = new Intent();
+		i.setAction(getString(R.string.mysessions_intent_action))
+			.addCategory(Intent.CATEGORY_DEFAULT)
+			.putExtra(getString(R.string.shared_prefs_userid), userid);
+		startActivity(i);
+	}
+
+	
+	public class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
+
+		DownloaderV2 dlv2 = null;
+		private String callbackMethod = "";
 		
-		public void setActivity(Activity act) {
-			_act = act;
-			if (_act == null) {
-				if (progress != null) {
-					progress.dismiss();
-				}
-			} else {
-				showProgressDialog();
-			}
+		public RefreshCodeStockData(String callbackMethod) {
+			this.callbackMethod = callbackMethod;
 		}
-		
-		private void clearActivity(){
-			((CodeStockApp)_act.getApplication()).clearTask(UPDATE_DB_TASK_KEY);
-		}
-		
-		private void showProgressDialog() {
-			progress = ProgressDialog.show(_act, "Refresh", _act.getString(R.string.update_db_progress_dialog_msg));
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			if (_act != null) {
-				showProgressDialog();
-			}
-		}
-		
+
 		@Override
 		protected void onCancelled() {
-			progress.dismiss();
-			clearActivity();
+			//	With WeakReferences do we really need to clearTaskParent?
+//			CodeStockApp.getTaskManagerInstance().clearTaskParent(this);
+			CodeStockApp.getTaskManagerInstance().removeTask(this, false);
 		}
-		
+
 		@Override
-		protected void onPostExecute(Void result) {
-			if (_act != null) {
-				progress.dismiss();
-			}
-			clearActivity();
-		}
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			DataHelper dh = new DataHelper(_act);
-			dh.clearAllData();
+		protected Void doInBackground(Void... arg0) {
+			ACLogger.info(getString(R.string.logging_tag), "Starting RefreshCodeStockData.doInBackground()");
+			//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
+			dlv2 = new DownloaderV2(getApplicationContext(), 
+					getString(R.string.json_data_rooms_url_v2), 
+					getString(R.string.json_data_speakers_url_v2), 
+					getString(R.string.json_data_sessions_url_v2));
+			dlv2.getCodeStockData();
 			
+			DataHelper dh = new DataHelper(getApplicationContext());
+			dh.clearAllData();
 			try {
 				for (Track t : dlv2.getParsedTracks()) {
 					dh.insertTrack(t);
@@ -525,6 +406,22 @@ public class StartActivity extends Activity {
 				dh.close();
 			}
 			return null;
+		}
+
+
+		@Override
+		protected void onPostExecute(Void result) {
+			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData.onPostExecute()");
+			
+			if (!TextUtils.isEmpty(this.callbackMethod)) {
+				Bundle args = new Bundle();
+				args.putBoolean("Cancelled", false);
+				args.putBoolean("Completed", true);
+				CodeStockApp.getTaskManagerInstance().invokeOnActivity(this, this.callbackMethod, args);
+			}
+//			CodeStockApp.getTaskManagerInstance().clearTaskParent(this);
+			CodeStockApp.getTaskManagerInstance().removeTask(this, false);
+			super.onPostExecute(result);
 		}
 	}
 }

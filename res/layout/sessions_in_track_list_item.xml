@@ -57,7 +57,7 @@
 		android:textSize="12sp"
 		android:textColor="@color/Black"
 		android:textStyle="italic"
-		android:text="Presented by: "
+		android:text="@string/sessions_in_track_presentedby"
 		/>
 		
 	<TextView
@@ -93,7 +93,7 @@
 		android:textSize="12sp"
 		android:textColor="@color/Black"
 		android:textStyle="italic"
-		android:text="Room:"
+		android:text="@string/sessions_in_track_room"
 		/>
 		
 	<TextView

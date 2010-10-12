@@ -80,8 +80,8 @@ public class DownloaderV2 {
 		
 		//	not actually using room data
 		try {
-		getSpeakerData(this.speakersUrl);
-		getSessionData(this.sessionsUrl);
+			getSpeakerData(this.speakersUrl);
+			getSessionData(this.sessionsUrl);
 		} catch (Exception ex) {
 			result = false;
 		}
@@ -303,7 +303,7 @@ public class DownloaderV2 {
 	private Calendar convertToCalendar(String dateString) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(Long.parseLong(dateString.substring(6, 19)));
-		cal.setTimeZone(TimeZone.getTimeZone("FMT" + dateString.substring(19, 24)));
+		cal.setTimeZone(TimeZone.getTimeZone("GMT" + dateString.substring(19, 24)));
 		return cal;
 	}
 	

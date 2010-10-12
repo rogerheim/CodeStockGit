@@ -27,4 +27,10 @@
 	<color name="LightGray">#D3D3D3</color>
 	<color name="Gray">#BEBEBE</color>
 	<color name="DimGray">#696969</color>
+	
+	<!-- These colors come from the web site agenda page -->
+	<color name="DevTrack">#DDF</color>
+	<color name="ITTrack">#EDE</color>
+	<color name="EntrepreneurTrack">#CDC</color>
+	<color name="PanelTrack">#CEF</color>
 </resources>
