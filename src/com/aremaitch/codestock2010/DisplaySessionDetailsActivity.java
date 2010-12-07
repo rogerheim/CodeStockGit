@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -70,9 +71,8 @@ public class DisplaySessionDetailsActivity extends Activity {
 	Pattern twitterPattern = null;
 	String twitterScheme = "http://twitter.com/";	// I can't find a standard for calling a default Twitter activity
 	final String photoCachePath = "com.aremaitch.codestock2010/speakerphotocache/";
-	
-	UUID backgroundTaskID = null;
-	final String TASK_KEY = "getSpeakerPhotoTaskID";
+
+	GetSpeakerPhotoTask task = null;
 	
 	//	Orientation change fires onPause(), onCreate(), onStart()
 	//		(there may be a different layout for landscape vs. portrait so Android will
@@ -84,19 +84,10 @@ public class DisplaySessionDetailsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.session_details);
 
-		if (savedInstanceState != null) {
-			if (savedInstanceState.containsKey(TASK_KEY)) {
-				backgroundTaskID = UUID.fromString(savedInstanceState.getString(TASK_KEY));
-			}
-		}
+		task = (GetSpeakerPhotoTask)getLastNonConfigurationInstance();
 		
-		if (backgroundTaskID != null) {
-			if (CodeStockApp.getTaskManagerInstance().isTaskStillRunning(backgroundTaskID)) {
-				CodeStockApp.getTaskManagerInstance()
-					.setTaskParent(backgroundTaskID, this);
-			} else {
-				backgroundTaskID = null;
-			}
+		if (task != null) {
+			task.attach(this);
 		}
 		setupTwitterFilter();
 		
@@ -145,15 +136,15 @@ public class DisplaySessionDetailsActivity extends Activity {
 		}
 	}
 	
+
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		if (backgroundTaskID != null) {
-			CodeStockApp.getTaskManagerInstance().clearTaskParent(backgroundTaskID);
-			outState.putString(TASK_KEY, backgroundTaskID.toString());
+	public Object onRetainNonConfigurationInstance() {
+		if (task != null) {
+			task.detach();
+			return task;
 		}
-		super.onSaveInstanceState(outState);
+		return null;
 	}
-	
 	
 	//	Since this is coming from a local database and is fairly quick we can probably
 	//	get away with not using an AsyncTask.
@@ -225,22 +216,17 @@ public class DisplaySessionDetailsActivity extends Activity {
 			//	from the WeakReference and call setCompoundDrawablesWithIntrinsicBounds() itself, eliminating
 			//	the need for the callback. But wouldn't that still leave the problem of recycled views
 			//	because of an orientation change?
-			GetSpeakerPhoto gsp = new GetSpeakerPhoto(speakerPhotoUrl, "displaySpeakerPhotoCallback");
-			backgroundTaskID = CodeStockApp.getTaskManagerInstance()
-				.createTask(gsp, this);
-			gsp.execute();
+			task = new GetSpeakerPhotoTask(speakerPhotoUrl, this);
+			task.execute();
 		}
 
 	}
 	
-	public void displaySpeakerPhotoCallback(Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
-		if (arg0 instanceof Drawable) {
-			Drawable photo = (Drawable)arg0;
-			presentedby.setCompoundDrawablesWithIntrinsicBounds(null, null, null, photo);
-			backgroundTaskID = null;
-		}
-		
+	void signalComplete(Drawable photo) {
+		task = null;
+		displaySpeakerPhoto(photo);
 	}
+	
 	private void displaySpeakerPhoto(Drawable photo) {
 //		photo.setBounds(0, 0, 60, 60);
 //		presentedby.setCompoundDrawables(null, null, null, photo);
@@ -414,13 +400,15 @@ public class DisplaySessionDetailsActivity extends Activity {
 	}
 	
 	
-	private class GetSpeakerPhoto extends AsyncTask<Void, Void, Drawable> {
-		private String _urlString;
-		private String callbackMethod = "";
+	private class GetSpeakerPhotoTask extends AsyncTask<Void, Void, Drawable> {
+		static final int BUFFER_SIZE = 8192;
 		
-		public GetSpeakerPhoto(String urlString, String callbackMethod) {
+		String _urlString;
+		DisplaySessionDetailsActivity activity = null;
+		
+		public GetSpeakerPhotoTask(String urlString, DisplaySessionDetailsActivity activity) {
 			this._urlString = urlString;
-			this.callbackMethod = callbackMethod;
+			attach(activity);
 		}
 		
 		@Override
@@ -430,9 +418,11 @@ public class DisplaySessionDetailsActivity extends Activity {
 			try {
 				URL theUrl = new URL(_urlString);
 				if (isSpeakerPhotoCached(stripFileName(theUrl.getFile()))) {
+					ACLogger.info(getString(R.string.logging_tag), "Getting speaker photo from cache");
 					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
 				} else {
 					
+					ACLogger.info(getString(R.string.logging_tag), "Downloading speaker photo from " + _urlString);
 					photo = downloadSpeakerPhoto(theUrl);
 				}
 			} catch (MalformedURLException e) {
@@ -444,16 +434,19 @@ public class DisplaySessionDetailsActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Drawable result) {
-			//	Cannot just call 'displaySpeakerPhoto' because the activity might have
-			//	recycled.
-			if (!TextUtils.isEmpty(this.callbackMethod)) {
-				CodeStockApp.getTaskManagerInstance().invokeOnActivity(this, this.callbackMethod, result, null, null, null, null);
+			if (activity != null) {
+				activity.signalComplete(result);
 			}
-			CodeStockApp.getTaskManagerInstance().clearTaskParent(this);
-			CodeStockApp.getTaskManagerInstance().removeTask(this, false);
-			//displaySpeakerPhoto(result);
+			super.onPostExecute(result);
 		}
 
+		void detach() {
+			activity = null;
+		}
+		
+		void attach(DisplaySessionDetailsActivity activity) {
+			this.activity = activity;
+		}
 		
 		private String stripFileName(String longFileName) {
 			//	Takes /Assets/Speakers/guid.jpg and just returns guid.jpg
@@ -493,6 +486,8 @@ public class DisplaySessionDetailsActivity extends Activity {
 		
 		private boolean isExternalStorageReady() {
 			String state = Environment.getExternalStorageState();
+			//ACLogger.info(getString(R.string.logging_tag), "External storage state is " + state);
+			
 			if (Environment.MEDIA_MOUNTED.equals(state)) {
 				return true;
 			}
@@ -533,69 +528,57 @@ public class DisplaySessionDetailsActivity extends Activity {
 			return result;
 		}
 		
-		
+
 		private Drawable downloadSpeakerPhoto(URL theUrl) {
-			InputStream is = null;
-			BufferedInputStream bis = null;
 			Drawable photo = null;
 			
+			HttpURLConnection cn = null;
+			InputStream is = null;
+			
 			try {
-				URLConnection cn = theUrl.openConnection();
-				int contentLength = cn.getContentLength();
-				byte[] data = new byte[contentLength];
+				cn = (HttpURLConnection) theUrl.openConnection();
+				is = new BufferedInputStream(cn.getInputStream());
 				
-				is = cn.getInputStream();
-				bis = new BufferedInputStream(is);
-				int bytesRead = 0;
-				int offset = 0;
-				while (offset < contentLength) {
-					bytesRead = bis.read(data, offset, data.length - offset);
-					if (bytesRead == -1)
-						break;
-					offset += bytesRead;
-				}
+				//	If external storage is ready, save the stream to the cache, then return the photo from the cache.
+				//	If external storage isnot ready, get the photo directly from the stream.
+				//	In either event, return the photo.
 				
-				//	If the external storage is ready, save the photo to the cache and return
-				//	the photo from the cache.
-				//	If the external storage is not ready, convert the byte array directly to a
-				//	drawable.
 				if (isExternalStorageReady()) {
-					savePhotoToCache(stripFileName(theUrl.getFile()), data);
+					savePhotoToCache(stripFileName(theUrl.getFile()), is);
 					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
 				} else {
-					photo = Drawable.createFromStream(new ByteArrayInputStream(data), "session_details_speaker_photo");
+					photo = Drawable.createFromStream(is, "session_details_speaker_photo");
 				}
 				
-			} catch (SocketTimeoutException e) {
-				ACLogger.info(getString(R.string.logging_tag), "Timeout getting speaker photo: ");
-				e.printStackTrace();
-			} catch (Exception e) {
-				ACLogger.error(getString(R.string.logging_tag), "Error getting speaker photo: ");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				if (bis != null) {
-					try {
-						bis.close();
-					} catch (Exception e) {
-					}
-				}
-				if (is != null) {
-					try {
-						is.close();
-					} catch (Exception e) {
-					}
-				}
+				cn.disconnect();
 			}
 			return photo;
 		}
-		
-		private void savePhotoToCache(String fileName, byte[] data) {
+
+		private void savePhotoToCache(String fileName, InputStream stream) {
 			File cacheFile = getCachedPhotoName(fileName);
 			FileOutputStream out = null;
+			int totalBytes = 0;
+			
+			byte[] data = new byte[BUFFER_SIZE];
+			
 			try {
 				out = new FileOutputStream(cacheFile);
-				out.write(data);
+				ACLogger.info(getString(R.string.logging_tag), "Enter download photo loop");
+
+				int bytesRead = stream.read(data, 0, BUFFER_SIZE);
+				while (bytesRead > -1) {
+					out.write(data, 0, bytesRead);
+					totalBytes += bytesRead;
+					bytesRead = stream.read(data, 0, BUFFER_SIZE);
+				}
 				out.flush();
+				ACLogger.info(getString(R.string.logging_tag), "Saved " + fileName + " of size " + String.valueOf(totalBytes));
+				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -609,8 +592,96 @@ public class DisplaySessionDetailsActivity extends Activity {
 				}
 				
 			}
-					
 		}
+
+//		private void savePhotoToCache(String fileName, byte[] data) {
+//			File cacheFile = getCachedPhotoName(fileName);
+//			FileOutputStream out = null;
+//			try {
+//				out = new FileOutputStream(cacheFile);
+//				out.write(data);
+//				out.flush();
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} finally {
+//				if (out != null) {
+//					try {
+//						out.close();
+//					} catch (Exception e) {
+//					}
+//				}
+//				
+//			}
+//					
+//		}
+		
+		
+//		private Drawable downloadSpeakerPhoto(URL theUrl) {
+//			InputStream is = null;
+//			BufferedInputStream bis = null;
+//			Drawable photo = null;
+//			
+//			try {
+//				URLConnection cn = theUrl.openConnection();
+//				int contentLength = cn.getContentLength();
+//				
+//				//	Why is getContentLength() returning -1? Something different in Gingerbread?
+//				ACLogger.info(getString(R.string.logging_tag), "Photo contentlength = " + String.valueOf(contentLength));
+//
+//				byte[] data = new byte[contentLength];
+//				
+//				is = cn.getInputStream();
+//				bis = new BufferedInputStream(is);
+//				int bytesRead = 0;
+//				int offset = 0;
+//				int totalBytes = 0;
+//				
+//				while (offset < contentLength) {
+//					bytesRead = bis.read(data, offset, data.length - offset);
+//					if (bytesRead == -1)
+//						break;
+//					offset += bytesRead;
+//					totalBytes += bytesRead;
+//				}
+//
+//				ACLogger.info(getString(R.string.logging_tag), "Got photo; total bytes = " + String.valueOf(totalBytes));
+//				
+//				//	If the external storage is ready, save the photo to the cache and return
+//				//	the photo from the cache.
+//				//	If the external storage is not ready, convert the byte array directly to a
+//				//	drawable.
+//				if (isExternalStorageReady()) {
+//					savePhotoToCache(stripFileName(theUrl.getFile()), data);
+//					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
+//				} else {
+//					photo = Drawable.createFromStream(new ByteArrayInputStream(data), "session_details_speaker_photo");
+//				}
+//				
+//			} catch (SocketTimeoutException e) {
+//				ACLogger.info(getString(R.string.logging_tag), "Timeout getting speaker photo: ");
+//				e.printStackTrace();
+//			} catch (Exception e) {
+//				ACLogger.error(getString(R.string.logging_tag), "Error getting speaker photo: ");
+//				e.printStackTrace();
+//			} finally {
+//				if (bis != null) {
+//					try {
+//						bis.close();
+//					} catch (Exception e) {
+//					}
+//				}
+//				if (is != null) {
+//					try {
+//						is.close();
+//					} catch (Exception e) {
+//					}
+//				}
+//			}
+//			return photo;
+//		}
+		
 	}
 	
 //	public class QuerySessionDetails extends AsyncTask<Void, Void, Session> {

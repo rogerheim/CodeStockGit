@@ -75,10 +75,19 @@
 	<!-- Put strings that do not need to be localized below this marker -->
     <!-- Data feed url's -->
     <string name="json_data_url">http://codestock.org/api/v1.0.svc/AllSessionsJson</string>
+    
+    <!-- 
     <string name="json_data_rooms_url_v2">http://codestock.org/api/v2.0.svc/AllRoomsJson</string>
     <string name="json_data_speakers_url_v2">http://codestock.org/api/v2.0.svc/AllSpeakersJson</string>
     <string name="json_data_sessions_url_v2">http://codestock.org/api/v2.0.svc/AllSessionsJson</string>
     <string name="schedule_builder_url">http://codestock.org/api/v2.0.svc/GetScheduleJson</string>
+     -->
+     
+    <!-- Local resources for testing -->
+    <string name="json_data_rooms_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllRoomsJson.txt</string>
+    <string name="json_data_speakers_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllSpeakersJson.txt</string>
+    <string name="json_data_sessions_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllSessionsJson.txt</string>
+    <string name="schedule_builder_url">http://10.0.2.2/LocalCodestockSite/api/data/GetScheduleJson.txt</string>
     <string name="schedule_builder_parameter">ScheduleID</string>
     
     <!-- Vote rank strings -->

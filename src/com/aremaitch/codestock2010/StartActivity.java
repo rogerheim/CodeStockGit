@@ -18,8 +18,6 @@ package com.aremaitch.codestock2010;
 
 //import org.joda.time.DateTime;
 
-import java.util.UUID;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -30,7 +28,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +37,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aremaitch.codestock2010.datadownloader.Downloader;
 import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
@@ -58,20 +54,8 @@ import com.google.zxing.integration.android.IntentResult;
 public class StartActivity extends Activity {
 	private static final int MENU_REFRESH = Menu.FIRST;
 
-	UUID backgroundTaskID = null;
-	final String TASK_KEY = "backgroundTaskID";
-	
-	@Override
-	protected void onDestroy() {
-		ACLogger.info(getString(R.string.logging_tag), "StartActivity onDestroy");
-		super.onDestroy();
-	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		ACLogger.info(getString(R.string.logging_tag), "StartActivity finalize");
-		super.finalize();
-	}
+	RefreshCodeStockData task = null;
+	ProgressDialog _progress = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,31 +76,22 @@ public class StartActivity extends Activity {
 		
 		
 		wireupListeners();
-		
-		if (savedInstanceState != null) {
-			if (savedInstanceState.containsKey(TASK_KEY)) {
-				backgroundTaskID = UUID.fromString(savedInstanceState.getString(TASK_KEY));
-			}
-		}
+
+		task = (RefreshCodeStockData)getLastNonConfigurationInstance();
 		
 		boolean databaseIsEmpty = false;
-		boolean isDataLoading = false;
-		if (backgroundTaskID != null) {
+		
+		
+		if (task != null) {
+			ACLogger.info(getString(R.string.logging_tag), "StartActivity reconnecting to running RefreshCodeStockData task");
 			//  We were restarted during a data load (probably because of an orientation change.)
 			//	Reshow the progress dialog.
-			if (CodeStockApp.getTaskManagerInstance().isTaskStillRunning(backgroundTaskID)) {
-				isDataLoading = true;
-				CodeStockApp.getTaskManagerInstance()
-					.setTaskParentAndShowProgressDialog(
-							backgroundTaskID, 
-							this, 
-							getString(R.string.refresh_data_progress_dialog_title), 
-							getString(R.string.refresh_data_progress_dialog_msg));
-			} else {
-				//	Background task id was set but the task is no longer running (or was already removed
-				//	from task table;) null out the backgroundtask id.
-				backgroundTaskID = null;
+			task.attach(this);
+			showProgressDialog();
+			if (task.getStatus() == AsyncTask.Status.FINISHED) {
+				clearProgressDialog();
 			}
+
 		} else {
 			DataHelper localdh = new DataHelper(this);
 			databaseIsEmpty = localdh.isDatabaseEmpty();
@@ -125,7 +100,7 @@ public class StartActivity extends Activity {
 		
 		//	If the database is empty and we are not curently loading it, ask the user if they
 		//	want to load it.
-		if (databaseIsEmpty && !isDataLoading) {
+		if (databaseIsEmpty && task == null) {
 			new AlertDialog.Builder(this)
 				.setCancelable(false)
 				.setMessage(getString(R.string.empty_db_msg))
@@ -150,38 +125,38 @@ public class StartActivity extends Activity {
 		}
 	}
 	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		if (task != null) {
+			ACLogger.info(getString(R.string.logging_tag), "StartActivity preparing for restart due to config change");
+			task.detach();
+			clearProgressDialog();
+			return task;
+		}
+		return null;
+	}
+	
+	void showProgressDialog() {
+		_progress = ProgressDialog.show(this, getString(R.string.refresh_data_progress_dialog_title), getString(R.string.refresh_data_progress_dialog_msg));
+	}
+	
+	void clearProgressDialog() {
+		if (_progress != null) {
+			_progress.dismiss();
+			_progress = null;
+		}
+	}
+	
 	private void startDataLoad() {
 		//	No callback here. Actually we could do one to determine if we completed or were cancelled.
-		RefreshCodeStockData task = new RefreshCodeStockData("");
-		backgroundTaskID = CodeStockApp.getTaskManagerInstance()
-			.createTask(task, 
-					this, 
-					getString(R.string.refresh_data_progress_dialog_title), 
-					getString(R.string.refresh_data_progress_dialog_msg));
+		task = new RefreshCodeStockData(this);
 		task.execute();
+		showProgressDialog();
 	}
 	
 	
 	
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		//	If the progress dialog is showing, dismiss it before Android
-		//	saves our state.
-		
-		ACLogger.info(getString(R.string.logging_tag), "StartActivity onSaveInstanceState");
-
-		if (backgroundTaskID != null) {
-			
-			//	If the AsyncTaskWrapper uses WeakReferences to the activity do we need to
-			//	worry about clearing the task parent?
-			//	Still need to nuke progress dialog (or not?)
-//			CodeStockApp.getTaskManagerInstance().clearTaskParent(backgroundTaskID);
-			CodeStockApp.getTaskManagerInstance().clearProgressDialog(backgroundTaskID);
-			outState.putString(TASK_KEY, backgroundTaskID.toString());
-		}
-		super.onSaveInstanceState(outState);
-	}
 	
 	
 	@Override
@@ -360,22 +335,21 @@ public class StartActivity extends Activity {
 		startActivity(i);
 	}
 
+	void signalComplete() {
+		ACLogger.info(getString(R.string.logging_tag), "StartActivity received RefreshCodeStockData complete signal");
+		clearProgressDialog();
+		task = null;
+	}
 	
 	public class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
 
+		StartActivity activity = null;
 		DownloaderV2 dlv2 = null;
-		private String callbackMethod = "";
 		
-		public RefreshCodeStockData(String callbackMethod) {
-			this.callbackMethod = callbackMethod;
+		public RefreshCodeStockData(StartActivity activity) {
+			attach(activity);
 		}
 
-		@Override
-		protected void onCancelled() {
-			//	With WeakReferences do we really need to clearTaskParent?
-//			CodeStockApp.getTaskManagerInstance().clearTaskParent(this);
-			CodeStockApp.getTaskManagerInstance().removeTask(this, false);
-		}
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
@@ -413,15 +387,20 @@ public class StartActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData.onPostExecute()");
 			
-			if (!TextUtils.isEmpty(this.callbackMethod)) {
-				Bundle args = new Bundle();
-				args.putBoolean("Cancelled", false);
-				args.putBoolean("Completed", true);
-				CodeStockApp.getTaskManagerInstance().invokeOnActivity(this, this.callbackMethod, args);
+			if (activity != null) {
+				activity.signalComplete();
 			}
-//			CodeStockApp.getTaskManagerInstance().clearTaskParent(this);
-			CodeStockApp.getTaskManagerInstance().removeTask(this, false);
 			super.onPostExecute(result);
+		}
+		
+		void detach() {
+			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData detaching from activity");
+			activity = null;
+		}
+		
+		void attach(StartActivity activity) {
+			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData attaching to new activity");
+			this.activity = activity;
 		}
 	}
 }

@@ -20,7 +20,7 @@
       package="com.aremaitch.codestock2010"
       android:versionCode="7"
       android:versionName="1.1.0">
-    <application android:name=".CodeStockApp"
+    <application 
     			android:icon="@drawable/nerdetteskull_2010_icon" android:label="@string/app_name"
     			android:theme="@android:style/Theme.NoTitleBar">
         <activity android:name=".StartActivity">

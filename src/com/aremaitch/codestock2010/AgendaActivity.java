@@ -27,6 +27,7 @@ import com.aremaitch.codestock2010.repository.AgendaSession;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Session;
+import com.aremaitch.utils.ACLogger;
 
 import android.app.Activity;
 import android.content.Context;
@@ -70,12 +71,25 @@ public class AgendaActivity extends Activity
 	TextView view0header = null;
 	TextView view1header = null;
 	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		ACLogger.info(getString(R.string.logging_tag), "AgendaActivity onRetainNonConfigurationInstance");
+		AgendaActivityInstanceData idata = new AgendaActivityInstanceData();
+		idata.currentSlotIndex = this.currentSlotIndex;
+		idata.currentView = this.currentView;
+		return idata;
+	}
+	
 	//	Idea: If today is Friday (or earlier) start on Friday's view.
 	//			If today is Saturday (or later) start on Saturday's view.
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.agenda_activity);
+
+		ACLogger.info(getString(R.string.logging_tag), "AgendaActivity onCreate");
+
+		AgendaActivityInstanceData idata = (AgendaActivityInstanceData)getLastNonConfigurationInstance();
 		
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.agenda_title));
@@ -150,24 +164,21 @@ public class AgendaActivity extends Activity
 		LinearLayout agendaMain = (LinearLayout) findViewById(R.id.agenda_main);
 		agendaMain.setOnTouchListener((OnTouchListener) this);
 		
+		if (idata != null) {
+			currentSlotIndex = idata.currentSlotIndex;
+			currentView = idata.currentView;
+			showTimeSlot();
+		}
 	}
 
 	protected void showNextTimeslot() {
-		DayAdapter da;
 		
 		currentSlotIndex++;
 		if (currentSlotIndex > maxSlotIndex)
 			currentSlotIndex = 0;
 
-		if (currentView == 0) {
-			da = (DayAdapter) day1list.getAdapter();
-			view1header.setText(dateFormatter.format(sessionStartTimes.get(currentSlotIndex).getTime()));
-		} else {
-			da = (DayAdapter) day0list.getAdapter();
-			view0header.setText(dateFormatter.format(sessionStartTimes.get(currentSlotIndex).getTime()));
-		}			
+		showTimeSlot();
 		
-		da.setDataSource(getSessionsInSlot(sessionStartTimes.get(currentSlotIndex)));
 		flipper.setInAnimation(this, R.anim.slide_left_in);
 		flipper.setOutAnimation(this, R.anim.slide_left_out);
 		flipper.showNext();
@@ -178,11 +189,22 @@ public class AgendaActivity extends Activity
 	}
 	
 	protected void showPreviousTimeslot() {
-		DayAdapter da;
 		currentSlotIndex--;
 		if (currentSlotIndex < 0)
 			currentSlotIndex = maxSlotIndex;
 
+		showTimeSlot();
+		
+		flipper.setInAnimation(this, R.anim.slide_right_in);
+		flipper.setOutAnimation(this, R.anim.slide_right_out);
+		flipper.showPrevious();
+		currentView--;
+		if (currentView < 0)
+			currentView = 1;
+	}
+
+	void showTimeSlot() {
+		DayAdapter da;
 		if (currentView == 0) {
 			da = (DayAdapter) day1list.getAdapter();
 			view1header.setText(dateFormatter.format(sessionStartTimes.get(currentSlotIndex).getTime()));
@@ -192,14 +214,8 @@ public class AgendaActivity extends Activity
 		}
 		
 		da.setDataSource(getSessionsInSlot(sessionStartTimes.get(currentSlotIndex)));
-		flipper.setInAnimation(this, R.anim.slide_right_in);
-		flipper.setOutAnimation(this, R.anim.slide_right_out);
-		flipper.showPrevious();
-		currentView--;
-		if (currentView < 0)
-			currentView = 1;
 	}
-
+	
 	private ArrayList<AgendaSession> getSessionsInSlot(Calendar desiredSlot) {
 		DataHelper dh = new DataHelper(this);
 		ArrayList<AgendaSession> sessions = new ArrayList<AgendaSession>();
@@ -365,5 +381,10 @@ public class AgendaActivity extends Activity
 		TextView sessionTitleTV;
 		TextView speakerNameTV;
 		ImageView awardIV;
+	}
+	
+	class AgendaActivityInstanceData {
+		public int currentSlotIndex;
+		public int currentView;
 	}
 }

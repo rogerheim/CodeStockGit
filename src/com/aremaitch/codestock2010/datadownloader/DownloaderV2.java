@@ -29,10 +29,12 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 
+import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
+import com.aremaitch.utils.ACLogger;
 
 import android.content.Context;
 
@@ -90,6 +92,7 @@ public class DownloaderV2 {
 	}
 	
 	private void getSpeakerData(String speakersUrl) throws JsonParseException, MalformedURLException, IOException {
+		ACLogger.info("CodeStock Downloader", "getSpeakerData from " + speakersUrl);
 		JsonParser jp = null;
 		JsonFactory f = new JsonFactory();
 		
@@ -169,6 +172,7 @@ public class DownloaderV2 {
 	}
 
 	private void getSessionData(String sessionsUrl) throws JsonParseException, MalformedURLException, IOException {
+		ACLogger.info("CodeStock Downloader", "getSessionData from " + sessionsUrl);
 		JsonParser jp = null;
 		JsonFactory f = new JsonFactory();
 		
