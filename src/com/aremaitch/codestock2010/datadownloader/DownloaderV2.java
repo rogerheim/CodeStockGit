@@ -17,26 +17,27 @@
 package com.aremaitch.codestock2010.datadownloader;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.aremaitch.codestock2010.R;
+import android.content.Context;
+
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
 import com.aremaitch.utils.ACLogger;
-
-import android.content.Context;
 
 /**
  * Class for downloading data from CodeStock Version 2 API
@@ -91,182 +92,90 @@ public class DownloaderV2 {
 		return result;
 	}
 	
-	private void getSpeakerData(String speakersUrl) throws JsonParseException, MalformedURLException, IOException {
+	private void getSpeakerData(String speakersUrl) throws ClientProtocolException, IOException, JSONException {
 		ACLogger.info("CodeStock Downloader", "getSpeakerData from " + speakersUrl);
-		JsonParser jp = null;
-		JsonFactory f = new JsonFactory();
 		
-		try {
-			jp = f.createJsonParser(new URL(speakersUrl));
+		DefaultHttpClient hc = new DefaultHttpClient();
+		HttpGet hg = new HttpGet(speakersUrl);
+		
+		HttpResponse response = hc.execute(hg);
+		String queryResult = EntityUtils.toString(response.getEntity());
+		JSONObject jObj;
 			
-			//	Skip to start object
-			jp.nextToken();
-			//	Skip to Microsoft 'd'
-			jp.nextToken();
+		jObj = new JSONObject(queryResult);
+		JSONArray dArray = jObj.getJSONArray("d");
+		
+		ACLogger.info("CodeStock Downloader", "Iterating over speaker array");
+
+		for (int i = 0; i <= dArray.length() - 1; i++) {
+			Speaker newSpeaker = new Speaker();
+			JSONObject speakerJSON = dArray.getJSONObject(i);
+			newSpeaker.setSpeakerBio(speakerJSON.getString("Bio"));
+			newSpeaker.setCompany(speakerJSON.getString("Company"));
+			newSpeaker.setSpeakerName(speakerJSON.getString("Name"));
+			newSpeaker.setSpeakerPhotoUrl(speakerJSON.getString("PhotoUrl"));
+			newSpeaker.setId(speakerJSON.getLong("SpeakerID"));
+			newSpeaker.setTwitterHandle(speakerJSON.getString("TwitterID"));
+			String temp = speakerJSON.getString("Website");
+			if (temp.equalsIgnoreCase("http://"))
+				newSpeaker.setWebSite("");
+			else
+				newSpeaker.setWebSite(speakerJSON.getString("Website"));
 			
-			if (!jp.getCurrentName().equalsIgnoreCase("d")) {
-				throw new JsonParseException("Error parsing speaker data; first element is not 'd'", jp.getCurrentLocation());
-			}
-			
-			//	Start array (the array of 'd')
-			jp.nextToken();
-			
-			//	Version 2 api includes site-generated primary key that is (hopefully) stable.
-			while (jp.nextToken() != JsonToken.END_ARRAY) {
-				Speaker newSpeaker = new Speaker();
-				
-				while (jp.nextToken() != JsonToken.END_OBJECT) {
-					String fieldName = "";
-					String text = "";
-					
-					fieldName = jp.getCurrentName();
-					if (fieldName == null)
-						continue;
-					
-					if (fieldName.equalsIgnoreCase("__type")) {
-						//	MS WCF type; eat it and continue
-						jp.nextToken();
-						continue;
-					} else if (fieldName.equalsIgnoreCase("bio")) {
-						jp.nextToken();
-						newSpeaker.setSpeakerBio(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("company")) {
-						jp.nextToken();
-						newSpeaker.setCompany(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("name")) {
-						jp.nextToken();
-						newSpeaker.setSpeakerName(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("photourl")) {
-						jp.nextToken();
-						newSpeaker.setSpeakerPhotoUrl(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("speakerid"))	{
-						jp.nextToken();
-						newSpeaker.setId(jp.getLongValue());
-					} else if (fieldName.equalsIgnoreCase("twitterid")) {
-						jp.nextToken();
-						newSpeaker.setTwitterHandle(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("website")) {
-						jp.nextToken();
-						text = jp.getText();
-						//	Another little tweak: if the speaker did not provide a web site, the value from the feed
-						//	will be just 'http://' instead of null.
-						if (text.equalsIgnoreCase("http://")) {
-							newSpeaker.setWebSite("");
-						} else {
-							newSpeaker.setWebSite(text);
-						}
-					}
-				}	// end of speaker object
-				
-				parsedSpeakers.add(newSpeaker);
-			}	// end of array of speakers
-		} finally {
-			try {
-				if (jp != null) {
-					jp.close();
-				}
-			} catch (IOException e) {
-				// just eat it
-			}
+			parsedSpeakers.add(newSpeaker);
 		}
+		ACLogger.info("CodeStock Downloader", "Finished iterating over speaker array");
+		
 	}
 
-	private void getSessionData(String sessionsUrl) throws JsonParseException, MalformedURLException, IOException {
+
+	private void getSessionData(String sessionsUrl) throws ClientProtocolException, IOException, JSONException {
 		ACLogger.info("CodeStock Downloader", "getSessionData from " + sessionsUrl);
-		JsonParser jp = null;
-		JsonFactory f = new JsonFactory();
 		
-		try {
-			jp = f.createJsonParser(new URL(sessionsUrl));
+		DefaultHttpClient hc = new DefaultHttpClient();
+		HttpGet hg = new HttpGet(sessionsUrl);
+		
+		HttpResponse response = hc.execute(hg);
+		String queryResult = EntityUtils.toString(response.getEntity());
+		JSONObject jObj;
+
+		jObj = new JSONObject(queryResult);
+		JSONArray dArray = jObj.getJSONArray("d");
+
+		ACLogger.info("CodeStock Downloader", "Iterating over session array");
+
+		for (int i = 0; i <= dArray.length() - 1; i++) {
+			Session newSession = new Session();
+			String savedArea = "";
 			
-			//	Skip to start object
-			jp.nextToken();
-			//	Skip to Microsoft 'd'
-			jp.nextToken();
-			
-			if (!jp.getCurrentName().equalsIgnoreCase("d")) {
-				throw new JsonParseException("Error parsing speaker data; first element is not 'd'", jp.getCurrentLocation());
-			}
-			
-			//	Start array (the array of 'd')
-			jp.nextToken();
-			
-			//	Version 2 api includes site-generated primary key that is (hopefully) stable.
-			while (jp.nextToken() != JsonToken.END_ARRAY) {
-				Session newSession = new Session();
-				String savedArea = "";
-				
-				while (jp.nextToken() != JsonToken.END_OBJECT) {
-					String fieldName = "";
-					String text = "";
-					
-					fieldName = jp.getCurrentName();
-					if (fieldName == null)
-						continue;
-					
-					if (fieldName.equalsIgnoreCase("__type")) {
-						//	MS WCF type; eat it and continue
-						jp.nextToken();
-						continue;
-					} else if (fieldName.equalsIgnoreCase("abstract")) {
-						jp.nextToken();
-						newSession.setSynopsis(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("additionalspeakerids")) {
-						jp.nextToken();	// start of array
-						while (jp.nextToken() != JsonToken.END_ARRAY) {
-							Speaker addSpeaker = findParsedSpeaker(jp.getLongValue());
-							newSession.addAdditionalSpeaker(addSpeaker);
-						}
-					} else if (fieldName.equalsIgnoreCase("area")) {
-						jp.nextToken();
-						savedArea = jp.getText();
-					} else if (fieldName.equalsIgnoreCase("endtime")) {
-						jp.nextToken();
-						newSession.setEndDate(convertToCalendar(jp.getText()));
-					} else if (fieldName.equalsIgnoreCase("levelgeneral")) {
-						jp.nextToken();
-						newSession.setGeneralExperienceLevel(findOrCreateExperienceLevel(jp.getText()));
-					} else if (fieldName.equalsIgnoreCase("levelspecific")) {
-						jp.nextToken();
-						newSession.setSpecificExperienceLevel(findOrCreateExperienceLevel(jp.getText()));
-					} else if (fieldName.equalsIgnoreCase("room")) {
-						jp.nextToken();
-						newSession.setRoom(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("sessionid")) {
-						jp.nextToken();
-						newSession.setId(jp.getLongValue());
-					} else if (fieldName.equalsIgnoreCase("speakerid")) {
-						jp.nextToken();
-						newSession.setSpeaker(findParsedSpeaker(jp.getLongValue()));
-					} else if (fieldName.equalsIgnoreCase("starttime")) {
-						jp.nextToken();
-						newSession.setStartDate(convertToCalendar(jp.getText()));
-					} else if (fieldName.equalsIgnoreCase("technology")) {
-						jp.nextToken();
-						newSession.setTechnologies(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("title")) {
-						jp.nextToken();
-						newSession.setSessionTitle(jp.getText());
-					} else if (fieldName.equalsIgnoreCase("track")) {
-						jp.nextToken();
-						text = jp.getText() + ": " + savedArea;
-						newSession.setTrack(findOrCreateTrack(text));
-					} else if (fieldName.equalsIgnoreCase("voterank")) {
-						jp.nextToken();
-						newSession.setVoteRank(jp.getText());
-					}
+			JSONObject sessionJSON = dArray.getJSONObject(i);
+			newSession.setSynopsis(sessionJSON.getString("Abstract"));
+
+			JSONArray additionalSpeakers = sessionJSON.getJSONArray("AdditionalSpeakerIDs");
+			if (additionalSpeakers != null && additionalSpeakers.length() > 0) {
+				for (int j = 0; j <= additionalSpeakers.length() - 1; j++) {
+					long speakerID = additionalSpeakers.getLong(j);
+					Speaker addSpeaker = findParsedSpeaker(speakerID);
+					newSession.addAdditionalSpeaker(addSpeaker);
 				}
-				parsedSessions.add(newSession);
 			}
-		} finally {
-			try {
-				if (jp != null) {
-					jp.close();
-				}
-			} catch (IOException e) {
-				// just eat it
-			}
+			savedArea = sessionJSON.getString("Area");
+			newSession.setEndDate(convertToCalendar(sessionJSON.getString("EndTime")));
+			newSession.setGeneralExperienceLevel(findOrCreateExperienceLevel(sessionJSON.getString("LevelGeneral")));
+			newSession.setSpecificExperienceLevel(findOrCreateExperienceLevel(sessionJSON.getString("LevelSpecific")));
+			newSession.setRoom(sessionJSON.getString("Room"));
+			newSession.setId(sessionJSON.getLong("SessionID"));
+			newSession.setSpeaker(findParsedSpeaker(sessionJSON.getLong("SpeakerID")));
+			newSession.setStartDate(convertToCalendar(sessionJSON.getString("StartTime")));
+			newSession.setTechnologies(sessionJSON.getString("Technology"));
+			newSession.setSessionTitle(sessionJSON.getString("Title"));
+			newSession.setTrack(findOrCreateTrack(sessionJSON.getString("Track") + savedArea));
+			newSession.setVoteRank(sessionJSON.getString("VoteRank"));
+			
+			parsedSessions.add(newSession);
 		}
+		ACLogger.info("CodeStock Downloader", "Finished iterating over session array");
+		
 	}
 	
 	private Track findOrCreateTrack(String trackName) {

@@ -17,17 +17,16 @@
 package com.aremaitch.codestock2010.datadownloader;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
-
-import android.content.Context;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Interfoce to codestock.org ScheduleBuilder
@@ -49,44 +48,26 @@ public class ScheduleBuilder {
 	public ArrayList<Long> getBuiltSchedule() {
 		ArrayList<Long> result = new ArrayList<Long>();
 		
-		JsonParser jp = null;
-		JsonFactory f = new JsonFactory();
-		
+		DefaultHttpClient hc = new DefaultHttpClient();
+		HttpGet hg = new HttpGet(scheduleBuilderURL + "?" + scheduleBuilderSvc + "=" + Long.toString(this._builderID));
+		HttpResponse response;
 		try {
-			URL theUrl = new URL(scheduleBuilderURL + "?" + scheduleBuilderSvc + "=" + Long.toString(this._builderID));
+			response = hc.execute(hg);
+			String queryResult = EntityUtils.toString(response.getEntity());
+			JSONObject jObj;
 			
-			jp = f.createJsonParser(theUrl);
-			
-			jp.nextToken();	// start object
-			jp.nextToken(); //	Microsoft 'd'
-			
-			if (!jp.getCurrentName().equalsIgnoreCase("d")) {
-				throw new JsonParseException("Error parsing schedule builder; first element is not 'd'", jp.getCurrentLocation());
+			jObj = new JSONObject(queryResult);
+			JSONArray dArray = jObj.getJSONArray("d");
+			for (int i = 0; i <= dArray.length() - 1; i++) {
+				result.add(dArray.getLong(i));
 			}
-			
-			jp.nextToken();	// start array
-			
-			while (jp.nextToken() != JsonToken.END_ARRAY) {
-				result.add(jp.getLongValue());
-			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
+		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			try {
-				if (jp != null) {
-					jp.close();
-				}
-			} catch (IOException e) {
-			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
-		
 		return result;
 	}
 }
