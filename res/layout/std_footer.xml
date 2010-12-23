@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
 
-   Copyright 2010 Roger Heim
+   Copyright 2010-2011 Roger Heim
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 		android:layout_marginLeft="10dp"
 		android:layout_gravity="center_vertical"/>
 
+<!-- 
 	<ImageView
 		android:src="@drawable/nerdetteskull_2010_lowres_small"
 		android:layout_width="wrap_content"
@@ -42,5 +43,5 @@
 		android:layout_marginRight="10dp"
 		android:layout_marginTop="3dp"
 		/>
-
+ -->
 </RelativeLayout>		

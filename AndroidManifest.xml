@@ -18,11 +18,11 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.aremaitch.codestock2010"
-      android:versionCode="7"
-      android:versionName="1.1.0">
+      android:versionCode="8"
+      android:versionName="2.0">
     <application 
     			android:icon="@drawable/nerdetteskull_2010_icon" android:label="@string/app_name"
-    			android:theme="@android:style/Theme.NoTitleBar">
+    			android:theme="@android:style/Theme.NoTitleBar" android:debuggable="true">
         <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -78,4 +78,5 @@
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
 </manifest> 

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+
+   Copyright 2010-2011 Roger Heim
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ -->
+
+<!-- Layout for the app entry screen in LANDSCAPE mode-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@color/White"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+	<include layout="@layout/std_header"/>
+
+	<!-- In landscape mode do the whole thing horizontal. If centered, don't use a margin -->
+	
+	<LinearLayout
+		android:id="@+id/countdown_digit_container"
+		android:layout_weight="1"
+		android:layout_width="fill_parent"
+		android:layout_height="0px"
+		android:orientation="vertical"
+		android:gravity="center"
+		>
+		
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+		    >
+	    <TextView
+	    	android:id="@+id/countdown_days"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="000"
+	    	android:textSize="65sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    	
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="days"
+	    	android:layout_marginRight="8dp"
+	    	/>
+    	
+	    <TextView
+	    	android:id="@+id/countdown_hours"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="00"
+	    	android:textSize="65sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="hrs"
+	    	android:layout_marginRight="8dp"
+	    	/>
+
+	    
+	    <TextView
+	    	android:id="@+id/countdown_minutes"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="00"
+	    	android:textSize="65sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="min"
+	    	android:layout_marginRight="8dp"
+	    	/>
+
+
+	    <TextView
+	    	android:id="@+id/countdown_seconds"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="00"
+	    	android:textSize="65sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="sec"
+	    	android:layout_marginRight="8dp"
+	    	/>
+		
+		</LinearLayout>
+	</LinearLayout>
+	
+	<!-- Footer  -->
+	<include layout="@layout/std_footer"/>
+</LinearLayout>

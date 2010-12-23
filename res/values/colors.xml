@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
 
-   Copyright 2010 Roger Heim
+   Copyright 2010-2011 Roger Heim
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@
 	<color name="LightGray">#D3D3D3</color>
 	<color name="Gray">#BEBEBE</color>
 	<color name="DimGray">#696969</color>
+
+	<color name="digits">#7cfc00</color>
 	
 	<!-- These colors come from the web site agenda page -->
 	<color name="DevTrack">#DDF</color>

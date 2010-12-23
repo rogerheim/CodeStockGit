@@ -1,5 +1,5 @@
 /*
-   Copyright 2010 Roger Heim
+   Copyright 2010-2011 Roger Heim
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -51,11 +51,14 @@ import com.google.zxing.integration.android.IntentResult;
 //	Theme.NoTitleBar.Fullscreen also covers the notification bar.
 //	See http://developer.android.com/intl/fr/reference/android/R.style.html
 
+//	Beginning revisions for 2011
+
 public class StartActivity extends Activity {
 	private static final int MENU_REFRESH = Menu.FIRST;
 
 	RefreshCodeStockData task = null;
 	ProgressDialog _progress = null;
+	CountdownManager cMgr = new CountdownManager();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +67,8 @@ public class StartActivity extends Activity {
 		ACLogger.info(getString(R.string.logging_tag), "StartActivity onCreate");
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.startup_activity);
-		
+		//setContentView(R.layout.startup_activity);
+		setContentView(R.layout.countdown_startup_activity);
 		
 		
 		//	Header is a standard include; change the text.
@@ -74,8 +77,8 @@ public class StartActivity extends Activity {
 		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
 		headerSubTitle.setText(getString(R.string.header_slogan));
 		
-		
-		wireupListeners();
+		//	disable listeners for countdown
+		//wireupListeners();
 
 		task = (RefreshCodeStockData)getLastNonConfigurationInstance();
 		
@@ -98,31 +101,42 @@ public class StartActivity extends Activity {
 			localdh.close();
 		}
 		
+		cMgr.initializeCountdown(findViewById(R.id.countdown_digit_container), getAssets());
+		cMgr.start();
+		
+//	removed for countdown update
+		
 		//	If the database is empty and we are not curently loading it, ask the user if they
 		//	want to load it.
-		if (databaseIsEmpty && task == null) {
-			new AlertDialog.Builder(this)
-				.setCancelable(false)
-				.setMessage(getString(R.string.empty_db_msg))
-				.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						
-					}
-				})
-				.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						startDataLoad();
-					}
-				})
-				.setTitle(getString(R.string.app_name))
-				.show();
-		}
+//		if (databaseIsEmpty && task == null) {
+//			new AlertDialog.Builder(this)
+//				.setCancelable(false)
+//				.setMessage(getString(R.string.empty_db_msg))
+//				.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface dialog, int which) {
+//						dialog.dismiss();
+//						
+//					}
+//				})
+//				.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface dialog, int which) {
+//						dialog.dismiss();
+//						startDataLoad();
+//					}
+//				})
+//				.setTitle(getString(R.string.app_name))
+//				.show();
+//		}
+	}
+	
+	@Override
+	protected void onPause() {
+		cMgr.stop();
+		super.onPause();
 	}
 	
 	@Override
@@ -158,23 +172,23 @@ public class StartActivity extends Activity {
 	
 
 	
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh_text)).setIcon(R.drawable.ic_menu_refresh);
-		return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case MENU_REFRESH:
-			startDataLoad();
-			return true;
-		}
-		
-		return false;
-	}
+	//	no menu for countdown (yet)
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh_text)).setIcon(R.drawable.ic_menu_refresh);
+//		return true;
+//	}
+//	
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		switch (item.getItemId()) {
+//		case MENU_REFRESH:
+//			startDataLoad();
+//			return true;
+//		}
+//		
+//		return false;
+//	}
 	
 	
 	private void wireupListeners() {
