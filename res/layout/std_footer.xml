@@ -34,6 +34,85 @@
 		android:layout_marginLeft="10dp"
 		android:layout_gravity="center_vertical"/>
 
+	<LinearLayout
+		android:id="@+id/countdown_digit_container"
+		android:layout_height="fill_parent"
+		android:layout_width="wrap_content"
+		android:layout_alignParentRight="true"
+		android:orientation="horizontal"
+		android:gravity="bottom"
+		android:layout_marginBottom="3dp"
+		android:layout_marginRight="3dp"
+		>
+		
+	    <TextView
+	    	android:id="@+id/countdown_days"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="000"
+	    	android:textSize="20sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    	
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="days"
+	    	android:layout_marginRight="8dp"
+	    	android:textColor="@color/LightGray"
+	    	/>
+    	
+	    <TextView
+	    	android:id="@+id/countdown_hours"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="00"
+	    	android:textSize="20sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="hrs"
+	    	android:layout_marginRight="8dp"
+	    	android:textColor="@color/LightGray"
+	    	/>
+
+	    
+	    <TextView
+	    	android:id="@+id/countdown_minutes"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="00"
+	    	android:textSize="20sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="min"
+	    	android:layout_marginRight="8dp"
+	    	android:textColor="@color/LightGray"
+	    	/>
+
+
+	    <TextView
+	    	android:id="@+id/countdown_seconds"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="00"
+	    	android:textSize="20sp"
+	    	android:textColor="@color/digits"
+	    	/>
+	    <TextView
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:text="sec"
+	    	android:textColor="@color/LightGray"
+	    	/>
+		
+		
+	</LinearLayout>
 <!-- 
 	<ImageView
 		android:src="@drawable/nerdetteskull_2010_lowres_small"

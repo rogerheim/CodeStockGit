@@ -47,7 +47,7 @@ public class CountdownManager {
 	private final long msIn1Hour = msIn1Minute * 60;			// milliseconds in 1 hour
 	private final long msIn1Day = msIn1Hour * 24;				// milliseconds in 1 day
 	
-	private final String format2Digits = "%02d";
+	private final String format2Digits = "%02d";				// make all digit parts have leaing zeros
 	private final String format3Digits = "%03d";
 	
 	private final Handler handler = new Handler();
@@ -58,6 +58,12 @@ public class CountdownManager {
 				@Override
 				public void run() {
 					long diff = csStart - tTask.scheduledExecutionTime();
+					//	Cause you know someone will set their phone's clock ahead
+					//	just to see what happens...
+					if (diff <= 0) {
+						updateCountdownDisplay(0,0,0,0);
+						stop();
+					}
 					
 					int iDays = Math.round(diff / msIn1Day);
 					diff -= (iDays * msIn1Day);
@@ -82,7 +88,7 @@ public class CountdownManager {
 		tvdays.setText(String.format(format3Digits, iDays));
 		tvhours.setText(String.format(format2Digits, iHours));
 		tvminutes.setText(String.format(format2Digits, iMinutes));
-		tvseconds.setText(String.format(format2Digits, iSeconds));			// make seconds always have a leading zero
+		tvseconds.setText(String.format(format2Digits, iSeconds));
 	}
 	
 	public void initializeCountdown(View digitsContainer, AssetManager assets) {

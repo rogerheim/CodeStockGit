@@ -28,7 +28,7 @@
 	<color name="Gray">#BEBEBE</color>
 	<color name="DimGray">#696969</color>
 
-	<color name="digits">#7cfc00</color>
+	<color name="digits">#FFFFFF</color>
 	
 	<!-- These colors come from the web site agenda page -->
 	<color name="DevTrack">#DDF</color>

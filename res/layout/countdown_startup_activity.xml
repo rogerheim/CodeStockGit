@@ -28,99 +28,14 @@
 	<include layout="@layout/std_header"/>
 
 	<LinearLayout
-		android:id="@+id/countdown_digit_container"
-		android:layout_weight="1"
 		android:layout_width="fill_parent"
 		android:layout_height="0px"
-		android:orientation="vertical"
-		android:gravity="center_horizontal"
+		android:layout_weight="1"
 		>
 		
-	    <LinearLayout
-	    	android:orientation="horizontal"
-	    	android:layout_width="wrap_content"
-	    	android:layout_height="wrap_content"
-	    	>
-	    
-		    <TextView
-		    	android:id="@+id/countdown_days"
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="000"
-		    	android:textSize="65sp"
-		    	android:textColor="@color/digits"
-		    	/>
-		    	
-		    <TextView
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="days"
-		    	/>
-	    </LinearLayout>
-	    	
-	    <LinearLayout
-	    	android:orientation="horizontal"
-	    	android:layout_width="wrap_content"
-	    	android:layout_height="wrap_content"
-	    	>
-		    <TextView
-		    	android:id="@+id/countdown_hours"
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="00"
-		    	android:textSize="65sp"
-		    	android:textColor="@color/digits"
-		    	/>
-		    <TextView
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="hrs"
-		    	/>
-	    </LinearLayout>
-	
-	    <LinearLayout
-	    	android:orientation="horizontal"
-	    	android:layout_width="wrap_content"
-	    	android:layout_height="wrap_content"
-	    	>
-		    
-		    <TextView
-		    	android:id="@+id/countdown_minutes"
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="00"
-		    	android:textSize="65sp"
-		    	android:textColor="@color/digits"
-		    	/>
-		    <TextView
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="min"
-		    	/>
-		</LinearLayout>
-	
-	    <LinearLayout
-	    	android:orientation="horizontal"
-	    	android:layout_width="wrap_content"
-	    	android:layout_height="wrap_content"
-	    	>
-	
-		    <TextView
-		    	android:id="@+id/countdown_seconds"
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="00"
-		    	android:textSize="65sp"
-		    	android:textColor="@color/digits"
-		    	/>
-		    <TextView
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:text="sec"
-		    	/>
-		</LinearLayout>
-		
 	</LinearLayout>
+			
+	
 	
 	<!-- Footer  -->
 	<include layout="@layout/std_footer"/>
