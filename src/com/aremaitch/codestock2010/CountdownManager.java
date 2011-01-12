@@ -41,7 +41,7 @@ public class CountdownManager {
 	private TextView tvhours;
 	private TextView tvminutes;
 	private TextView tvseconds;
-	private Timer tmr = new Timer();
+	private Timer tmr;
 	
 	private final long msIn1Minute = 1000 * 60;					// milliseconds in 1 minute
 	private final long msIn1Hour = msIn1Minute * 60;			// milliseconds in 1 hour
@@ -51,38 +51,7 @@ public class CountdownManager {
 	private final String format3Digits = "%03d";
 	
 	private final Handler handler = new Handler();
-	private TimerTask tTask = new TimerTask() {
-		@Override
-		public void run() {
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					long diff = csStart - tTask.scheduledExecutionTime();
-					//	Cause you know someone will set their phone's clock ahead
-					//	just to see what happens...
-					if (diff <= 0) {
-						updateCountdownDisplay(0,0,0,0);
-						stop();
-					}
-					
-					int iDays = Math.round(diff / msIn1Day);
-					diff -= (iDays * msIn1Day);
-					
-					int iHours = Math.round(diff / msIn1Hour);
-					diff -= (iHours * msIn1Hour);
-					
-					int iMinutes = Math.round(diff / msIn1Minute);
-					diff -= (iMinutes * msIn1Minute);
-					
-					//	diff now contains the number of remaining seconds ( as milliseconds )
-					int iSeconds = Math.round(diff / 1000);
-					
-					updateCountdownDisplay(iDays, iHours, iMinutes, iSeconds);
-					
-				};
-			});
-		};
-	};
+//	private TimerTask tTask =
 	
 	void updateCountdownDisplay(int iDays, int iHours, int iMinutes, int iSeconds) {
 		tvdays.setText(String.format(format3Digits, iDays));
@@ -92,7 +61,8 @@ public class CountdownManager {
 	}
 	
 	public void initializeCountdown(View digitsContainer, AssetManager assets) {
-		
+//		tmr = new Timer();
+
 		tf = Typeface.createFromAsset(assets, "fonts/LCD2N___.TTF");
 		tvdays = (TextView)digitsContainer.findViewById(R.id.countdown_days);
 		tvhours = (TextView)digitsContainer.findViewById(R.id.countdown_hours);
@@ -107,13 +77,51 @@ public class CountdownManager {
 	
 	public void start() {
 		// start now and call tTask.run() every second	
-		ACLogger.info(LOG_TAG, "starting timer");
-		tmr.scheduleAtFixedRate(tTask, new Date(), 1000);
+        tmr = new Timer();
+        ACLogger.info(LOG_TAG, "starting timer");
+		tmr.scheduleAtFixedRate(createNewTimerTask(), new Date(), 1000);
 	}
-	
+
+    private TimerTask createNewTimerTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        long diff = csStart - scheduledExecutionTime();
+                        //	Cause you know someone will set their phone's clock ahead
+                        //	just to see what happens...
+                        if (diff <= 0) {
+                            updateCountdownDisplay(0,0,0,0);
+                            stop();
+                        }
+
+                        int iDays = Math.round(diff / msIn1Day);
+                        diff -= (iDays * msIn1Day);
+
+                        int iHours = Math.round(diff / msIn1Hour);
+                        diff -= (iHours * msIn1Hour);
+
+                        int iMinutes = Math.round(diff / msIn1Minute);
+                        diff -= (iMinutes * msIn1Minute);
+
+                        //	diff now contains the number of remaining seconds ( as milliseconds )
+                        int iSeconds = Math.round(diff / 1000);
+
+                        updateCountdownDisplay(iDays, iHours, iMinutes, iSeconds);
+
+                    }
+                });
+            }
+        };
+    }
+
 	public void stop() {
 		//	so when we go to sleep, the clock stops
 		ACLogger.info(LOG_TAG, "stopping timer");
+
+        //  Once the timer is canceled nothing can be rescheduled on it.
 		tmr.cancel();
 	}
 }

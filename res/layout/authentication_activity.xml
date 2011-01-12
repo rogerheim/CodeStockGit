@@ -17,26 +17,23 @@
 
  -->
 
-<!-- Layout for the app entry screen in PORTRAIT mode-->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:background="@drawable/codestock2011_background_image_50transparent"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-
+<!-- Layout for Twitter/Foursquare authentication -->
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@color/White"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
 	<include layout="@layout/std_header"/>
 
-	<LinearLayout
+	<WebView
+		android:id="@+id/auth_webview"
 		android:layout_width="fill_parent"
 		android:layout_height="0px"
-		android:layout_weight="1"
-		>
-		
-	</LinearLayout>
-			
-	
-	
-	<!-- Footer  -->
+		android:layout_weight="1"/>
+
 	<include layout="@layout/std_footer"/>
+			
+		
 </LinearLayout>

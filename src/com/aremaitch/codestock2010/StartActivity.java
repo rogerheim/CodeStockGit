@@ -101,9 +101,7 @@ public class StartActivity extends Activity {
 			localdh.close();
 		}
 		
-		cMgr.initializeCountdown(findViewById(R.id.countdown_digit_container), getAssets());
-		cMgr.start();
-		
+
 //	removed for countdown update
 		
 		//	If the database is empty and we are not curently loading it, ask the user if they
@@ -138,8 +136,15 @@ public class StartActivity extends Activity {
 		cMgr.stop();
 		super.onPause();
 	}
-	
-	@Override
+
+    @Override
+    protected void onResume() {
+        cMgr.initializeCountdown(findViewById(R.id.countdown_digit_container), getAssets());
+        cMgr.start();
+        super.onResume();
+    }
+
+    @Override
 	public Object onRetainNonConfigurationInstance() {
 		if (task != null) {
 			ACLogger.info(getString(R.string.logging_tag), "StartActivity preparing for restart due to config change");

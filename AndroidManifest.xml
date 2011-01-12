@@ -72,7 +72,11 @@
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>        
         </activity>
-    </application>
+    <activity android:name=".OAuthActivity"><intent-filter><action android:name="com.aremaitch.codestock2010.AUTHENTICATE"></action>
+<category android:name="android.intent.category.DEFAULT"></category>
+</intent-filter>
+</activity>
+</application>
     <uses-sdk android:minSdkVersion="7" />
 
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
