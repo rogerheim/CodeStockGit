@@ -1,2 +1,3 @@
 glob:bin
 glob:gen
+glob:res/values/twitter_oauth_do_not_commit_to_sc.xml
