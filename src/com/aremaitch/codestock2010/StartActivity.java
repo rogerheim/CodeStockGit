@@ -1,18 +1,18 @@
 /*
-   Copyright 2010-2011 Roger Heim
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+ * Copyright 2010-2011 Roger Heim
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.aremaitch.codestock2010;
 
@@ -59,6 +59,7 @@ public class StartActivity extends Activity {
 	RefreshCodeStockData task = null;
 	ProgressDialog _progress = null;
 	CountdownManager cMgr = new CountdownManager();
+    StartActivityMenuManager menuManager = new StartActivityMenuManager(this);
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -173,27 +174,15 @@ public class StartActivity extends Activity {
 		showProgressDialog();
 	}
 	
-	
-	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return menuManager.createStartActivityOptionsMenu(menu);
+	}
 
-	
-	//	no menu for countdown (yet)
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh_text)).setIcon(R.drawable.ic_menu_refresh);
-//		return true;
-//	}
-//	
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		switch (item.getItemId()) {
-//		case MENU_REFRESH:
-//			startDataLoad();
-//			return true;
-//		}
-//		
-//		return false;
-//	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+        return menuManager.startActivityOptionsItemSelected(item);
+	}
 	
 	
 	private void wireupListeners() {

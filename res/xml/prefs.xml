@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2010-2011 Roger Heim
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Twitter"
+        >
+
+        <!-- Should there just be an 'Enable Twitter Integration' checkbox?
+                Need to add something to manage Twitter account -->
+        <CheckBoxPreference
+            android:key="twitter_bk_upd_enabled"
+            android:defaultValue="false"
+            android:title="Update Twitter in background"
+            android:summary="This will run your battery down faster."/>
+
+        <ListPreference
+            android:key="twitter_bk_upd_interval"
+            android:defaultValue="5"
+            android:dependency="twitter_bk_upd_enabled"
+            android:title="Minutes between updates"
+            android:summary="15, 30, \&amp; are more efficient"
+            android:entries="@array/twitter_bk_upd_interval_entries"
+            android:entryValues="@array/twitter_bk_upd_interval_entryvalues"
+            android:dialogTitle="Background Update Interval"/>
+
+        <ListPreference
+            android:key="tweet_dsply_duration"
+            android:defaultValue="5"
+            android:dependency="twitter_bk_upd_enabled"
+            android:title="Tweet display seconds"
+            android:summary="Seconds to display each tweet"
+            android:entries="@array/tweet_dsply_duration_entries"
+            android:entryValues="@array/tweet_dsply_duration_entryvalues"
+            android:dialogTitle="Tweet Display Seconds"/>
+
+        <ListPreference
+            android:key="tweet_db_daystokeep"
+            android:defaultValue="21"
+            android:dependency="twitter_bk_upd_enabled"
+            android:title="Tweet Days to Keep"
+            android:summary="How many days of tweets do you want to keep?"
+            android:entries="@array/tweet_db_daystokeep_entries"
+            android:entryValues="@array/tweet_db_daystokeep_entryvalues"
+            android:dialogTitle="Days of Tweets to Keep"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
