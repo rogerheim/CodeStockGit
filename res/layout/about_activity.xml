@@ -41,9 +41,10 @@
 			<!-- This logo is 182X200 -->
 			<ImageView
 				android:id="@+id/about_codestock_logo"
-				android:src="@drawable/nerdetteskull_2010_lowres"
+				android:src="@drawable/logo_2011_placeholder"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
 				/>
 				
 			<TextView
@@ -111,6 +112,6 @@
 	</ScrollView>
 	
 	<!-- Footer  -->
-	<include layout="@layout/std_footer"/>
+	<include layout="@layout/std_footer_no_countdown"/>
 	
 </LinearLayout>

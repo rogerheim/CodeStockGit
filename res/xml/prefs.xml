@@ -16,7 +16,9 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="CodeStock Preferences">
+    
     <PreferenceCategory
         android:title="Twitter"
         >
@@ -58,7 +60,19 @@
             android:entries="@array/tweet_db_daystokeep_entries"
             android:entryValues="@array/tweet_db_daystokeep_entryvalues"
             android:dialogTitle="Days of Tweets to Keep"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="About"
+        >
+
+
+        <PreferenceScreen
+            android:title="About CodeStock...">
+
+            <intent android:action="com.aremaitch.codestock2010.DISPLAY_ABOUT"/>
+
+        </PreferenceScreen>
     </PreferenceCategory>
 
 </PreferenceScreen>
