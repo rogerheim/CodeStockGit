@@ -46,14 +46,17 @@ import android.util.Log;
  */
 public class DataHelper {
 	private static final String DATABASE_NAME = "codestock2010.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 	private static final String XPLEVELS_TABLE_NAME = "xplevels";
 	private static final String TRACKS_TABLE_NAME = "tracks";
 	private static final String SPEAKERS_TABLE_NAME = "speakers";
 	private static final String SESSIONS_TABLE_NAME = "sessions";
 	private static final String ADD_SPEAKERS_TABLE_NAME = "addspeakers";
+
+
 	private static final String LOG_TAG = "CodeStock2010";
-	
+
+
 	private Context context;
 	private SQLiteDatabase db;
 	
@@ -611,7 +614,28 @@ public class DataHelper {
 		}
 		return speakerid;
 	}
-	
+
+    //  Delegate Twitter database handling to another class.
+    public long insertTweet(TweetObj tObj) {
+        TwitterDataHelper tdh = new TwitterDataHelper();
+        return tdh.insertTweet(db, tObj);
+    }
+
+    public void deleteTweet(long tweetID) {
+        TwitterDataHelper tdh = new TwitterDataHelper();
+        tdh.deleteTweet(db, tweetID);
+    }
+
+    public void cleanUpDeletedTweets() {
+        TwitterDataHelper tdh = new TwitterDataHelper();
+        tdh.cleanUpDeletedTweets(db);
+    }
+
+    public void cleanUpOldTweets(int daysToKeep) {
+        TwitterDataHelper tdh = new TwitterDataHelper();
+        tdh.cleanUpOldTweets(db, daysToKeep);
+    }
+
 	/**
 	 * Searches the database for the passed experience level. If it does not exist, it adds it.
 	 * <br><b>This searches by level name, not id.</b>
@@ -643,14 +667,17 @@ public class DataHelper {
 		}
 		return xplevelid;
 	}
-	
+
+
 	/**
 	 * Database open helper
 	 * @author roger
 	 *
 	 */
 	private static class OpenHelper extends SQLiteOpenHelper {
-		
+
+        TwitterDataHelper tdh = new TwitterDataHelper();
+
 		public OpenHelper(Context context) {
 			//	context, databasename, CursorFactory, dbversion
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -702,6 +729,9 @@ public class DataHelper {
 				.append("(id integer primary key,")
 				.append("fksession integer,")
 				.append("fkspeaker integer)"));
+
+
+
 			//	Don't need to create an index on the primary key; sqlite will do that automatically.
 			indexes.add(new StringBuilder()
 				.append("create index ix_" + XPLEVELS_TABLE_NAME + "_name on " + XPLEVELS_TABLE_NAME)
@@ -727,6 +757,10 @@ public class DataHelper {
 			indexes.add(new StringBuilder()
 				.append("create index ix_" + ADD_SPEAKERS_TABLE_NAME + "_session on " + ADD_SPEAKERS_TABLE_NAME)
 				.append("(fksession)"));
+
+
+            tdh.dbCreate(tables, indexes);
+
 			for (StringBuilder step : tables) {
 				db.execSQL(step.toString());
 			}
@@ -745,6 +779,8 @@ public class DataHelper {
 			db.execSQL("drop table if exists " + TRACKS_TABLE_NAME);
 			db.execSQL("drop table if exists " + XPLEVELS_TABLE_NAME);
 			db.execSQL("drop table if exists " + ADD_SPEAKERS_TABLE_NAME);
+
+            tdh.dbUpgrade(db);
 			onCreate(db);
 			
 		}

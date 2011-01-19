@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.aremaitch.codestock2010;
+package com.aremaitch.codestock2010.library;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.aremaitch.codestock2010.R;
 import com.aremaitch.utils.ACLogger;
 
 import android.content.res.AssetManager;

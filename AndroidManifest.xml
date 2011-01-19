@@ -19,7 +19,7 @@
       android:versionCode="8"
       android:versionName="2.0">
     <application 
-    			android:icon="@drawable/nerdetteskull_2010_icon" android:label="@string/app_name"
+    			android:icon="@drawable/one_louder_icon" android:label="@string/app_name"
     			android:theme="@android:style/Theme.NoTitleBar" android:debuggable="true">
         <activity android:name=".StartActivity">
             <intent-filter>
@@ -84,6 +84,21 @@
                 <category android:name="android.intent.category.PREFERENCE"/>
             </intent-filter>
         </activity>
+
+        <receiver android:name=".library.CSBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".library.TwitterTrackSvc"
+                android:enabled="true"
+                android:exported="true"/>
+
+        <service android:name=".library.DatabaseCleanupSvc"
+                android:enabled="true"
+                android:exported="true"/>
+
     </application>
     <uses-sdk android:minSdkVersion="7" />
 
@@ -91,6 +106,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <supports-screens
         android:largeScreens="true"

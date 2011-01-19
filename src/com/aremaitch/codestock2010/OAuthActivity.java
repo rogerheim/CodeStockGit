@@ -17,12 +17,15 @@
 
 package com.aremaitch.codestock2010;
 
+import android.content.Context;
+import android.net.http.SslError;
+import android.webkit.SslErrorHandler;
+import com.aremaitch.codestock2010.library.TwitterConstants;
+import com.aremaitch.codestock2010.library.TwitterOAuth;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.http.RequestToken;
-
-import com.aremaitch.utils.AndroidOAuth;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,37 +38,34 @@ import android.webkit.WebViewClient;
 
 public class OAuthActivity extends Activity {
 
-	public final int AUTHORIZE_TO_TWITTER = 1;
-	public final int AUTHORIZE_TO_FOURSQUARE = 2;
-	
 	SharedPreferences prefs;
 	WebView wv;
-	Twitter t;
-	
+	TwitterOAuth toa = null;
+
+    public static void startme(Context ctx) {
+        Intent i = new Intent(ctx, OAuthActivity.class);
+        ctx.startActivity(i);
+    }
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.authentication_activity);
 
-	    t = new TwitterFactory().getInstance();
-	    t.setOAuthConsumer(getString(R.string.test_platform_oauth_key), getString(R.string.test_platform_oauth_secret));
-	    try {
-			RequestToken reqT = t.getOAuthRequestToken(getString(R.string.twitter_callback_uri));
-		} catch (TwitterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	    
-	    prefs = PreferenceManager.getDefaultSharedPreferences(this);
-	    
-	    Intent i = this.getIntent();
-	    if (i.getData() == null) {
-	    	// Not called via callback
-
-	    	wv = (WebView)findViewById(R.id.auth_webview);
-	    	wv.setWebViewClient(new AuthenticationClient());
-//	    	wv.loadUrl(authUrl);
-	    }
+	    toa = new TwitterOAuth();
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Intent i = this.getIntent();
+        if (i.getData() == null) {
+            try {
+                if (toa.authenticateToTwitter(this.getString(R.string.twitter_oauth_key), this.getString(R.string.twitter_oauth_secret), TwitterConstants.OAUTH_CALLBACK_URL)) {
+                    wv = (WebView)findViewById(R.id.auth_webview);
+                    wv.setWebViewClient(new AuthenticationClient());
+                    wv.loadUrl(toa.getAuthorizationURL());
+                }
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+        }
 	}
 	
 	
@@ -74,11 +74,28 @@ public class OAuthActivity extends Activity {
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			
 			Uri uri = Uri.parse(url);
-//			if (uri != null && androidOAuth.getCallbackUri().getScheme().equals(uri.getScheme())) {
-//				
-//			}
-			return super.shouldOverrideUrlLoading(view, url);
+            if (uri != null && uri.getScheme().equalsIgnoreCase(Uri.parse(TwitterConstants.OAUTH_CALLBACK_URL).getScheme())) {
+                SharedPreferences.Editor ed = prefs.edit();
+                ed.putString(TwitterConstants.ACCESS_TOKEN_PREF, toa.getAccessToken());
+                ed.putString(TwitterConstants.ACCESS_TOKEN_SECRET_PREF, toa.getTokenSecret());
+                ed.putString(TwitterConstants.ACCESS_TOKEN_SCREENNAME_PREF, toa.getTwitterUserScreenName());
+                ed.commit();
+                OAuthActivity.this.finish();
+            } else {
+                view.loadUrl(url);
+            }
+			return true;
 		}
-	}
+
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            super.onReceivedError(view, errorCode, description, failingUrl);
+        }
+
+        @Override
+        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            handler.proceed();
+        }
+    }
 
 }

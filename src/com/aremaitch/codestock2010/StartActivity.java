@@ -38,6 +38,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
+import com.aremaitch.codestock2010.library.CountdownManager;
+import com.aremaitch.codestock2010.library.StartActivityMenuManager;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;

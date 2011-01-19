@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.aremaitch.codestock2010;
+package com.aremaitch.codestock2010.library;
 
 import android.*;
 import android.content.Context;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.aremaitch.codestock2010.CSPreferencesActivity;
 
 /**
  * Created by IntelliJ IDEA.

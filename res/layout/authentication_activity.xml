@@ -31,7 +31,7 @@
 		android:layout_height="0px"
 		android:layout_weight="1"/>
 
-	<include layout="@layout/std_footer"/>
+	<include layout="@layout/std_footer_no_countdown"/>
 			
 		
 </LinearLayout>
