@@ -17,7 +17,7 @@
 
 <!-- Layout for the app entry screen in LANDSCAPE mode-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:background="@color/White"
+	android:background="@drawable/codestock2011_background_image_50transparent"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -29,8 +29,17 @@
 		android:layout_width="fill_parent"
 		android:layout_height="0px"
 		android:layout_weight="1"
+        android:gravity="bottom"
 		>
-		
+
+        <include layout="@layout/standalone_tweet_layout"
+                 android:id="@+id/tweet_view_0"
+                 />
+
+        <include layout="@layout/standalone_tweet_layout"
+                 android:id="@+id/tweet_view_1"
+                 />
+        
 	</LinearLayout>
 	
 	<!-- Footer  -->

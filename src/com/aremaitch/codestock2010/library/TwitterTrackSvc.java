@@ -29,6 +29,7 @@ import android.util.Log;
 import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.TweetObj;
+import com.aremaitch.utils.ACLogger;
 import twitter4j.*;
 
 /**
@@ -38,7 +39,6 @@ import twitter4j.*;
  * To change this template use File | Settings | File Templates.
  */
 public class TwitterTrackSvc extends Service {
-    private static final String SERVICETAG = "CodeStockTwitterSvc";
     private String _consumerKey;
     private String _consumerSecret;
     private String _accessToken;
@@ -60,7 +60,7 @@ public class TwitterTrackSvc extends Service {
 
     @Override
     public void onCreate() {
-        Log.i(SERVICETAG, "service created");
+        ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "service created");
         getTwitterAccessToken();
         t = new TwitterLib(this._consumerKey, this._consumerSecret, this._accessToken, this._accessTokenSecret);
         super.onCreate();
@@ -69,13 +69,13 @@ public class TwitterTrackSvc extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i(SERVICETAG, "destroying service");
+        ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "destroying service");
         super.onDestroy();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(SERVICETAG, "received onStartCommand");
+        ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received onStartCommand");
         _startedByAlarm = true;
         getHashTweetsSince(getLastMaxTweetId(), intent.getStringArrayExtra(TwitterConstants.TWEET_SCAN_HASHTAG_EXTRA_KEY));
         return Service.START_STICKY;
@@ -102,19 +102,22 @@ public class TwitterTrackSvc extends Service {
     }
 
     private long getLastMaxTweetId() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return prefs.getLong(TwitterConstants.LAST_TWEETID_PREF, -1);
     }
 
     private void updateLastTweetId(long lastTweetId) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor ed = prefs.edit();
         ed.putLong(TwitterConstants.LAST_TWEETID_PREF, lastTweetId);
         ed.commit();
     }
 
     private void getTwitterAccessToken() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         this._consumerKey = this.getString(R.string.twitter_oauth_key);
         this._consumerSecret = this.getString(R.string.twitter_oauth_secret);
         this._accessToken = prefs.getString(TwitterConstants.ACCESS_TOKEN_PREF, "");
@@ -153,7 +156,7 @@ public class TwitterTrackSvc extends Service {
 
         @Override
         public void onException(Exception e) {
-            Log.e(SERVICETAG, "Stream exception:");
+            ACLogger.error(CSConstants.TWITTERTRACKSVC_LOG_TAG, "Stream exception:");
             e.printStackTrace();
         }
 

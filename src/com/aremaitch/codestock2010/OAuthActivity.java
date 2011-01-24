@@ -20,6 +20,8 @@ package com.aremaitch.codestock2010;
 import android.content.Context;
 import android.net.http.SslError;
 import android.webkit.SslErrorHandler;
+import android.widget.TextView;
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.TwitterConstants;
 import com.aremaitch.codestock2010.library.TwitterOAuth;
 import twitter4j.Twitter;
@@ -42,7 +44,7 @@ public class OAuthActivity extends Activity {
 	WebView wv;
 	TwitterOAuth toa = null;
 
-    public static void startme(Context ctx) {
+    public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, OAuthActivity.class);
         ctx.startActivity(i);
     }
@@ -51,9 +53,11 @@ public class OAuthActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.authentication_activity);
+        setHeaderText();
 
 	    toa = new TwitterOAuth();
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         Intent i = this.getIntent();
         if (i.getData() == null) {
             try {
@@ -68,18 +72,19 @@ public class OAuthActivity extends Activity {
         }
 	}
 	
-	
+	private void setHeaderText() {
+        ((TextView)findViewById(R.id.header_title)).setText(getString(R.string.header_title));
+        ((TextView)findViewById(R.id.header_subtitle)).setText(getString(R.string.header_slogan));
+    }
+
 	class AuthenticationClient extends WebViewClient {
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			
 			Uri uri = Uri.parse(url);
             if (uri != null && uri.getScheme().equalsIgnoreCase(Uri.parse(TwitterConstants.OAUTH_CALLBACK_URL).getScheme())) {
-                SharedPreferences.Editor ed = prefs.edit();
-                ed.putString(TwitterConstants.ACCESS_TOKEN_PREF, toa.getAccessToken());
-                ed.putString(TwitterConstants.ACCESS_TOKEN_SECRET_PREF, toa.getTokenSecret());
-                ed.putString(TwitterConstants.ACCESS_TOKEN_SCREENNAME_PREF, toa.getTwitterUserScreenName());
-                ed.commit();
+
+                toa.saveOAuthTokens(prefs, toa.getAccessToken(), toa.getTokenSecret(), toa.getTwitterUserScreenName());
                 OAuthActivity.this.finish();
             } else {
                 view.loadUrl(url);

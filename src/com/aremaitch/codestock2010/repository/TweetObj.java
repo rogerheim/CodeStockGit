@@ -19,6 +19,7 @@ package com.aremaitch.codestock2010.repository;
 import twitter4j.Status;
 import twitter4j.Tweet;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -31,153 +32,160 @@ import java.util.Date;
 //  An object to act as a bridge between twitter4j and the database schema.
 
 public class TweetObj {
-        private String _text;
-        private int _toUserId;
-        private String _toUser;
-        private String _fromUser;
-        private long _id;
-        private int _fromUserId;
-        private String _isoLanguageCode;
-        private String _source;
-        private String _profileImageUrl;
-        private Date _createdAt;
-        private double _latitude;
-        private double _longitude;
+    private String _text;
+    private int _toUserId;
+    private String _toUser;
+    private String _fromUser;
+    private long _id;
+    private int _fromUserId;
+    private String _isoLanguageCode;
+    private String _source;
+    private String _profileImageUrl;
+    private Date _createdAt;
+    private double _latitude;
+    private double _longitude;
 
-        public static TweetObj createInstance(Tweet rawTweet) {
-            TweetObj to = new TweetObj();
-            to.setId(rawTweet.getId());
-            to.setText(rawTweet.getText());
-            to.setToUserId(rawTweet.getToUserId());
-            to.setToUser(rawTweet.getToUser());
-            to.setFromUser(rawTweet.getFromUser());
-            to.setFromUserId(rawTweet.getFromUserId());
-            to.setIsoLanguageCode(rawTweet.getIsoLanguageCode());
-            to.setProfileImageUrl(rawTweet.getProfileImageUrl());
-            to.setSource(rawTweet.getSource());
-            to.setCreatedAt(rawTweet.getCreatedAt());
-            if (rawTweet.getGeoLocation() != null) {
-                to.setLatitude(rawTweet.getGeoLocation().getLatitude());
-                to.setLongitude(rawTweet.getGeoLocation().getLongitude());
-            }
-            return to;
+    public static TweetObj createInstance(Tweet rawTweet) {
+        TweetObj to = new TweetObj();
+        to.setId(rawTweet.getId());
+        to.setText(rawTweet.getText());
+        to.setToUserId(rawTweet.getToUserId());
+        to.setToUser(rawTweet.getToUser());
+        to.setFromUser(rawTweet.getFromUser());
+        to.setFromUserId(rawTweet.getFromUserId());
+        to.setIsoLanguageCode(rawTweet.getIsoLanguageCode());
+        to.setProfileImageUrl(rawTweet.getProfileImageUrl());
+        to.setSource(rawTweet.getSource());
+        to.setCreatedAt(rawTweet.getCreatedAt());
+        if (rawTweet.getGeoLocation() != null) {
+            to.setLatitude(rawTweet.getGeoLocation().getLatitude());
+            to.setLongitude(rawTweet.getGeoLocation().getLongitude());
         }
+        return to;
+    }
 
-        public static TweetObj createInstance(Status status) {
-            TweetObj to = new TweetObj();
-            to.setId(status.getId());
-            to.setText(status.getText());
-            to.setToUserId(status.getInReplyToUserId());
-            to.setToUser(status.getInReplyToScreenName());
-            if (status.getUser() != null) {
-                to.setFromUser(status.getUser().getScreenName());
-                to.setFromUserId(status.getUser().getId());
-                to.setIsoLanguageCode(status.getUser().getLang());
-                to.setProfileImageUrl(status.getUser().getProfileBackgroundImageUrl());
-            }
-            to.setSource(status.getSource());
-            to.setCreatedAt(status.getCreatedAt());
-            if (status.getGeoLocation() != null) {
-                to.setLatitude(status.getGeoLocation().getLatitude());
-                to.setLongitude(status.getGeoLocation().getLongitude());
-            }
-            return to;
-
+    public static TweetObj createInstance(Status status) {
+        TweetObj to = new TweetObj();
+        to.setId(status.getId());
+        to.setText(status.getText());
+        to.setToUserId(status.getInReplyToUserId());
+        to.setToUser(status.getInReplyToScreenName());
+        if (status.getUser() != null) {
+            to.setFromUser(status.getUser().getScreenName());
+            to.setFromUserId(status.getUser().getId());
+            to.setIsoLanguageCode(status.getUser().getLang());
+            to.setProfileImageUrl(status.getUser().getProfileBackgroundImageUrl());
         }
-
-        public String getText() {
-            return _text;
+        to.setSource(status.getSource());
+        to.setCreatedAt(status.getCreatedAt());
+        if (status.getGeoLocation() != null) {
+            to.setLatitude(status.getGeoLocation().getLatitude());
+            to.setLongitude(status.getGeoLocation().getLongitude());
         }
+        return to;
 
-        public void setText(String _text) {
-            this._text = _text;
-        }
+    }
 
-        public int getToUserId() {
-            return _toUserId;
-        }
+    public String getText() {
+        return _text;
+    }
 
-        public void setToUserId(int _toUserId) {
-            this._toUserId = _toUserId;
-        }
+    public void setText(String _text) {
+        this._text = _text;
+    }
 
-        public String getToUser() {
-            return _toUser;
-        }
+    public int getToUserId() {
+        return _toUserId;
+    }
 
-        public void setToUser(String _toUser) {
-            this._toUser = _toUser;
-        }
+    public void setToUserId(int _toUserId) {
+        this._toUserId = _toUserId;
+    }
 
-        public String getFromUser() {
-            return _fromUser;
-        }
+    public String getToUser() {
+        return _toUser;
+    }
 
-        public void setFromUser(String _fromUser) {
-            this._fromUser = _fromUser;
-        }
+    public void setToUser(String _toUser) {
+        this._toUser = _toUser;
+    }
 
-        public long getId() {
-            return _id;
-        }
+    public String getFromUser() {
+        return _fromUser;
+    }
 
-        public void setId(long _id) {
-            this._id = _id;
-        }
+    public void setFromUser(String _fromUser) {
+        this._fromUser = _fromUser;
+    }
 
-        public int getFromUserId() {
-            return _fromUserId;
-        }
+    public long getId() {
+        return _id;
+    }
 
-        public void setFromUserId(int _fromUserId) {
-            this._fromUserId = _fromUserId;
-        }
+    public void setId(long _id) {
+        this._id = _id;
+    }
 
-        public String getIsoLanguageCode() {
-            return _isoLanguageCode;
-        }
+    public int getFromUserId() {
+        return _fromUserId;
+    }
 
-        public void setIsoLanguageCode(String _isoLanguageCode) {
-            this._isoLanguageCode = _isoLanguageCode;
-        }
+    public void setFromUserId(int _fromUserId) {
+        this._fromUserId = _fromUserId;
+    }
 
-        public String getSource() {
-            return _source;
-        }
+    public String getIsoLanguageCode() {
+        return _isoLanguageCode;
+    }
 
-        public void setSource(String _source) {
-            this._source = _source;
-        }
+    public void setIsoLanguageCode(String _isoLanguageCode) {
+        this._isoLanguageCode = _isoLanguageCode;
+    }
 
-        public String getProfileImageUrl() {
-            return _profileImageUrl;
-        }
+    public String getSource() {
+        return _source;
+    }
 
-        public void setProfileImageUrl(String _profileImageUrl) {
-            this._profileImageUrl = _profileImageUrl;
-        }
+    public void setSource(String _source) {
+        this._source = _source;
+    }
 
-        public Date getCreatedAt() {
-            return _createdAt;
-        }
+    public String getProfileImageUrl() {
+        return _profileImageUrl;
+    }
 
-        public void setCreatedAt(Date _createdAt) {
-            this._createdAt = _createdAt;
-        }
+    public void setProfileImageUrl(String _profileImageUrl) {
+        this._profileImageUrl = _profileImageUrl;
+    }
 
-        public double getLatitude() {
-            return _latitude;
-        }
+    public Date getCreatedAt() {
+        return _createdAt;
+    }
 
-        public void setLatitude(double _latitude) {
-            this._latitude = _latitude;
-        }
+    public void setCreatedAt(Date _createdAt) {
+        this._createdAt = _createdAt;
+    }
 
-        public double getLongitude() {
-            return _longitude;
-        }
+    //  Convenience method to allow passing in a unix time string.
+    public void setCreatedAt(long _createdAt) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(_createdAt);
+        this._createdAt = cal.getTime();
+    }
 
-        public void setLongitude(double _longitude) {
-            this._longitude = _longitude;
-        }
+    public double getLatitude() {
+        return _latitude;
+    }
+
+    public void setLatitude(double _latitude) {
+        this._latitude = _latitude;
+    }
+
+    public double getLongitude() {
+        return _longitude;
+    }
+
+    public void setLongitude(double _longitude) {
+        this._longitude = _longitude;
+    }
 }

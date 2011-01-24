@@ -24,6 +24,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import com.aremaitch.codestock2010.repository.DatabaseCleanup;
+import com.aremaitch.utils.ACLogger;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +33,6 @@ import com.aremaitch.codestock2010.repository.DatabaseCleanup;
  * To change this template use File | Settings | File Templates.
  */
 public class DatabaseCleanupSvc extends Service {
-    private static final String SERVICETAG = "CodeStockDBCleanupSvc";
     //  Not bindable
     public IBinder onBind(Intent intent) {
         return null;
@@ -40,7 +40,7 @@ public class DatabaseCleanupSvc extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(SERVICETAG, "received onStartCommand");
+        ACLogger.info(CSConstants.DBCLEANUPSVC_LOG_TAG, "received onStartCommand");
         new DatabaseCleanupTask().execute();
         return Service.START_STICKY;
     }
@@ -59,7 +59,7 @@ public class DatabaseCleanupSvc extends Service {
         @Override
         protected void onPostExecute(Void aVoid) {
             wl.release();
-            Log.i(SERVICETAG, "stopping service");
+            ACLogger.info(CSConstants.DBCLEANUPSVC_LOG_TAG, "stopping db cleanup service");
             DatabaseCleanupSvc.this.stopSelf();
         }
 

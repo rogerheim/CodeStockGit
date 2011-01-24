@@ -20,7 +20,6 @@
     <string name="app_name">CodeStock 2011</string>
     <string name="header_title">CodeStock 2011 - June 3 - 4, 2011</string>
     <string name="header_slogan">One Louder</string>
-    <string name="logging_tag">CodeStock2011</string>
     <string name="about_title">About CodeStock 2011...</string>
     
     <string name="yes_string">Yes</string>
@@ -116,7 +115,6 @@
 	<string name="agenda_intent_category">android.intent.category.DEFAULT</string>
 	
 	<!-- Miscellaneous strings -->
-	<string name="shared_prefs_name">CodeStock2010Prefs</string>
 	<string name="shared_prefs_userid">userid</string>
 	
 </resources>

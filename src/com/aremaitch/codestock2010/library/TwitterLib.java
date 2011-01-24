@@ -18,6 +18,7 @@ package com.aremaitch.codestock2010.library;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.aremaitch.utils.ACLogger;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
@@ -65,7 +66,7 @@ public class TwitterLib {
             try {
                 tStream.shutdown();
             } catch (IllegalStateException ex) {
-                Log.w("CodeStockTwitterLib", "warning: shutting down stream that is already shutdown");
+                ACLogger.warn(CSConstants.LOG_TAG, "warning: shutting down stream that is already shutdown");
             }
             tStream = null;
         }

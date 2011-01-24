@@ -19,6 +19,8 @@ package com.aremaitch.codestock2010.repository;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.utils.ACLogger;
 
 import java.util.ArrayList;
 
@@ -115,4 +117,54 @@ public class TwitterDataHelper {
         db.execSQL("delete from " + TWEETS_TABLE + " where createdat < ?", new Long[] {oldestTweetToDelete});
     }
 
+    /**
+     * Get the next tweet in id sequence
+     * @param db The SQLiteDatabase to query.
+     * @param lastTweetID The id of the last tweet re returned.
+     * @return A TweetObj object containing the tweet or null if there is none.
+     */
+    protected TweetObj getNextTweet(SQLiteDatabase db, long lastTweetID) {
+        TweetObj result = null;
+        Cursor c = null;
+        try {
+            c = getNextOrFirstTweet(db, lastTweetID);
+            if (c != null) {
+                result = new TweetObj();
+                result.setId(c.getLong(c.getColumnIndexOrThrow("id")));
+                result.setCreatedAt(c.getLong(c.getColumnIndexOrThrow("createdat")));
+                result.setText(c.getString(c.getColumnIndexOrThrow("ttext")));
+                result.setToUser(c.getString(c.getColumnIndexOrThrow("touser")));
+                result.setToUserId(c.getInt(c.getColumnIndexOrThrow("touserid")));
+                result.setFromUser(c.getString(c.getColumnIndexOrThrow("fromuser")));
+                result.setFromUserId(c.getInt(c.getColumnIndexOrThrow("fromuserid")));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (c != null && !c.isClosed()) {
+                ACLogger.info(CSConstants.LOG_TAG, "closing cursor");
+
+                c.close();
+            }
+        }
+        return result;
+    }
+
+    private Cursor getNextOrFirstTweet(SQLiteDatabase db, long lastTweetID) {
+        Cursor c = null;
+        c = db.rawQuery("select id, createdat, ttext, touser, touserid, fromuser, fromuserid from tweets where id > ? order by id limit 1",
+                new String[] {Long.toString(lastTweetID)});
+        if (!c.moveToFirst()) {
+            c.close();
+            // There was no tweet newer than the last one we retrieved.
+            // Retrieve the first one on file.
+            c = db.rawQuery("select id, createdat, ttext, touser, touserid, fromuser, fromuserid from tweets order by id limit 1", null);
+            if (!c.moveToFirst()) {
+                c.close();
+                c = null;
+            }
+        }
+
+        return c;
+    }
 }

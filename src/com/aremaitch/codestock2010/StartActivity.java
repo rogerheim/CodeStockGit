@@ -33,13 +33,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
-import com.aremaitch.codestock2010.library.CountdownManager;
-import com.aremaitch.codestock2010.library.StartActivityMenuManager;
+import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
@@ -62,18 +62,21 @@ public class StartActivity extends Activity {
 	ProgressDialog _progress = null;
 	CountdownManager cMgr = new CountdownManager();
     StartActivityMenuManager menuManager = new StartActivityMenuManager(this);
-	
+    TweetDisplayManager tdm = null;
+	View digitsContainer = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//	Called once when the activity is started.
 		super.onCreate(savedInstanceState);
-		ACLogger.info(getString(R.string.logging_tag), "StartActivity onCreate");
+		ACLogger.info(CSConstants.LOG_TAG, "StartActivity onCreate");
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//setContentView(R.layout.startup_activity);
 		setContentView(R.layout.countdown_startup_activity);
 		
-		
+		digitsContainer = findViewById(R.id.countdown_digit_container);
+
 		//	Header is a standard include; change the text.
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.header_title));
@@ -89,7 +92,7 @@ public class StartActivity extends Activity {
 		
 		
 		if (task != null) {
-			ACLogger.info(getString(R.string.logging_tag), "StartActivity reconnecting to running RefreshCodeStockData task");
+			ACLogger.info(CSConstants.LOG_TAG, "StartActivity reconnecting to running RefreshCodeStockData task");
 			//  We were restarted during a data load (probably because of an orientation change.)
 			//	Reshow the progress dialog.
 			task.attach(this);
@@ -137,27 +140,50 @@ public class StartActivity extends Activity {
 	@Override
 	protected void onPause() {
 		cMgr.stop();
+        stopTweetDisplay();
 		super.onPause();
 	}
 
     @Override
     protected void onResume() {
-        cMgr.initializeCountdown(findViewById(R.id.countdown_digit_container), getAssets());
+        cMgr.initializeCountdown(digitsContainer, getAssets());
         cMgr.start();
+
+        startTweetDisplay();
         super.onResume();
     }
 
     @Override
 	public Object onRetainNonConfigurationInstance() {
 		if (task != null) {
-			ACLogger.info(getString(R.string.logging_tag), "StartActivity preparing for restart due to config change");
+			ACLogger.info(CSConstants.LOG_TAG, "StartActivity preparing for restart due to config change");
 			task.detach();
 			clearProgressDialog();
 			return task;
 		}
 		return null;
 	}
-	
+
+    private void startTweetDisplay() {
+        SharedPreferences settings = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        if (settings.getBoolean(TwitterConstants.TWITTER_ENABLED, false)) {
+            int displaySeconds = Integer.parseInt(settings.getString(TwitterConstants.TWEET_DISPLAY_DURATION_PREF, "10"));
+            tdm = new TweetDisplayManager(this,
+                    AnimationUtils.loadAnimation(this, R.anim.tweet_fade_in),
+                    AnimationUtils.loadAnimation(this, R.anim.tweet_fade_out),
+                    findViewById(R.id.tweet_view_0),
+                    findViewById(R.id.tweet_view_1),
+                    displaySeconds);
+            tdm.startTweetDisplayTimer();
+        }
+    }
+
+    private void stopTweetDisplay() {
+        if (tdm != null) {
+            tdm.stopTweetDisplayTimer();
+        }
+    }
+
 	void showProgressDialog() {
 		_progress = ProgressDialog.show(this, getString(R.string.refresh_data_progress_dialog_title), getString(R.string.refresh_data_progress_dialog_msg));
 	}
@@ -193,7 +219,7 @@ public class StartActivity extends Activity {
 		scheduleButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ACLogger.info(getString(R.string.logging_tag), "Schedule button onClick");
+				ACLogger.info(CSConstants.LOG_TAG, "Schedule button onClick");
 				startActivity(
 						new Intent()
 							.setAction(getString(R.string.agenda_intent_action))
@@ -207,7 +233,7 @@ public class StartActivity extends Activity {
 		mapButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ACLogger.info(getString(R.string.logging_tag), "Map button onClick");
+				ACLogger.info(CSConstants.LOG_TAG, "Map button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.conference_center_map_intent_action))
 					.addCategory(getString(R.string.conference_center_map_intent_category));
@@ -222,7 +248,7 @@ public class StartActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				ACLogger.info(getString(R.string.logging_tag), "Sessions button onClick");
+				ACLogger.info(CSConstants.LOG_TAG, "Sessions button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.sessions_intent_action))
 					.addCategory(getString(R.string.sessions_intent_category));
@@ -239,8 +265,8 @@ public class StartActivity extends Activity {
 			//	Running it again (after the userid has been pref'd) results in no error.
 			@Override
 			public void onClick(View v) {
-				ACLogger.info(getString(R.string.logging_tag), "Starred button onClick");
-				SharedPreferences settings = getSharedPreferences(getString(R.string.shared_prefs_name), Context.MODE_PRIVATE);
+				ACLogger.info(CSConstants.LOG_TAG, "Starred button onClick");
+				SharedPreferences settings = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 				long userid = settings.getLong(getString(R.string.shared_prefs_userid), 0);
 				if (userid == 0) {
 					promptUserToScanQRCode();
@@ -259,7 +285,7 @@ public class StartActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				ACLogger.info(getString(R.string.logging_tag), "Credits button onClick");
+				ACLogger.info(CSConstants.LOG_TAG, "Credits button onClick");
 				Intent i = new Intent();
 				i.setAction(getString(R.string.about_intent_action))
 					.addCategory(getString(R.string.about_intent_category));
@@ -330,7 +356,7 @@ public class StartActivity extends Activity {
 	private void parseWebsiteLink(String link) {
 		if (link.lastIndexOf("id=") != -1) {
 			Long userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
-			SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.shared_prefs_name), Context.MODE_PRIVATE).edit();
+			SharedPreferences.Editor editor = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
 			editor.putLong(getString(R.string.shared_prefs_userid), userid);
 			editor.commit();
 			startMySessions(userid);
@@ -346,7 +372,7 @@ public class StartActivity extends Activity {
 	}
 
 	void signalComplete() {
-		ACLogger.info(getString(R.string.logging_tag), "StartActivity received RefreshCodeStockData complete signal");
+		ACLogger.info(CSConstants.LOG_TAG, "StartActivity received RefreshCodeStockData complete signal");
 		clearProgressDialog();
 		task = null;
 	}
@@ -363,7 +389,7 @@ public class StartActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			ACLogger.info(getString(R.string.logging_tag), "Starting RefreshCodeStockData.doInBackground()");
+			ACLogger.info(CSConstants.LOG_TAG, "Starting RefreshCodeStockData.doInBackground()");
 			//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
 			dlv2 = new DownloaderV2(getApplicationContext(), 
 					getString(R.string.json_data_rooms_url_v2), 
@@ -395,7 +421,7 @@ public class StartActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData.onPostExecute()");
+			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData.onPostExecute()");
 			
 			if (activity != null) {
 				activity.signalComplete();
@@ -404,12 +430,12 @@ public class StartActivity extends Activity {
 		}
 		
 		void detach() {
-			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData detaching from activity");
+			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData detaching from activity");
 			activity = null;
 		}
 		
 		void attach(StartActivity activity) {
-			ACLogger.info(getString(R.string.logging_tag), "RefreshCodeStockData attaching to new activity");
+			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData attaching to new activity");
 			this.activity = activity;
 		}
 	}

@@ -24,7 +24,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.*;
 import android.text.TextUtils;
+import android.util.Log;
+import com.aremaitch.codestock2010.library.BackgroundTaskManager;
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.TwitterConstants;
+import com.aremaitch.codestock2010.library.TwitterOAuth;
+import com.aremaitch.utils.ACLogger;
+import com.aremaitch.utils.Command;
+import com.aremaitch.utils.OnClickCommandWrapper;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,7 +48,9 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ACLogger.info(CSConstants.LOG_TAG, "CSPreferencesActivity onCreate");
         super.onCreate(savedInstanceState);
+        cancelBackgroundServices();
         //addPreferencesFromResource(R.xml.prefs);
         initializePreferenceScreen();
 
@@ -50,15 +59,28 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
     @Override
     protected void onResume() {
+        ACLogger.info(CSConstants.LOG_TAG, "CSPreferencesActivity onResume");
         super.onResume();
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        //PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        if (!isAlreadyAuthenticated(getPreferenceManager().getSharedPreferences())) {
+//            cancelBackgroundServices();
+            forceTwitterDisabled();
+        }
     }
 
     @Override
     protected void onPause() {
+        ACLogger.info(CSConstants.LOG_TAG, "CSPreferencesActivity onPause");
         super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+        //PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        possiblyStartBackgroundServices();
+    }
 
+    private void forceTwitterDisabled() {
+        ((CheckBoxPreference)getPreferenceScreen().findPreference(TwitterConstants.TWITTER_ENABLED))
+                .setChecked(false);
     }
 
     @Override
@@ -73,47 +95,94 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         //      If the user says to forget the auth info, delete the access token and access token secret preferences.
         //      If the user says to not forget the auth info, do nothing.
 
+
+        if (key.equalsIgnoreCase(TwitterConstants.TWITTER_ENABLED)) {
+            if (sharedPreferences.getBoolean(key, false)) {
+                //  Twitter was enabled; if not already authenticated, ask user if they want to authenticate.
+                if (!isAlreadyAuthenticated(sharedPreferences)) {
+                    doesUserWantToAuthenticate();
+                }
+            } else {
+                //  Twitter was disabled; if already authenticated, ask user if they want to delete tokens.
+                if (isAlreadyAuthenticated(sharedPreferences)) {
+                    doesUserWantToForgetOAuthToken();
+                }
+            }
+        }
     }
 
+    private void doesUserWantToForgetOAuthToken() {
+
+        Command yesCommand = new Command() {
+            @Override
+            public void execute() {
+                new TwitterOAuth().forgetOAuthTokens(getPreferenceManager().getSharedPreferences());
+            }
+        };
+
+
+        new AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setMessage("Do you want delete your Twitter account from the CodeStock app?")
+            .setNegativeButton("No", new OnClickCommandWrapper(Command.NOOP))
+            .setPositiveButton("Yes", new OnClickCommandWrapper(yesCommand))
+            .setTitle("Delete Twitter Authentication")
+            .show();
+    }
+
+
+    private void possiblyStartBackgroundServices() {
+        SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
+        if (prefs.getBoolean(TwitterConstants.TWITTER_ENABLED, false)) {
+            if (prefs.getBoolean(TwitterConstants.TWITTER_BK_UPD_ENABLED_PREF, false)) {
+                BackgroundTaskManager btm = new BackgroundTaskManager(this);
+                btm.setRecurringTweetScan();
+                btm.setDBCleanupTask();
+            }
+        }
+    }
+
+    private void cancelBackgroundServices() {
+        BackgroundTaskManager btm = new BackgroundTaskManager(this);
+        btm.cancelRecurringTweetScan();
+        btm.cancelDBCleanupTask();
+    }
 
     private boolean isAlreadyAuthenticated(SharedPreferences prefs) {
         return !(TextUtils.isEmpty(prefs.getString(TwitterConstants.ACCESS_TOKEN_PREF, ""))
                 || TextUtils.isEmpty(prefs.getString(TwitterConstants.ACCESS_TOKEN_SECRET_PREF, "")));
     }
 
-    private boolean doesUserWantToAuthenticate() {
-        final boolean[] result = {false};
+    //  AlertDialogs do not block and wait for a response.
+    private void doesUserWantToAuthenticate() {
+        Command yesCommand = new Command() {
+            @Override
+            public void execute() {
+                beginOAuthDance();
+            }
+        };
+
+        Command noCommand = new Command() {
+            @Override
+            public void execute() {
+                forceTwitterDisabled();
+            }
+        };
+
         new AlertDialog.Builder(this)
             .setCancelable(false)
             .setMessage("You've not authorized the CodeStock app to access your Twitter account yet.\n\nIf you press Yes you'll be " +
                         "taken to a Twitter page where you'll be able to login (if you're not already logged in on this device) " +
                         "and grant this app access. Your password is not stored on this device.\n\nDo you want to continue?")
-            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            })
-            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    result[0] = true;
-                }
-            })
+            .setNegativeButton("No", new OnClickCommandWrapper(noCommand))
+            .setPositiveButton("Yes", new OnClickCommandWrapper(yesCommand))
             .setTitle("Authenticate to Twitter")
             .show();
-
-        return result[0];
     }
 
-    //  Create this in code so I can use constants in TwitterConstants instead of embedding them
-    //  in an XML file.
 
     private void beginOAuthDance() {
-
+        OAuthActivity.startMe(this);
     }
 
     //TODO: Build a builder class for more fluent building of these preferences.
@@ -123,8 +192,11 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
     //  setPreferenceScreen() (because you're building up the entire hierarchy first) the call will
     //  fail with an IllegalStateException. Must setPreferenceScreen() before setDependency().
 
+    //  Create this in code so I can use constants in TwitterConstants instead of embedding them
+    //  in an XML file.
     private void initializePreferenceScreen() {
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
+        root.getPreferenceManager().setSharedPreferencesName(CSConstants.SHARED_PREF_NAME);
         root.setTitle("CodeStock Preferences");
 
 
@@ -158,7 +230,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
         ListPreference tweetDisplayDuration = new ListPreference(this);
         tweetDisplayDuration.setKey(TwitterConstants.TWEET_DISPLAY_DURATION_PREF);
-        tweetDisplayDuration.setDefaultValue("5");
+        tweetDisplayDuration.setDefaultValue("10");
         tweetDisplayDuration.setTitle("Tweet display seconds");
         tweetDisplayDuration.setSummary("Seconds to display each tweet");
         tweetDisplayDuration.setEntries(R.array.tweet_dsply_duration_entries);

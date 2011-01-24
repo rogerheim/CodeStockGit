@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.PreferenceManager;
+import com.aremaitch.utils.ACLogger;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,6 +42,7 @@ public class CSBroadcastReceiver extends BroadcastReceiver {
         _intent = intent;
 
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+            ACLogger.info(CSConstants.LOG_TAG, "received boot complete notification");
             handleBootCompletedEvent();
         }
 
@@ -50,7 +52,8 @@ public class CSBroadcastReceiver extends BroadcastReceiver {
 
 
     private void handleBootCompletedEvent() {
-        boolean runServiceInBackground = PreferenceManager.getDefaultSharedPreferences(_ctx)
+//        boolean runServiceInBackground = PreferenceManager.getDefaultSharedPreferences(_ctx)
+        boolean runServiceInBackground = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 .getBoolean(TwitterConstants.TWITTER_BK_UPD_ENABLED_PREF, false);
         if (runServiceInBackground) {
             BackgroundTaskManager tm = new BackgroundTaskManager(_ctx);

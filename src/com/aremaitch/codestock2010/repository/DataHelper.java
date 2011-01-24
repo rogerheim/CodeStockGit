@@ -636,6 +636,11 @@ public class DataHelper {
         tdh.cleanUpOldTweets(db, daysToKeep);
     }
 
+    public TweetObj getNextTweet(long _lastTweetID) {
+        TwitterDataHelper tdh = new TwitterDataHelper();
+        return tdh.getNextTweet(db, _lastTweetID);
+    }
+
 	/**
 	 * Searches the database for the passed experience level. If it does not exist, it adds it.
 	 * <br><b>This searches by level name, not id.</b>

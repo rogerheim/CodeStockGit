@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.repository.AgendaSession;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
@@ -73,7 +74,7 @@ public class AgendaActivity extends Activity
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		ACLogger.info(getString(R.string.logging_tag), "AgendaActivity onRetainNonConfigurationInstance");
+		ACLogger.info(CSConstants.LOG_TAG, "AgendaActivity onRetainNonConfigurationInstance");
 		AgendaActivityInstanceData idata = new AgendaActivityInstanceData();
 		idata.currentSlotIndex = this.currentSlotIndex;
 		idata.currentView = this.currentView;
@@ -87,7 +88,7 @@ public class AgendaActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.agenda_activity);
 
-		ACLogger.info(getString(R.string.logging_tag), "AgendaActivity onCreate");
+		ACLogger.info(CSConstants.LOG_TAG, "AgendaActivity onCreate");
 
 		AgendaActivityInstanceData idata = (AgendaActivityInstanceData)getLastNonConfigurationInstance();
 		

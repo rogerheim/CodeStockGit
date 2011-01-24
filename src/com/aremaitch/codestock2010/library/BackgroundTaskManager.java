@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.PreferenceManager;
+import com.aremaitch.utils.ACLogger;
 
 import java.util.Calendar;
 
@@ -48,6 +49,7 @@ public class BackgroundTaskManager {
     private Context _ctx;
 
     public BackgroundTaskManager(Context _ctx) {
+        ACLogger.info(CSConstants.LOG_TAG, "BackgroundTaskmanager ctor");
         this._ctx = _ctx;
     }
 
@@ -74,6 +76,8 @@ public class BackgroundTaskManager {
 
 
     public void setDBCleanupTask() {
+        ACLogger.info(CSConstants.LOG_TAG, "setting alarm for db cleanup task");
+
         getAlarmManager().setRepeating(AlarmManager.RTC_WAKEUP,
                 getStartingDatabaseCleanupCalendar().getTimeInMillis(),
                 DB_CLEANUP_INTERVAL,
@@ -81,14 +85,18 @@ public class BackgroundTaskManager {
     }
 
     public void cancelDBCleanupTask() {
+        ACLogger.info(CSConstants.LOG_TAG, "canceling alarm for db cleanup task");
         getAlarmManager().cancel(createDBCleanupPendingIntent());
     }
 
 
     public void setRecurringTweetScan() {
+        ACLogger.info(CSConstants.LOG_TAG, "setting alarm for tweet scan");
+
         Calendar cal = Calendar.getInstance();
-        int updateMinutes = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(_ctx)
-            .getString(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF, "5"));
+//        int updateMinutes = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(_ctx)
+        int updateMinutes = Integer.parseInt(_ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
+                .getString(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF, "5"));
         cal.add(Calendar.MINUTE, updateMinutes);
 
         getAlarmManager().setRepeating(AlarmManager.RTC_WAKEUP,
@@ -98,6 +106,8 @@ public class BackgroundTaskManager {
     }
 
     public void cancelRecurringTweetScan() {
+        ACLogger.info(CSConstants.LOG_TAG, "canceling alarm for tweet scan");
+
         getAlarmManager().cancel(createRecurringTweetScanPendingIntent());
     }
 

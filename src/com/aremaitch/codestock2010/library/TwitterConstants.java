@@ -29,7 +29,7 @@ public class TwitterConstants {
     public static final String ACCESS_TOKEN_SCREENNAME_PREF = "twitter_access_token_screenname";
     
     public static final String TWEET_SCAN_HASHTAG_EXTRA_KEY = "hashtags" ;
-    public static final String[] SEARCH_HASHTAGS = new String[] {"#codestock","#codestock2011"};
+    public static final String[] SEARCH_HASHTAGS = new String[] {"#codestock","#codestock2011","codestock"};
     public static final String DB_CLEANUP_EXTRA_KEY = "cleanup";
     
     public static final String TWITTER_BK_UPD_ENABLED_PREF = "twitter_bk_upd_enabled";
