@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ExpandableListView.OnChildClickListener;
 
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
@@ -53,7 +54,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		ACLogger.verbose(this.getString(R.string.logging_tag), "SessionTracksActivity.onCreate");
+		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onCreate");
 		
 		super.onCreate(savedInstanceState);
 
@@ -104,7 +105,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onPause() {
-		ACLogger.verbose(getString(R.string.logging_tag), "SessionTracksActivity.onPause");
+		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onPause");
 		super.onPause();
 		
 		//	Don't close the db onPause() but do close it onStop();
@@ -112,7 +113,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onStart() {
-		ACLogger.verbose(getString(R.string.logging_tag), "SessionTracksActivity.onStart");
+		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onStart");
 		super.onStart();
 
 		createDataHelperIfNeeded();

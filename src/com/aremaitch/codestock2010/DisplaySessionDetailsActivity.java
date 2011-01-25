@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.aremaitch.codestock2010.library.CSConstants;
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
@@ -70,10 +71,12 @@ public class DisplaySessionDetailsActivity extends Activity {
 	TransformFilter twitterFilter = null;
 	Pattern twitterPattern = null;
 	String twitterScheme = "http://twitter.com/";	// I can't find a standard for calling a default Twitter activity
-	final String photoCachePath = "com.aremaitch.codestock2010/speakerphotocache/";
+	final String photoCachePath = CSConstants.BASE_CACHE_PATH + "speakerphotocache/";
 
 	GetSpeakerPhotoTask task = null;
-	
+
+    //TODO: refactor photo downloading code into its own class/source file
+    
 	//	Orientation change fires onPause(), onCreate(), onStart()
 	//		(there may be a different layout for landscape vs. portrait so Android will
 	//			need the layout re-inflated.)
@@ -418,16 +421,16 @@ public class DisplaySessionDetailsActivity extends Activity {
 			try {
 				URL theUrl = new URL(_urlString);
 				if (isSpeakerPhotoCached(stripFileName(theUrl.getFile()))) {
-					ACLogger.info(getString(R.string.logging_tag), "Getting speaker photo from cache");
+					ACLogger.info(CSConstants.LOG_TAG, "Getting speaker photo from cache");
 					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
 				} else {
 					
-					ACLogger.info(getString(R.string.logging_tag), "Downloading speaker photo from " + _urlString);
+					ACLogger.info(CSConstants.LOG_TAG, "Downloading speaker photo from " + _urlString);
 					photo = downloadSpeakerPhoto(theUrl);
 				}
 			} catch (MalformedURLException e) {
 				photo = null;
-				ACLogger.error(getString(R.string.logging_tag), "Bad speaker photo url");
+				ACLogger.error(CSConstants.LOG_TAG, "Bad speaker photo url");
 			}
 			return photo;
 		}
@@ -568,7 +571,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 			
 			try {
 				out = new FileOutputStream(cacheFile);
-				ACLogger.info(getString(R.string.logging_tag), "Enter download photo loop");
+				ACLogger.info(CSConstants.LOG_TAG, "Enter download photo loop");
 
 				int bytesRead = stream.read(data, 0, BUFFER_SIZE);
 				while (bytesRead > -1) {
@@ -577,7 +580,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 					bytesRead = stream.read(data, 0, BUFFER_SIZE);
 				}
 				out.flush();
-				ACLogger.info(getString(R.string.logging_tag), "Saved " + fileName + " of size " + String.valueOf(totalBytes));
+				ACLogger.info(CSConstants.LOG_TAG, "Saved " + fileName + " of size " + String.valueOf(totalBytes));
 				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();

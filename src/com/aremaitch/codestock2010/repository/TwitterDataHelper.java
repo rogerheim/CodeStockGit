@@ -142,7 +142,7 @@ public class TwitterDataHelper {
             ex.printStackTrace();
         } finally {
             if (c != null && !c.isClosed()) {
-                ACLogger.info(CSConstants.LOG_TAG, "closing cursor");
+//                ACLogger.info(CSConstants.LOG_TAG, "closing cursor");
 
                 c.close();
             }
@@ -155,7 +155,7 @@ public class TwitterDataHelper {
         c = db.rawQuery("select id, createdat, ttext, touser, touserid, fromuser, fromuserid from tweets where id > ? order by id limit 1",
                 new String[] {Long.toString(lastTweetID)});
         if (!c.moveToFirst()) {
-            c.close();
+            c.close();      // need to close this cursor before reusing it. otherwise, we will leak.
             // There was no tweet newer than the last one we retrieved.
             // Retrieve the first one on file.
             c = db.rawQuery("select id, createdat, ttext, touser, touserid, fromuser, fromuserid from tweets order by id limit 1", null);

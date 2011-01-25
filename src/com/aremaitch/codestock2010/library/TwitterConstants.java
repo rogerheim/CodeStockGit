@@ -36,6 +36,7 @@ public class TwitterConstants {
     public static final String TWITTER_BK_UPD_INTERVAL_PREF = "twitter_bk_upd_interval";
     public static final String TWEET_DISPLAY_DURATION_PREF = "tweet_display_duration";
     public static final String TWEET_DAYS_TO_KEEP_PREF = "tweet_days_to_keep";
+    public static final String LAST_DISPLAYED_TWEETID_PREF = "last_displayed_tweetid";
 
     public static final String LAST_TWEETID_PREF = "last_search_tweetid";
     public static final int CODESTOCK_USERID = 14499765;

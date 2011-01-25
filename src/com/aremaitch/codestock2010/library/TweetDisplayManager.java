@@ -17,6 +17,7 @@
 package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.TweetObj;
 import com.aremaitch.utils.ACLogger;
+import twitter4j.Twitter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,6 +74,10 @@ public class TweetDisplayManager {
 
     public void startTweetDisplayTimer() {
         ACLogger.info(CSConstants.LOG_TAG, "starting tweet display timer");
+
+        _lastDisplayedTweetID = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
+            .getLong(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF, 0);
+
         tmr = new Timer();
         tmr.scheduleAtFixedRate(createTimerTask(), new Date(), _tweetDisplayInterval);
     }
@@ -80,6 +86,7 @@ public class TweetDisplayManager {
         ACLogger.info(CSConstants.LOG_TAG, "stopping tweet display timer");
         if (tmr != null) {
             tmr.cancel();
+            saveLastDisplayedTweetID(_lastDisplayedTweetID);
         }
     }
     
@@ -108,12 +115,19 @@ public class TweetDisplayManager {
                                 _lastDisplayedView = 0;
                             }
                             _lastDisplayedTweetID = tt.getId();
-
                         }
                     }
                 });
             }
         };
+    }
+
+    private void saveLastDisplayedTweetID(long lastDisplayedTweetID) {
+        SharedPreferences.Editor editor = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
+        editor.putLong(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF, lastDisplayedTweetID);
+        editor.commit();
+
+
     }
 
     private View inflateTweetView(TweetObj tt, View view) {
