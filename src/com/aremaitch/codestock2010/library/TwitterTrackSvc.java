@@ -25,8 +25,6 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.TweetObj;
@@ -202,10 +200,11 @@ public class TwitterTrackSvc extends Service {
         @Override
         protected Void doInBackground(Void... params) {
             QueryResult result = null;
+            int cntr = 0;
             try {
                 result = t.search(_sinceId, _hashTags);
             } catch (TwitterException ex) {
-                ACLogger.error(CSConstants.LOG_TAG, "error performing twitter search: " + ex.getMessage());
+                ACLogger.error(CSConstants.TWITTERTRACKSVC_LOG_TAG, "error performing twitter search: " + ex.getMessage());
 //                ex.printStackTrace();
             }
 
@@ -214,7 +213,9 @@ public class TwitterTrackSvc extends Service {
                     _sinceId = Math.max(_sinceId, tweet.getId());
                     _dh.insertTweet(TweetObj.createInstance(tweet));
                     _tam.downloadAvatar(tweet.getFromUser(), tweet.getFromUserId(), tweet.getProfileImageUrl());
+                    cntr++;
                 }
+                ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received " + String.valueOf(cntr) + " tweet(s)");
             }
             return null;
         }

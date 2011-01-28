@@ -18,18 +18,18 @@ package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.TweetObj;
 import com.aremaitch.utils.ACLogger;
-import twitter4j.Twitter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,19 +44,20 @@ import java.util.TimerTask;
  */
 public class TweetDisplayManager {
 
-    private Context _ctx;
+    private final Context _ctx;
 
-    private Animation _fadeOutAnimation;
-    private Animation _fadeInAnimation;
-    private SimpleDateFormat _dateFormatter;
-    private View _tweetView0;
-    private View _tweetView1;
+    private final Animation _fadeOutAnimation;
+    private final Animation _fadeInAnimation;
+    private final SimpleDateFormat _dateFormatter;
+    private final View _tweetView0;
+    private final View _tweetView1;
     private int _lastDisplayedView = -1;
     private long _tweetDisplayInterval;
 
     private final Handler displayTweetHandler = new Handler();
     private Timer tmr;
     private long _lastDisplayedTweetID;
+    private final Drawable _defaultUserImage;
 
     public TweetDisplayManager(Context ctx, Animation fadeInAnimation, Animation fadeOutAnimation,
                                View tweetView0, View tweetView1, int tweetDisplaySeconds) {
@@ -69,6 +70,8 @@ public class TweetDisplayManager {
         _tweetView1 = tweetView1;
         _tweetDisplayInterval = tweetDisplaySeconds * 1000;
         _dateFormatter = new SimpleDateFormat("MMM d yyyy h:mm a");
+        _defaultUserImage = new BitmapDrawable(_ctx.getResources(), BitmapFactory.decodeResource(_ctx.getResources(), R.drawable.ic_contact_picture));
+
     }
 
 
@@ -89,35 +92,39 @@ public class TweetDisplayManager {
             saveLastDisplayedTweetID(_lastDisplayedTweetID);
         }
     }
-    
+
+    private Runnable tweetDisplayRunnable = new Runnable() {
+        @Override
+        public void run() {
+            TweetObj tt = getNextTweet();
+            if (tt != null) {
+                if (_lastDisplayedView == 0) {
+//                    _tweetView1 = updateTweetView(tt, _tweetView1);
+                    updateTweetView(tt, _tweetView1);
+                    _tweetView0.startAnimation(_fadeOutAnimation);
+                    _tweetView0.setVisibility(View.GONE);
+                    _tweetView1.startAnimation(_fadeInAnimation);
+                    _tweetView1.setVisibility(View.VISIBLE);
+                    _lastDisplayedView = 1;
+                } else {
+//                    _tweetView0 = updateTweetView(tt, _tweetView0);
+                    updateTweetView(tt, _tweetView0);
+                    _tweetView1.startAnimation(_fadeOutAnimation);
+                    _tweetView1.setVisibility(View.GONE);
+                    _tweetView0.startAnimation(_fadeInAnimation);
+                    _tweetView0.setVisibility(View.VISIBLE);
+                    _lastDisplayedView = 0;
+                }
+                _lastDisplayedTweetID = tt.getId();
+            }
+        }
+    };
+
     private TimerTask createTimerTask() {
         return new TimerTask() {
             @Override
             public void run() {
-                displayTweetHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        TweetObj tt = getNextTweet();
-                        if (tt != null) {
-                            if (_lastDisplayedView == 0) {
-                                _tweetView1 = inflateTweetView(tt, _tweetView1);
-                                _tweetView0.startAnimation(_fadeOutAnimation);
-                                _tweetView0.setVisibility(View.GONE);
-                                _tweetView1.startAnimation(_fadeInAnimation);
-                                _tweetView1.setVisibility(View.VISIBLE);
-                                _lastDisplayedView = 1;
-                            } else {
-                                _tweetView0 = inflateTweetView(tt, _tweetView0);
-                                _tweetView1.startAnimation(_fadeOutAnimation);
-                                _tweetView1.setVisibility(View.GONE);
-                                _tweetView0.startAnimation(_fadeInAnimation);
-                                _tweetView0.setVisibility(View.VISIBLE);
-                                _lastDisplayedView = 0;
-                            }
-                            _lastDisplayedTweetID = tt.getId();
-                        }
-                    }
-                });
+                displayTweetHandler.post(tweetDisplayRunnable);
             }
         };
     }
@@ -130,7 +137,9 @@ public class TweetDisplayManager {
 
     }
 
-    private View inflateTweetView(TweetObj tt, View view) {
+    //  Changed name from inflateTweetView because we aren't actually 'inflating' anything.
+    //  It's loaded via xml layout.
+    private void updateTweetView(TweetObj tt, View view) {
         TweetViewHolder holder;
         if (view.getTag() == null) {
             holder = new TweetViewHolder();
@@ -146,8 +155,20 @@ public class TweetDisplayManager {
         holder.screenName.setText(tt.getFromUser());
         holder.tweetText.setText(tt.getText());
         holder.createdAt.setText(_dateFormatter.format(tt.getCreatedAt()));
-        holder.avatar.setImageResource(R.drawable.ic_contact_picture);      //TODO: get user avatar from twitter; cache it
-        return view;
+
+        holder.avatar.setImageDrawable(getUserAvatar(tt.getFromUserId()));
+//        return view;
+    }
+
+    private Drawable getUserAvatar(int userId) {
+        //  Get the sending user's avatar from cache. If not there, return the generic
+        //  Android contact image.
+        TwitterAvatarManager avatarManager = new TwitterAvatarManager(this._ctx);
+        Drawable image = avatarManager.getTwitterAvatar(userId);
+        if (image == null) {
+            return _defaultUserImage;
+        }
+        return image;
     }
 
     private TweetObj getNextTweet() {
