@@ -20,6 +20,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import com.aremaitch.utils.ACLogger;
 
@@ -78,7 +79,7 @@ public class BackgroundTaskManager {
     public void setDBCleanupTask() {
         ACLogger.info(CSConstants.LOG_TAG, "setting alarm for db cleanup task");
 
-        getAlarmManager().setRepeating(AlarmManager.RTC_WAKEUP,
+        getAlarmManager().setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 getStartingDatabaseCleanupCalendar().getTimeInMillis(),
                 DB_CLEANUP_INTERVAL,
                 createDBCleanupPendingIntent());
@@ -93,16 +94,18 @@ public class BackgroundTaskManager {
     public void setRecurringTweetScan() {
         ACLogger.info(CSConstants.LOG_TAG, "setting alarm for tweet scan");
 
-        Calendar cal = Calendar.getInstance();
-//        int updateMinutes = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(_ctx)
+//        Calendar cal = Calendar.getInstance();
         int updateMinutes = Integer.parseInt(_ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 .getString(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF, "5"));
-        cal.add(Calendar.MINUTE, updateMinutes);
+//        cal.add(Calendar.MINUTE, updateMinutes);
 
-        getAlarmManager().setRepeating(AlarmManager.RTC_WAKEUP,
-                cal.getTimeInMillis(),
+        getAlarmManager().setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + (MS_IN_ONE_MINUTE * updateMinutes),
                 MS_IN_ONE_MINUTE * updateMinutes,
                 createRecurringTweetScanPendingIntent());
+
+        //  It's recommended not to use setRepeating() but to use set() and reset it upon each invocation.
+//        getAlarmManager().set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis() + (MS_IN_ONE_MINUTE * updateMinutes), createRecurringTweetScanPendingIntent());
     }
 
     public void cancelRecurringTweetScan() {
@@ -111,6 +114,10 @@ public class BackgroundTaskManager {
         getAlarmManager().cancel(createRecurringTweetScanPendingIntent());
     }
 
+    public void cancelAllRecurringTasks() {
+        cancelRecurringTweetScan();
+        cancelDBCleanupTask();
+    }
 
     private AlarmManager getAlarmManager() {
         return (AlarmManager)_ctx.getSystemService(Context.ALARM_SERVICE);

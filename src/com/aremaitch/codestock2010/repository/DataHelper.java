@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.utils.ACLogger;
 
 //import org.joda.time.DateTime;
@@ -46,7 +47,7 @@ import android.util.Log;
  */
 public class DataHelper {
 	private static final String DATABASE_NAME = "codestock2010.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 	private static final String XPLEVELS_TABLE_NAME = "xplevels";
 	private static final String TRACKS_TABLE_NAME = "tracks";
 	private static final String SPEAKERS_TABLE_NAME = "speakers";
@@ -54,7 +55,6 @@ public class DataHelper {
 	private static final String ADD_SPEAKERS_TABLE_NAME = "addspeakers";
 
 
-	private static final String LOG_TAG = "CodeStock2010";
 
 
 	private Context context;
@@ -456,7 +456,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted experience level.
 	 */
 	public long insertXPLevel(ExperienceLevel newLevel) {
-		ACLogger.verbose(LOG_TAG, "insertXPLevel:" + newLevel.getLevelName());
+//		ACLogger.verbose(CSConstants.LOG_TAG, "insertXPLevel:" + newLevel.getLevelName());
 		ContentValues newRow = new ContentValues();
 		newRow.put("levelname", newLevel.getLevelName());
 		return db.insert(XPLEVELS_TABLE_NAME, null, newRow);
@@ -468,7 +468,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted track.
 	 */
 	public long insertTrack(Track newTrack) {
-		ACLogger.verbose(LOG_TAG, "insertTrack:" + newTrack.getTrackTitle());
+//		ACLogger.verbose(CSConstants.LOG_TAG, "insertTrack:" + newTrack.getTrackTitle());
 		ContentValues newRow = new ContentValues();
 		newRow.put("tracktitle", newTrack.getTrackTitle());
 		return db.insert(TRACKS_TABLE_NAME, null, newRow);
@@ -480,7 +480,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted speaker.
 	 */
 	public long insertSpeaker(Speaker newSpeaker) {
-		ACLogger.verbose(LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
+//		ACLogger.verbose(CSConstants.LOG_TAG, "insertSpeaker:" + newSpeaker.getSpeakerName());
 		ContentValues newRow = new ContentValues();
 		
 		//	Speaker ID is now set by the host service
@@ -502,7 +502,7 @@ public class DataHelper {
 	 * @return	The id of the newly inserted session.
 	 */
 	public long insertSession(Session newSession) {
-		ACLogger.verbose(LOG_TAG, "insertSession:" + newSession.getSessionTitle());
+//		ACLogger.verbose(CSConstants.LOG_TAG, "insertSession:" + newSession.getSessionTitle());
 		ContentValues newRow = new ContentValues();
 		
 		//	Session ID is now set by the host service
@@ -540,7 +540,7 @@ public class DataHelper {
 	 * Drops all data and tables from the database.
 	 */
 	public void clearAllData() {
-		ACLogger.verbose(LOG_TAG, "Clearing data");
+//		ACLogger.verbose(CSConstants.LOG_TAG, "Clearing data");
 		db.delete(SESSIONS_TABLE_NAME, null, null);
 		db.delete(SPEAKERS_TABLE_NAME, null, null);
 		db.delete(TRACKS_TABLE_NAME, null, null);
@@ -617,28 +617,38 @@ public class DataHelper {
 
     //  Delegate Twitter database handling to another class.
     public long insertTweet(TweetObj tObj) {
-        TwitterDataHelper tdh = new TwitterDataHelper();
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
         return tdh.insertTweet(db, tObj);
     }
 
     public void deleteTweet(long tweetID) {
-        TwitterDataHelper tdh = new TwitterDataHelper();
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
         tdh.deleteTweet(db, tweetID);
     }
 
     public void cleanUpDeletedTweets() {
-        TwitterDataHelper tdh = new TwitterDataHelper();
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
         tdh.cleanUpDeletedTweets(db);
     }
 
     public void cleanUpOldTweets(int daysToKeep) {
-        TwitterDataHelper tdh = new TwitterDataHelper();
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
         tdh.cleanUpOldTweets(db, daysToKeep);
     }
 
     public TweetObj getNextTweet(long _lastTweetID) {
-        TwitterDataHelper tdh = new TwitterDataHelper();
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
         return tdh.getNextTweet(db, _lastTweetID);
+    }
+
+    public String getStoredTwitterUrl(long userId) {
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
+        return tdh.getStoredTwitterUrl(db, userId);
+    }
+
+    public void insertOrUpdateStoredTwitterUrl(long userId, String srcurl, String path) {
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
+        tdh.insertOrUpdateStoredTwitterUrl(db, userId, srcurl, path);
     }
 
 	/**
@@ -681,18 +691,19 @@ public class DataHelper {
 	 */
 	private static class OpenHelper extends SQLiteOpenHelper {
 
-        TwitterDataHelper tdh = new TwitterDataHelper();
+        TwitterDataHelper tdh;
 
 		public OpenHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+             tdh = new TwitterDataHelper(context);
 			//	context, databasename, CursorFactory, dbversion
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
 		
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			// Called to create the database
 			// Actually by this point the db already exists; we must need to create the tables.
-			ACLogger.verbose(LOG_TAG, "OpenHelper.onCreate");
+			ACLogger.verbose(CSConstants.LOG_TAG, "creating database");
 
 			ArrayList<StringBuilder> tables = new ArrayList<StringBuilder>();
 			ArrayList<StringBuilder> indexes = new ArrayList<StringBuilder>();
@@ -778,7 +789,7 @@ public class DataHelper {
 		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			ACLogger.verbose(LOG_TAG, "OpenHelper.onUpgrade");
+			ACLogger.verbose(CSConstants.LOG_TAG, "upgrading database schema");
 			db.execSQL("drop table if exists " + SESSIONS_TABLE_NAME);
 			db.execSQL("drop table if exists " + SPEAKERS_TABLE_NAME);
 			db.execSQL("drop table if exists " + TRACKS_TABLE_NAME);

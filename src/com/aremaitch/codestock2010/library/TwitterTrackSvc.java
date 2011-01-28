@@ -20,6 +20,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
@@ -45,6 +46,7 @@ public class TwitterTrackSvc extends Service {
     private String _accessTokenSecret;
     private TwitterLib t;
     private boolean _startedByAlarm = false;
+    private PowerManager.WakeLock _wl;
 
     public class TwitterTrackSvcBinder extends Binder {
         public TwitterTrackSvc getService() {
@@ -69,16 +71,29 @@ public class TwitterTrackSvc extends Service {
 
     @Override
     public void onDestroy() {
-        ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "destroying service");
         super.onDestroy();
+        ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "destroying service");
+        _wl.release();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received onStartCommand");
+
+        PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+        _wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TweetSearchTask");
+        _wl.acquire();
+
+        //  If the global background data setting is turned off, respect it and do not scan for tweets.
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (!cm.getBackgroundDataSetting()) {
+            stopSelf();
+            return Service.START_NOT_STICKY;
+        }
+
         _startedByAlarm = true;
         getHashTweetsSince(getLastMaxTweetId(), intent.getStringArrayExtra(TwitterConstants.TWEET_SCAN_HASHTAG_EXTRA_KEY));
-        return Service.START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
     private TwitterStatusListener statusListener = null;
@@ -98,7 +113,7 @@ public class TwitterTrackSvc extends Service {
     }
 
     private void getHashTweetsSince(long sinceId, String[] hashTags) {
-        new TweetSearchTask(sinceId, hashTags).execute();
+        new TweetSearchTask(this, sinceId, hashTags).execute();
     }
 
     private long getLastMaxTweetId() {
@@ -169,19 +184,19 @@ public class TwitterTrackSvc extends Service {
         private long _sinceId;
         private String[] _hashTags;
         DataHelper _dh;
-        PowerManager.WakeLock _wl;
+        TwitterAvatarManager _tam;
+        Context _ctx;
 
-        TweetSearchTask(long _sinceId, String[] _hashTags) {
+        TweetSearchTask(Context ctx, long _sinceId, String[] _hashTags) {
+            this._ctx = ctx;
             this._sinceId = _sinceId;
             this._hashTags = _hashTags;
         }
 
         @Override
         protected void onPreExecute() {
-            PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-            _wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TweetSearchTask");
-            _wl.acquire();
             _dh = new DataHelper(TwitterTrackSvc.this);
+            _tam = new TwitterAvatarManager(_ctx);
         }
 
         @Override
@@ -190,26 +205,30 @@ public class TwitterTrackSvc extends Service {
             try {
                 result = t.search(_sinceId, _hashTags);
             } catch (TwitterException ex) {
-                ex.printStackTrace();
+                ACLogger.error(CSConstants.LOG_TAG, "error performing twitter search: " + ex.getMessage());
+//                ex.printStackTrace();
             }
 
             if (result != null) {
                 for (Tweet tweet : result.getTweets()) {
                     _sinceId = Math.max(_sinceId, tweet.getId());
                     _dh.insertTweet(TweetObj.createInstance(tweet));
+                    _tam.downloadAvatar(tweet.getFromUser(), tweet.getFromUserId(), tweet.getProfileImageUrl());
                 }
             }
             return null;
         }
 
+        
         @Override
         protected void onPostExecute(Void aVoid) {
             _dh.close();
             updateLastTweetId(_sinceId);
-            _wl.release();
-            if (TwitterTrackSvc.this._startedByAlarm) {
-                TwitterTrackSvc.this.stopSelf();
-            }
+            stopSelf();
+//            _wl.release();
+//            if (TwitterTrackSvc.this._startedByAlarm) {
+//                TwitterTrackSvc.this.stopSelf();
+//            }
         }
     }
 }

@@ -522,7 +522,8 @@ public class DisplaySessionDetailsActivity extends Activity {
 			File flag = new File(cacheDirectory, ".nomedia");
 			if (!flag.exists()) {
 				try {
-					flag.createNewFile();
+                    //noinspection ResultOfMethodCallIgnored
+                    flag.createNewFile();
 				} catch (IOException e) {
 					//	Not a fatal error; basically re-try on the next go round.
 				}

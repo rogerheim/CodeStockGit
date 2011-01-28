@@ -16,10 +16,18 @@
 
 package com.aremaitch.codestock2010.repository;
 
+import android.app.Application;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.TwitterAvatarManager;
+import com.aremaitch.codestock2010.library.TwitterConstants;
 import com.aremaitch.utils.ACLogger;
 
 import java.util.ArrayList;
@@ -34,7 +42,14 @@ public class TwitterDataHelper {
 
     private static final String TWEETS_TABLE = "tweets";
     private static final String DELETED_TWEETS_TABLE = "droptweets";
+    private static final String USER_PICTURES_TABLE = "twitpictures";
+
     private static final long MS_IN_ONE_DAY = 86400000;
+
+    private Context _ctx;
+    public TwitterDataHelper(Context ctx) {
+        _ctx = ctx;
+    }
 
     protected void dbCreate(ArrayList<StringBuilder> tables, ArrayList<StringBuilder> indexes) {
         tables.add(new StringBuilder()
@@ -53,6 +68,12 @@ public class TwitterDataHelper {
             .append("longitude real)"));
 
         tables.add(new StringBuilder()
+            .append("create table " + USER_PICTURES_TABLE)
+            .append("(uid integer primary key,")
+            .append("srcurl text,")
+            .append("path text)"));
+
+        tables.add(new StringBuilder()
             .append("create table " + DELETED_TWEETS_TABLE)
             .append("(id integer primary key)"));
 
@@ -65,6 +86,21 @@ public class TwitterDataHelper {
     protected void dbUpgrade(SQLiteDatabase db) {
         db.execSQL("drop table if exists " + TWEETS_TABLE);
         db.execSQL("drop table if exists " + DELETED_TWEETS_TABLE);
+        db.execSQL("drop table if exists " + USER_PICTURES_TABLE);
+
+        //  Since we've just nuked the tweets and the user pictures tables, remove the last
+        //  displayed tweet id preference so the display starts over again from the
+        //  beginning (whatever that is when we get the current set of tweets from
+        //  Twitter.)
+        //  Also, nuke the tweet pictures.
+
+        SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
+        ed.remove(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF);
+        ed.commit();
+
+        TwitterAvatarManager tam = new TwitterAvatarManager(_ctx);
+        tam.nukeAllAvatars();
+
     }
 
     protected long insertTweet(SQLiteDatabase db, TweetObj tObj) {
@@ -81,7 +117,13 @@ public class TwitterDataHelper {
         newRow.put("createdat", tObj.getCreatedAt().getTime());
         newRow.put("latitude", tObj.getLatitude());
         newRow.put("longitude", tObj.getLongitude());
-        return db.insert(TWEETS_TABLE, null, newRow);
+        try {
+//            return db.insert(TWEETS_TABLE, null, newRow);
+            return db.insertOrThrow(TWEETS_TABLE, null, newRow);
+        } catch (SQLException e) {
+            ACLogger.error(CSConstants.LOG_TAG, "constraint error inserting tweet: " + e.getMessage());
+        }
+        return -1;
     }
 
     protected void deleteTweet(SQLiteDatabase db, long tweetID) {
@@ -166,5 +208,62 @@ public class TwitterDataHelper {
         }
 
         return c;
+    }
+
+    protected String getStoredTwitterUrl(SQLiteDatabase db, long userId) {
+        Cursor c = null;
+        String result = "";
+
+        try {
+            c = db.rawQuery("select uid, srcurl from " + USER_PICTURES_TABLE + " where uid = ?",
+                    new String[] {Long.toString(userId)});
+            if (c.moveToFirst()) {
+                result = c.getString(c.getColumnIndexOrThrow("srcurl"));
+            }
+        } finally {
+            if (c != null && !c.isClosed()) {
+                c.close();
+            }
+
+        }
+        return result;
+    }
+
+    protected String getPicturePath(SQLiteDatabase db, long userId) {
+        Cursor c = null;
+        String result = "";
+        try {
+            c = db.rawQuery("select path from " + USER_PICTURES_TABLE + " where uid = ?",
+                    new String[] {Long.toString(userId)});
+            if (c.moveToFirst()) {
+                result = c.getString(c.getColumnIndexOrThrow("path"));
+            }
+        } finally {
+            if (c != null && !c.isClosed()) {
+                c.close();
+            }
+        }
+        return result;
+    }
+
+    protected void insertOrUpdateStoredTwitterUrl(SQLiteDatabase db, long userId, String srcurl, String path) {
+        Cursor c = null;
+        ContentValues newRow = new ContentValues();
+        newRow.put("uid", userId);
+        newRow.put("srcurl", srcurl);
+        newRow.put("path", path);
+        try {
+            c = db.rawQuery("select uid from " + USER_PICTURES_TABLE + " where uid = ?",
+                    new String[] {Long.toString(userId)});
+            if (c.moveToFirst()) {
+                db.update(USER_PICTURES_TABLE, newRow, "uid = ?", new String[] {Long.toString(userId)});
+            } else {
+                db.insert(USER_PICTURES_TABLE, null, newRow);
+            }
+        } finally {
+            if (c != null && !c.isClosed()) {
+                c.close();
+            }
+        }
     }
 }

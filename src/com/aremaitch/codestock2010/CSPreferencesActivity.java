@@ -18,13 +18,11 @@ package com.aremaitch.codestock2010;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.*;
 import android.text.TextUtils;
-import android.util.Log;
 import com.aremaitch.codestock2010.library.BackgroundTaskManager;
 import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.TwitterConstants;
@@ -79,7 +77,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
     }
 
     private void forceTwitterDisabled() {
-        ((CheckBoxPreference)getPreferenceScreen().findPreference(TwitterConstants.TWITTER_ENABLED))
+        ((CheckBoxPreference)getPreferenceScreen().findPreference(TwitterConstants.TWITTER_ENABLED_PREF))
                 .setChecked(false);
     }
 
@@ -96,7 +94,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         //      If the user says to not forget the auth info, do nothing.
 
 
-        if (key.equalsIgnoreCase(TwitterConstants.TWITTER_ENABLED)) {
+        if (key.equalsIgnoreCase(TwitterConstants.TWITTER_ENABLED_PREF)) {
             if (sharedPreferences.getBoolean(key, false)) {
                 //  Twitter was enabled; if not already authenticated, ask user if they want to authenticate.
                 if (!isAlreadyAuthenticated(sharedPreferences)) {
@@ -133,7 +131,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
     private void possiblyStartBackgroundServices() {
         SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
-        if (prefs.getBoolean(TwitterConstants.TWITTER_ENABLED, false)) {
+        if (prefs.getBoolean(TwitterConstants.TWITTER_ENABLED_PREF, false)) {
             if (prefs.getBoolean(TwitterConstants.TWITTER_BK_UPD_ENABLED_PREF, false)) {
                 BackgroundTaskManager btm = new BackgroundTaskManager(this);
                 btm.setRecurringTweetScan();
@@ -205,7 +203,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         root.addPreference(twitterCat);
 
         CheckBoxPreference twitterEnabled = new CheckBoxPreference(this);
-        twitterEnabled.setKey(TwitterConstants.TWITTER_ENABLED);
+        twitterEnabled.setKey(TwitterConstants.TWITTER_ENABLED_PREF);
         twitterEnabled.setDefaultValue(false);
         twitterEnabled.setTitle("Enable Twitter");
         twitterEnabled.setSummary("Enable Twitter support");
@@ -260,10 +258,10 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
         setPreferenceScreen(root);
 
-        bkUpdEnabled.setDependency(TwitterConstants.TWITTER_ENABLED);
-        bkUpdInterval.setDependency(TwitterConstants.TWITTER_ENABLED);
-        tweetDisplayDuration.setDependency(TwitterConstants.TWITTER_ENABLED);
-        tweetDaysToKeep.setDependency(TwitterConstants.TWITTER_ENABLED);
+        bkUpdEnabled.setDependency(TwitterConstants.TWITTER_ENABLED_PREF);
+        bkUpdInterval.setDependency(TwitterConstants.TWITTER_ENABLED_PREF);
+        tweetDisplayDuration.setDependency(TwitterConstants.TWITTER_ENABLED_PREF);
+        tweetDaysToKeep.setDependency(TwitterConstants.TWITTER_ENABLED_PREF);
 
     }
 }

@@ -18,6 +18,7 @@ package com.aremaitch.codestock2010.library;
 
 import android.*;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.aremaitch.codestock2010.CSPreferencesActivity;
@@ -32,6 +33,7 @@ public class StartActivityMenuManager {
     private static final String START_OPTIONS_STRING = "Options";
     private static final int START_OPTIONS_ICON = android.R.drawable.ic_menu_preferences;
     private static final int START_MENU_OPTIONS = Menu.FIRST;
+    private static final int START_MENU_CLEAR_LAST_RCVD_TWEET = START_MENU_OPTIONS + 1;
 
     private Context _ctx;
 
@@ -39,8 +41,10 @@ public class StartActivityMenuManager {
         this._ctx = _ctx;
     }
 
+    //TODO: Refactor to use command pattern instead of having the menu selection code here. Need wrapper.
     public boolean createStartActivityOptionsMenu(Menu menu) {
         menu.add(0, START_MENU_OPTIONS, 0, START_OPTIONS_STRING).setIcon(START_OPTIONS_ICON);
+        menu.add(0, START_MENU_CLEAR_LAST_RCVD_TWEET, 0, "Reset Last Tweet");
         return true;
     }
 
@@ -49,8 +53,15 @@ public class StartActivityMenuManager {
             case START_MENU_OPTIONS:
                 CSPreferencesActivity.startMe(_ctx);
                 return true;
+
+            case START_MENU_CLEAR_LAST_RCVD_TWEET:
+                SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
+                ed.remove(TwitterConstants.LAST_TWEETID_PREF);
+                ed.commit();
         }
         return false;
+
+
     }
 
 }

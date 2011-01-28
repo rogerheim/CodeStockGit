@@ -40,5 +40,5 @@ public class TwitterConstants {
 
     public static final String LAST_TWEETID_PREF = "last_search_tweetid";
     public static final int CODESTOCK_USERID = 14499765;
-    public static final String TWITTER_ENABLED = "twitter_enabled";
+    public static final String TWITTER_ENABLED_PREF = "twitter_enabled";
 }

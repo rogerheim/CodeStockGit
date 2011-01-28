@@ -146,6 +146,14 @@ public class StartActivity extends Activity {
 
     @Override
     protected void onResume() {
+        BackgroundTaskManager btm = new BackgroundTaskManager(this);
+        btm.cancelAllRecurringTasks();
+        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        if (prefs.getBoolean(TwitterConstants.TWITTER_ENABLED_PREF, false)) {
+            btm.setDBCleanupTask();
+            btm.setRecurringTweetScan();
+        }
+
         cMgr.initializeCountdown(digitsContainer, getAssets());
         cMgr.start();
 
@@ -166,7 +174,7 @@ public class StartActivity extends Activity {
 
     private void startTweetDisplay() {
         SharedPreferences settings = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        if (settings.getBoolean(TwitterConstants.TWITTER_ENABLED, false)) {
+        if (settings.getBoolean(TwitterConstants.TWITTER_ENABLED_PREF, false)) {
             int displaySeconds = Integer.parseInt(settings.getString(TwitterConstants.TWEET_DISPLAY_DURATION_PREF, "10"));
             tdm = new TweetDisplayManager(this,
                     AnimationUtils.loadAnimation(this, R.anim.tweet_fade_in),
