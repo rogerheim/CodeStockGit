@@ -47,7 +47,7 @@ import android.util.Log;
  */
 public class DataHelper {
 	private static final String DATABASE_NAME = "codestock2010.db";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 	private static final String XPLEVELS_TABLE_NAME = "xplevels";
 	private static final String TRACKS_TABLE_NAME = "tracks";
 	private static final String SPEAKERS_TABLE_NAME = "speakers";

@@ -40,6 +40,14 @@ import java.util.ArrayList;
  */
 public class TwitterDataHelper {
 
+    //  These tables don't exist in db versions < 4.
+    //  Version 4:
+    //      Added 'tweets', 'droptweets', and 'twitpictures'
+    //  Version 5:
+    //      Correct problem with user_id's from search api versus regular api.
+    //      Since this is still just a preview, just drop the tables and remove the
+    //          avatar files.
+    
     private static final String TWEETS_TABLE = "tweets";
     private static final String DELETED_TWEETS_TABLE = "droptweets";
     private static final String USER_PICTURES_TABLE = "twitpictures";

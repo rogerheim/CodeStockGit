@@ -208,6 +208,7 @@ public class TwitterTrackSvc extends Service {
 //                ex.printStackTrace();
             }
 
+
             if (result != null) {
                 for (Tweet tweet : result.getTweets()) {
                     _sinceId = Math.max(_sinceId, tweet.getId());

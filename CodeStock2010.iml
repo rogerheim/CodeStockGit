@@ -61,7 +61,10 @@
         <JAVADOC>
           <root url="http://twitter4j.org/en/oldjavadocs/2.1.9-SNAPSHOT" />
         </JAVADOC>
-        <SOURCES />
+        <SOURCES>
+          <root url="file://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/twitter4j-core/src/test/java" />
+          <root url="file://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/twitter4j-core/src/main/java" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="Android 2.1-update1 Platform" level="application" />
