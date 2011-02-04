@@ -92,18 +92,22 @@ public class TwitterDataHelper {
     }
 
     protected void dbUpgrade(SQLiteDatabase db) {
+
+        ACLogger.info(CSConstants.LOG_TAG, "upgrading twitter tables");
         db.execSQL("drop table if exists " + TWEETS_TABLE);
         db.execSQL("drop table if exists " + DELETED_TWEETS_TABLE);
         db.execSQL("drop table if exists " + USER_PICTURES_TABLE);
 
         //  Since we've just nuked the tweets and the user pictures tables, remove the last
-        //  displayed tweet id preference so the display starts over again from the
+        //  displayed tweet id preference and the last retrieved tweet id
+        //  so the display starts over again from the
         //  beginning (whatever that is when we get the current set of tweets from
         //  Twitter.)
         //  Also, nuke the tweet pictures.
 
         SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
         ed.remove(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF);
+        ed.remove(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF);
         ed.commit();
 
         TwitterAvatarManager tam = new TwitterAvatarManager(_ctx);

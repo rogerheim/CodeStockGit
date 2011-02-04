@@ -54,16 +54,15 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="twitter4j-core-2.1.9-SNAPSHOT.jar">
+      <library name="twitter4j-2.1.11">
         <CLASSES>
-          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/lib/twitter4j-core-2.1.9-SNAPSHOT.jar!/" />
+          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.11/lib/twitter4j-core-2.1.11.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="http://twitter4j.org/en/oldjavadocs/2.1.9-SNAPSHOT" />
+          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.11/twitter4j-core/twitter4j-core-2.1.11-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="file://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/twitter4j-core/src/test/java" />
-          <root url="file://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/twitter4j-core/src/main/java" />
+          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.11/twitter4j-core/twitter4j-core-2.1.11-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

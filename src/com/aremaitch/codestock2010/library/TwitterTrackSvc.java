@@ -117,14 +117,14 @@ public class TwitterTrackSvc extends Service {
     private long getLastMaxTweetId() {
 //        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        return prefs.getLong(TwitterConstants.LAST_TWEETID_PREF, -1);
+        return prefs.getLong(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF, -1);
     }
 
     private void updateLastTweetId(long lastTweetId) {
 //        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor ed = prefs.edit();
-        ed.putLong(TwitterConstants.LAST_TWEETID_PREF, lastTweetId);
+        ed.putLong(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF, lastTweetId);
         ed.commit();
     }
 

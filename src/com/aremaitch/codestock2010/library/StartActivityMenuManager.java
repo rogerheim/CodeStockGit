@@ -16,7 +16,6 @@
 
 package com.aremaitch.codestock2010.library;
 
-import android.*;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.Menu;
@@ -56,7 +55,7 @@ public class StartActivityMenuManager {
 
             case START_MENU_CLEAR_LAST_RCVD_TWEET:
                 SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
-                ed.remove(TwitterConstants.LAST_TWEETID_PREF);
+                ed.remove(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF);
                 ed.commit();
         }
         return false;
