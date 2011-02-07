@@ -17,11 +17,12 @@
 package com.aremaitch.codestock2010.library;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.aremaitch.utils.ACLogger;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
+
+import java.util.HashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,12 +38,14 @@ public class TwitterLib {
     public TwitterLib(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setOAuthConsumerKey(consumerKey)
+            .setDebugEnabled(true)
             .setOAuthConsumerSecret(consumerSecret)
             .setOAuthAccessToken(accessToken)
             .setOAuthAccessTokenSecret(accessTokenSecret);
 
         Configuration config = cb.build();
         t = new TwitterFactory(config).getInstance();
+
     }
 
     public void startMonitoringStream(String[] hashTags, int[] userIds, StatusListener statusListener, ConnectionLifeCycleListener connectionLifeCycleListener)
@@ -80,6 +83,26 @@ public class TwitterLib {
 
         q.setQuery(TextUtils.join(" OR ", hashTags));
         return t.search(q);
+    }
+
+    public int getUserIDFromScreenName(String screenName) throws TwitterException {
+        int result = 0;
+        ResponseList<User> users = t.lookupUsers(new String[] {screenName});
+        if (users.size() > 0) {
+            result = users.get(0).getId();
+        }
+        return result;
+    }
+
+    public HashMap<String, Integer> getUserIDsFromScreenNames(String[] screenNames) throws TwitterException {
+        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        ResponseList<User> users = t.lookupUsers(screenNames);
+        if (users.size() > 0) {
+            for (User u : users) {
+                result.put(u.getScreenName(), u.getId());
+            }
+        }
+        return result;
     }
 
 }

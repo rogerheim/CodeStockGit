@@ -31,6 +31,10 @@ import com.aremaitch.codestock2010.repository.TweetObj;
 import com.aremaitch.utils.ACLogger;
 import twitter4j.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by IntelliJ IDEA.
  * Date: 1/18/11
@@ -210,18 +214,43 @@ public class TwitterTrackSvc extends Service {
 
 
             if (result != null) {
-                for (Tweet tweet : result.getTweets()) {
-                    _sinceId = Math.max(_sinceId, tweet.getId());
-                    _dh.insertTweet(TweetObj.createInstance(tweet));
-                    _tam.downloadAvatar(tweet.getFromUser(), tweet.getFromUserId(), tweet.getProfileImageUrl());
-                    cntr++;
+                try {
+                    String[] screenNames = extractUserNames(result.getTweets());
+                    Map<String, Integer> userIdMap = t.getUserIDsFromScreenNames(screenNames);
+                    for (Tweet tweet : result.getTweets()) {
+                        //  As per Twitter developer docs, the user id's from the search API are _not_ the real
+                        //  user id's. The real user id's come from the other api. You need to call
+                        //  a different api to get the real userid from the display name.
+
+//                        _sinceId = Math.max(_sinceId, tweet.getId());
+                        _dh.insertTweet(TweetObj.createInstance(tweet));
+
+                        //  Note: user lookup may not return the same number of users as screen names we passed in.
+                        //    If we pass in 5 user names and 1 of them is unknown, suspended, or deleted the result list
+                        //    will only include the 4 valid ones.
+
+                        if (userIdMap.containsKey(tweet.getFromUser())) {
+                            _tam.downloadAvatar(tweet.getFromUser(), userIdMap.get(tweet.getFromUser()), tweet.getProfileImageUrl());
+                        }
+                        cntr++;
+                    }
+                    ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received " + String.valueOf(cntr) + " tweet(s)");
+                } catch (TwitterException e) {
+                    ACLogger.error(CSConstants.TWITTERTRACKSVC_LOG_TAG, "error retrieving twitter user ids: " + e.getMessage());
                 }
-                ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received " + String.valueOf(cntr) + " tweet(s)");
+                _sinceId = result.getMaxId();
             }
             return null;
         }
 
-        
+        private String[] extractUserNames(List<Tweet> tweets) {
+            String[] result = new String[tweets.size()];
+            for (int i = 0; i <= tweets.size() - 1; i++) {
+                result[i] = tweets.get(i).getFromUser();
+            }
+            return result;
+        }
+
         @Override
         protected void onPostExecute(Void aVoid) {
             _dh.close();
