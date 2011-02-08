@@ -58,6 +58,7 @@ public class TweetDisplayManager {
     private Timer tmr;
     private long _lastDisplayedTweetID;
     private final Drawable _defaultUserImage;
+    private final TwitterAvatarManager _tam;
 
     public TweetDisplayManager(Context ctx, Animation fadeInAnimation, Animation fadeOutAnimation,
                                View tweetView0, View tweetView1, int tweetDisplaySeconds) {
@@ -71,7 +72,7 @@ public class TweetDisplayManager {
         _tweetDisplayInterval = tweetDisplaySeconds * 1000;
         _dateFormatter = new SimpleDateFormat("MMM d yyyy h:mm a");
         _defaultUserImage = new BitmapDrawable(_ctx.getResources(), BitmapFactory.decodeResource(_ctx.getResources(), R.drawable.ic_contact_picture));
-
+        _tam = new TwitterAvatarManager(ctx);
     }
 
 
@@ -156,15 +157,16 @@ public class TweetDisplayManager {
         holder.tweetText.setText(tt.getText());
         holder.createdAt.setText(_dateFormatter.format(tt.getCreatedAt()));
 
-        holder.avatar.setImageDrawable(getUserAvatar(tt.getFromUserId()));
+        //  User avatar's are stored using their real id, not their search api id.
+
+        holder.avatar.setImageDrawable(getUserAvatar(tt.getFromUser()));
 //        return view;
     }
 
-    private Drawable getUserAvatar(int userId) {
+    private Drawable getUserAvatar(String screenName) {
         //  Get the sending user's avatar from cache. If not there, return the generic
         //  Android contact image.
-        TwitterAvatarManager avatarManager = new TwitterAvatarManager(this._ctx);
-        Drawable image = avatarManager.getTwitterAvatar(userId);
+        Drawable image = _tam.getTwitterAvatar(screenName);
         if (image == null) {
             return _defaultUserImage;
         }

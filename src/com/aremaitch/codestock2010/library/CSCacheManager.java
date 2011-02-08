@@ -21,13 +21,13 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.text.TextUtils;
+import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.utils.ACLogger;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,7 +60,7 @@ public class CSCacheManager {
         File cachedFile = null;
         if (isCacheReady()) {
             cachedFile = new File(getTweetAvatarCachePath(), fileName);
-            assert cachedFile != null;
+
             ACLogger.info(CSConstants.LOG_TAG, "saving to cachedFile:" + cachedFile.getAbsolutePath());
             BufferedOutputStream buf = null;
             Bitmap bm = ((BitmapDrawable)image).getBitmap();
@@ -82,14 +82,27 @@ public class CSCacheManager {
         return result;
     }
 
-    public Drawable getImageFromTwitterCache(String fileName) {
+    public Drawable getImageFromTwitterCache(String screenName) {
+        Drawable image = null;
         if (isCacheReady()) {
-            File cachedFile = new File(getTweetAvatarCachePath(), fileName);
-            if (cachedFile.exists()) {
-                return Drawable.createFromPath(cachedFile.getAbsolutePath());
+            DataHelper dh = null;
+            try {
+                dh = new DataHelper(this._ctx);
+                String path = dh.getTwitterAvatarPath(screenName);
+                if (!TextUtils.isEmpty(path)) {
+                    File cachedFile = new File(path);
+
+                    if (cachedFile.exists()) {
+                        image = Drawable.createFromPath(cachedFile.getAbsolutePath());
+                    }
+                }
+            } finally {
+                if (dh != null) {
+                    dh.close();
+                }
             }
         }
-        return null;
+        return image;
     }
 
     //  Return full path

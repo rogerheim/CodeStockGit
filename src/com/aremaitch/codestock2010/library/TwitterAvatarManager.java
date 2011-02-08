@@ -17,16 +17,16 @@
 package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
-
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Debug;
-import android.os.Environment;
 import android.text.TextUtils;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.utils.ACLogger;
-import twitter4j.*;
+import twitter4j.ProfileImage;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -100,10 +100,9 @@ public class TwitterAvatarManager {
                 URL theUrl = new URL(srcUrl);
                 Drawable dw = downloadFromURL(theUrl);
                 if (dw != null) {
-//                    String storedPath = saveImageToCache(twitterUserId, dw);
                     String storedPath = _cacheManager.saveImageToTweetAvatarCache(buildCachedPhotoName(twitterUserId), dw, Bitmap.CompressFormat.PNG);
                     if (!TextUtils.isEmpty(storedPath)) {
-                        dh.insertOrUpdateStoredTwitterUrl(twitterUserId, srcUrl, storedPath);
+                        dh.insertOrUpdateStoredTwitterUrl(twitterUserId, twitterScreenName, srcUrl, storedPath);
                     }
                 } else {
                     ACLogger.error(CSConstants.LOG_TAG, "could not download twitter avatar");
@@ -122,67 +121,11 @@ public class TwitterAvatarManager {
         return "T" + String.valueOf(twitterUserId) + ".png";
     }
 
-//    private boolean isAvatarDownloadRequired(int twitterUserId) {
-//        //  Users can change their screen name (the userid won't change.)
-//        //  Users can change their profile image (the name of the file they uploaded to Twitter
-//        //      is part of the downloaded file name.)
-//        //  Avatars are stored in avatarCachePath + twitterUserId + actualFileName
-//        //  So for userid 123456 and filename my_twitter_image_normal.jpg it would be
-//        //      /sdcard/com.aremaitch.codestock2010/twavatarcache/123456/my_twitter_image_normal.jpg
-//
-//        File imageFile = getCachedPhotoName(twitterUserId);
-//        return (!imageFile.exists());
-//    }
 
     private String stripFileName(String longFileName) {
         return longFileName.substring(longFileName.lastIndexOf('/') + 1);
     }
 
-//    private String saveImageToCache(int twitterUserId, Drawable image) {
-//        String result = "";
-//        File cacheFile = getCachedPhotoName(twitterUserId);
-//
-//        //  cacheFile is the full path to the file, including the file name.
-//        if (cacheFile != null) {
-//            BufferedOutputStream buf = null;
-//            Bitmap bm = ((BitmapDrawable) image).getBitmap();
-//
-//            try {
-//                buf = new BufferedOutputStream(new FileOutputStream(cacheFile), 8192);
-//
-//                bm.compress(Bitmap.CompressFormat.PNG, 100, buf);
-//                buf.flush();
-//                result = cacheFile.getAbsolutePath();
-//
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                if (buf != null) {
-//                    try {
-//                        buf.close();
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//        return result;
-//    }
-
-
-//    private File getCachedPhotoName(int twitterUserID) {
-//
-//        //  Cached file name is "T" + twitter user id (because the userid won't change while the
-//        //  screen name can change.)
-//        File cachedFile = null;
-//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-//            //  cacheBase is /sdcard/com.aremaitch.codestock2010/twavatarcache
-//            cachedFile = new File(getAvatarCachePath(), "T" + String.valueOf(twitterUserID) + ".png");
-//        }
-//        return cachedFile;
-//    }
 
 
     private Drawable downloadFromURL(URL url) {
@@ -208,8 +151,8 @@ public class TwitterAvatarManager {
 
 
     //  Return the user's avatar from cache. Need the userid and the filename from the url.
-    public Drawable getTwitterAvatar(int userId) {
-        return _cacheManager.getImageFromTwitterCache(buildCachedPhotoName(userId));
+    public Drawable getTwitterAvatar(String screenName) {
+        return _cacheManager.getImageFromTwitterCache(screenName);
     }
 
     public void nukeAllAvatars() {
@@ -237,13 +180,4 @@ public class TwitterAvatarManager {
             }
         }
     }
-
-
-    public File[] getListOfAvatarFilesToDelete() {
-        return _cacheManager.getTweetAvatarCachePath().listFiles();
-    }
-
-//    public File getAvatarCachePath() {
-//        return _cacheManager.getTweetAvatarCachePath();
-//    }
 }

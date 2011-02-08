@@ -23,6 +23,7 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -82,7 +83,12 @@ public class TwitterLib {
         }
 
         q.setQuery(TextUtils.join(" OR ", hashTags));
-        return t.search(q);
+        try {
+            return t.search(q);
+        } catch (NumberFormatException nfe) {
+            ACLogger.error(CSConstants.LOG_TAG, "number format exception was thrown by twitter4j");
+        }
+        return null;
     }
 
     public int getUserIDFromScreenName(String screenName) throws TwitterException {
@@ -94,9 +100,11 @@ public class TwitterLib {
         return result;
     }
 
-    public HashMap<String, Integer> getUserIDsFromScreenNames(String[] screenNames) throws TwitterException {
+    public HashMap<String, Integer> getUserIDsFromScreenNames(List<String> screenNames) throws TwitterException {
         HashMap<String, Integer> result = new HashMap<String, Integer>();
-        ResponseList<User> users = t.lookupUsers(screenNames);
+
+        //  Talk about awkward syntax:
+        ResponseList<User> users = t.lookupUsers(screenNames.toArray(new String[screenNames.size()]));
         if (users.size() > 0) {
             for (User u : users) {
                 result.put(u.getScreenName(), u.getId());

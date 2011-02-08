@@ -16,25 +16,21 @@
 
 package com.aremaitch.codestock2010.repository;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import com.aremaitch.codestock2010.library.CSConstants;
-import com.aremaitch.utils.ACLogger;
-
-//import org.joda.time.DateTime;
-//import org.joda.time.format.ISODateTimeFormat;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
-import android.util.Log;
+import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.utils.ACLogger;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+//import org.joda.time.DateTime;
+//import org.joda.time.format.ISODateTimeFormat;
 
 //	8-Jun-10	Updated to version 2 for VoteRank in session table and add
 //				additional speakers table.
@@ -646,9 +642,19 @@ public class DataHelper {
         return tdh.getStoredTwitterUrl(db, userId);
     }
 
-    public void insertOrUpdateStoredTwitterUrl(long userId, String srcurl, String path) {
+    public void insertOrUpdateStoredTwitterUrl(long userId, String screenName, String srcurl, String path) {
         TwitterDataHelper tdh = new TwitterDataHelper(context);
-        tdh.insertOrUpdateStoredTwitterUrl(db, userId, srcurl, path);
+        tdh.insertOrUpdateStoredTwitterUrl(db, userId, screenName, srcurl, path);
+    }
+
+    public String getTwitterAvatarPath(String screenName) {
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
+        return tdh.getPicturePath(db, screenName);
+    }
+
+    public void dropAllTwitterData() {
+        TwitterDataHelper tdh = new TwitterDataHelper(context);
+        tdh.dropAllTwitterData(db);
     }
 
 	/**

@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.aremaitch.codestock2010.CSPreferencesActivity;
+import com.aremaitch.codestock2010.repository.DataHelper;
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,8 +55,18 @@ public class StartActivityMenuManager {
                 return true;
 
             case START_MENU_CLEAR_LAST_RCVD_TWEET:
+                //  Remove all tweets and user avatars
+                TwitterAvatarManager tam = new TwitterAvatarManager(_ctx);
+                tam.nukeAllAvatars();
+
+                DataHelper dh = new DataHelper(_ctx);
+                dh.dropAllTwitterData();
+                dh.close();
+                
                 SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
                 ed.remove(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF);
+                ed.remove(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF);
+
                 ed.commit();
         }
         return false;

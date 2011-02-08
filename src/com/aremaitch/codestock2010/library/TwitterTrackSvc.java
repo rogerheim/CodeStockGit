@@ -31,9 +31,7 @@ import com.aremaitch.codestock2010.repository.TweetObj;
 import com.aremaitch.utils.ACLogger;
 import twitter4j.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -212,43 +210,65 @@ public class TwitterTrackSvc extends Service {
 //                ex.printStackTrace();
             }
 
-
-            if (result != null) {
+            //  Need to check if result.getTweets() returns a zero length collection.
+            if (result != null && result.getTweets().size() > 0) {
                 try {
-                    String[] screenNames = extractUserNames(result.getTweets());
-                    Map<String, Integer> userIdMap = t.getUserIDsFromScreenNames(screenNames);
+                    HashMap<String, Integer> userIdMap = t.getUserIDsFromScreenNames(extractUserNames(result.getTweets()));
                     for (Tweet tweet : result.getTweets()) {
                         //  As per Twitter developer docs, the user id's from the search API are _not_ the real
                         //  user id's. The real user id's come from the other api. You need to call
                         //  a different api to get the real userid from the display name.
 
-//                        _sinceId = Math.max(_sinceId, tweet.getId());
                         _dh.insertTweet(TweetObj.createInstance(tweet));
 
                         //  Note: user lookup may not return the same number of users as screen names we passed in.
                         //    If we pass in 5 user names and 1 of them is unknown, suspended, or deleted the result list
                         //    will only include the 4 valid ones.
 
-                        if (userIdMap.containsKey(tweet.getFromUser())) {
-                            _tam.downloadAvatar(tweet.getFromUser(), userIdMap.get(tweet.getFromUser()), tweet.getProfileImageUrl());
+                        //  Twitter screen names are case in-sensitive but hashmap keys are.
+                        //  hashmap.get() is case-sensitive as well
+
+                        int realUserId = getRealUserId(userIdMap, tweet.getFromUser());
+                        if (realUserId > -1) {
+                            _tam.downloadAvatar(tweet.getFromUser(), realUserId, tweet.getProfileImageUrl());
+                        } else {
+                            ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "no userid mapping for screenname \"" +
+                                tweet.getFromUser() + "\"");
+
                         }
                         cntr++;
                     }
-                    ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received " + String.valueOf(cntr) + " tweet(s)");
                 } catch (TwitterException e) {
                     ACLogger.error(CSConstants.TWITTERTRACKSVC_LOG_TAG, "error retrieving twitter user ids: " + e.getMessage());
                 }
                 _sinceId = result.getMaxId();
             }
+            ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received " + String.valueOf(cntr) + " tweet(s)");
             return null;
         }
 
-        private String[] extractUserNames(List<Tweet> tweets) {
-            String[] result = new String[tweets.size()];
-            for (int i = 0; i <= tweets.size() - 1; i++) {
-                result[i] = tweets.get(i).getFromUser();
+        private int getRealUserId(HashMap<String, Integer> map, String screenName) {
+            int result = -1;
+            for (String s : map.keySet()) {
+                if (s.equalsIgnoreCase(screenName)) {
+                    result = map.get(s);
+                    break;
+                }
             }
             return result;
+        }
+
+        //  avoid duplicates
+        private ArrayList<String> extractUserNames(List<Tweet> tweets) {
+            ArrayList<String> tempList = new ArrayList<String>();
+            for (int i = 0; i <= tweets.size() - 1; i++) {
+                if (!tempList.contains(tweets.get(i).getFromUser())) {
+                    tempList.add(tweets.get(i).getFromUser());
+                }
+            }
+            ACLogger.info(CSConstants.LOG_TAG, "extractUserNames input size= " + tweets.size() +
+                    " output list size=" + tempList.size());
+            return tempList;
         }
 
         @Override
@@ -256,10 +276,8 @@ public class TwitterTrackSvc extends Service {
             _dh.close();
             updateLastTweetId(_sinceId);
             stopSelf();
-//            _wl.release();
-//            if (TwitterTrackSvc.this._startedByAlarm) {
-//                TwitterTrackSvc.this.stopSelf();
-//            }
         }
+
+
     }
 }

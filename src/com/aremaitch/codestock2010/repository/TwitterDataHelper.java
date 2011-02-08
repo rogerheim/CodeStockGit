@@ -16,15 +16,12 @@
 
 package com.aremaitch.codestock2010.repository;
 
-import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
-import android.preference.PreferenceManager;
 import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.TwitterAvatarManager;
 import com.aremaitch.codestock2010.library.TwitterConstants;
@@ -78,6 +75,7 @@ public class TwitterDataHelper {
         tables.add(new StringBuilder()
             .append("create table " + USER_PICTURES_TABLE)
             .append("(uid integer primary key,")
+            .append("screenname text,")
             .append("srcurl text,")
             .append("path text)"));
 
@@ -88,6 +86,10 @@ public class TwitterDataHelper {
         indexes.add(new StringBuilder()
             .append("create index ix_" + TWEETS_TABLE + "_createdat on " + TWEETS_TABLE)
             .append("(createdat)"));
+
+        indexes.add(new StringBuilder()
+            .append("create index ix_" + USER_PICTURES_TABLE + "_screenname on " + USER_PICTURES_TABLE)
+            .append("(screenname)"));
 
     }
 
@@ -205,8 +207,7 @@ public class TwitterDataHelper {
     }
 
     private Cursor getNextOrFirstTweet(SQLiteDatabase db, long lastTweetID) {
-        Cursor c = null;
-        c = db.rawQuery("select id, createdat, ttext, touser, touserid, fromuser, fromuserid from tweets where id > ? order by id limit 1",
+        Cursor c = db.rawQuery("select id, createdat, ttext, touser, touserid, fromuser, fromuserid from tweets where id > ? order by id limit 1",
                 new String[] {Long.toString(lastTweetID)});
         if (!c.moveToFirst()) {
             c.close();      // need to close this cursor before reusing it. otherwise, we will leak.
@@ -241,12 +242,12 @@ public class TwitterDataHelper {
         return result;
     }
 
-    protected String getPicturePath(SQLiteDatabase db, long userId) {
+    protected String getPicturePath(SQLiteDatabase db, String screenName) {
         Cursor c = null;
         String result = "";
         try {
-            c = db.rawQuery("select path from " + USER_PICTURES_TABLE + " where uid = ?",
-                    new String[] {Long.toString(userId)});
+            c = db.rawQuery("select path from " + USER_PICTURES_TABLE + " where screenname = ?",
+                    new String[] {screenName});
             if (c.moveToFirst()) {
                 result = c.getString(c.getColumnIndexOrThrow("path"));
             }
@@ -258,10 +259,11 @@ public class TwitterDataHelper {
         return result;
     }
 
-    protected void insertOrUpdateStoredTwitterUrl(SQLiteDatabase db, long userId, String srcurl, String path) {
+    protected void insertOrUpdateStoredTwitterUrl(SQLiteDatabase db, long userId, String screenName, String srcurl, String path) {
         Cursor c = null;
         ContentValues newRow = new ContentValues();
         newRow.put("uid", userId);
+        newRow.put("screenname", screenName);
         newRow.put("srcurl", srcurl);
         newRow.put("path", path);
         try {
@@ -277,5 +279,12 @@ public class TwitterDataHelper {
                 c.close();
             }
         }
+    }
+
+    protected void dropAllTwitterData(SQLiteDatabase db) {
+        db.execSQL("delete from " + TWEETS_TABLE);
+        db.execSQL("delete from " + USER_PICTURES_TABLE);
+        db.execSQL("delete from " + DELETED_TWEETS_TABLE);
+        ACLogger.info(CSConstants.LOG_TAG, "all twitter tables have been cleared");
     }
 }
