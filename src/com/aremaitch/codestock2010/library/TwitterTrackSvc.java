@@ -68,7 +68,7 @@ public class TwitterTrackSvc extends Service {
         super.onCreate();
     }
 
-
+    //TODO: change order to log message, release wakelock, call super class.
     @Override
     public void onDestroy() {
         super.onDestroy();
