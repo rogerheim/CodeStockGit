@@ -53,20 +53,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="twitter4j-2.1.11">
-        <CLASSES>
-          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.11/lib/twitter4j-core-2.1.11.jar!/" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.11/twitter4j-core/twitter4j-core-2.1.11-javadoc.jar!/" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="jar://C:/lib/twitter4j/twitter4j-2.1.11/twitter4j-core/twitter4j-core-2.1.11-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="Android 2.1-update1 Platform" level="application" />
+    <orderEntry type="library" name="Twitter4j-2.2.1" level="project" />
   </component>
 </module>
 

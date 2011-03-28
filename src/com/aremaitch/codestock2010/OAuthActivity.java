@@ -27,7 +27,6 @@ import com.aremaitch.codestock2010.library.TwitterOAuth;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.http.RequestToken;
 
 import android.app.Activity;
 import android.content.Intent;

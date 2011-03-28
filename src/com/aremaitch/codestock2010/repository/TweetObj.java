@@ -31,13 +31,14 @@ import java.util.Date;
 
 //  An object to act as a bridge between twitter4j and the database schema.
 
+//  28-Mar-2011: New twitter4j lib uses long instead of int for user id's.
 public class TweetObj {
     private String _text;
-    private int _toUserId;
+    private long _toUserId;
     private String _toUser;
     private String _fromUser;
     private long _id;
-    private int _fromUserId;
+    private long _fromUserId;
     private String _isoLanguageCode;
     private String _source;
     private String _profileImageUrl;
@@ -94,11 +95,11 @@ public class TweetObj {
         this._text = _text;
     }
 
-    public int getToUserId() {
+    public long getToUserId() {
         return _toUserId;
     }
 
-    public void setToUserId(int _toUserId) {
+    public void setToUserId(long _toUserId) {
         this._toUserId = _toUserId;
     }
 
@@ -126,11 +127,11 @@ public class TweetObj {
         this._id = _id;
     }
 
-    public int getFromUserId() {
+    public long getFromUserId() {
         return _fromUserId;
     }
 
-    public void setFromUserId(int _fromUserId) {
+    public void setFromUserId(long _fromUserId) {
         this._fromUserId = _fromUserId;
     }
 

@@ -21,8 +21,8 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.User;
-import twitter4j.http.AccessToken;
-import twitter4j.http.RequestToken;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
 
 /**
  * Created by IntelliJ IDEA.
@@ -73,7 +73,7 @@ public class TwitterOAuth {
         return twitterUser.getScreenName();
     }
 
-    public int getTwitterUserID() {
+    public long getTwitterUserID() {
         if (twitterUser == null)
             getTwitterUser();
         return twitterUser.getId();

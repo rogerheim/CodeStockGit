@@ -43,6 +43,8 @@ import java.util.ArrayList;
  * To change this template use File | Settings | File Templates.
  */
 
+// 28-Mar-2011  New twitter4j changed user id's from int to long.
+
 public class TwitterAvatarManager {
     //  A class to download Twitter user avatars and cache them to SD card.
     //  TwitterAvatarManager should have no knowledge of where the image files are stored or how
@@ -60,7 +62,7 @@ public class TwitterAvatarManager {
     }
 
 
-    public void downloadAvatar(String twitterScreenName, int twitterUserId, String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
+    public void downloadAvatar(String twitterScreenName, long twitterUserId, String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
         //  Fire & forget
 
         if (!_cacheManager.isCacheReady()) {
@@ -86,7 +88,7 @@ public class TwitterAvatarManager {
 
     }
 
-    public void downloadAvatar(String twitterScreenName, int twitterUserId, String srcUrl) {
+    public void downloadAvatar(String twitterScreenName, long twitterUserId, String srcUrl) {
         if (!_cacheManager.isCacheReady()) {
             ACLogger.info(CSConstants.LOG_TAG, "could not download twitter picture because sdcard is not mounted");
             return;
@@ -117,7 +119,7 @@ public class TwitterAvatarManager {
         dh.close();
     }
 
-    private String buildCachedPhotoName(int twitterUserId) {
+    private String buildCachedPhotoName(long twitterUserId) {
         return "T" + String.valueOf(twitterUserId) + ".png";
     }
 
@@ -150,7 +152,7 @@ public class TwitterAvatarManager {
     }
 
 
-    //  Return the user's avatar from cache. Need the userid and the filename from the url.
+   
     public Drawable getTwitterAvatar(String screenName) {
         return _cacheManager.getImageFromTwitterCache(screenName);
     }

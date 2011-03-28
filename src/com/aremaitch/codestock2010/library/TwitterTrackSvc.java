@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package com.aremaitch.codestock2010.library;
 
 import android.app.Service;
@@ -39,6 +40,9 @@ import java.util.*;
  * Time: 1:55 PM
  * To change this template use File | Settings | File Templates.
  */
+
+// 28-Mar-2011  New twitter4j changed user id's from int to long.
+
 public class TwitterTrackSvc extends Service {
     private String _consumerKey;
     private String _consumerSecret;
@@ -97,7 +101,7 @@ public class TwitterTrackSvc extends Service {
     }
 
     private TwitterStatusListener statusListener = null;
-    public void startMonitoringStream(String[] hashTags, int[] userIds) {
+    public void startMonitoringStream(String[] hashTags, long[] userIds) {
         statusListener = new TwitterStatusListener();
         try {
             t.startMonitoringStream(hashTags, userIds, statusListener, null);
@@ -165,9 +169,10 @@ public class TwitterTrackSvc extends Service {
         }
 
         @Override
-        public void onScrubGeo(int i, long l) {
+        public void onScrubGeo(long l, long l1) {
             //To change body of implemented methods use File | Settings | File Templates.
         }
+
 
         @Override
         public void onException(Exception e) {
@@ -213,7 +218,7 @@ public class TwitterTrackSvc extends Service {
             //  Need to check if result.getTweets() returns a zero length collection.
             if (result != null && result.getTweets().size() > 0) {
                 try {
-                    HashMap<String, Integer> userIdMap = t.getUserIDsFromScreenNames(extractUserNames(result.getTweets()));
+                    HashMap<String, Long> userIdMap = t.getUserIDsFromScreenNames(extractUserNames(result.getTweets()));
                     for (Tweet tweet : result.getTweets()) {
                         //  As per Twitter developer docs, the user id's from the search API are _not_ the real
                         //  user id's. The real user id's come from the other api. You need to call
@@ -228,7 +233,7 @@ public class TwitterTrackSvc extends Service {
                         //  Twitter screen names are case in-sensitive but hashmap keys are.
                         //  hashmap.get() is case-sensitive as well
 
-                        int realUserId = getRealUserId(userIdMap, tweet.getFromUser());
+                        long realUserId = getRealUserId(userIdMap, tweet.getFromUser());
                         if (realUserId > -1) {
                             _tam.downloadAvatar(tweet.getFromUser(), realUserId, tweet.getProfileImageUrl());
                         } else {
@@ -247,8 +252,8 @@ public class TwitterTrackSvc extends Service {
             return null;
         }
 
-        private int getRealUserId(HashMap<String, Integer> map, String screenName) {
-            int result = -1;
+        private long getRealUserId(HashMap<String, Long> map, String screenName) {
+            long result = -1;
             for (String s : map.keySet()) {
                 if (s.equalsIgnoreCase(screenName)) {
                     result = map.get(s);

@@ -31,6 +31,9 @@ import java.util.List;
  * Time: 1:57 PM
  * To change this template use File | Settings | File Templates.
  */
+
+// 28-Mar-2011  New twitter4j changed user id's from int to long.
+
 public class TwitterLib {
 
     private Twitter t = null;
@@ -49,7 +52,7 @@ public class TwitterLib {
 
     }
 
-    public void startMonitoringStream(String[] hashTags, int[] userIds, StatusListener statusListener, ConnectionLifeCycleListener connectionLifeCycleListener)
+    public void startMonitoringStream(String[] hashTags, long[] userIds, StatusListener statusListener, ConnectionLifeCycleListener connectionLifeCycleListener)
         throws TwitterException {
 
         if (statusListener != null)
@@ -91,8 +94,8 @@ public class TwitterLib {
         return null;
     }
 
-    public int getUserIDFromScreenName(String screenName) throws TwitterException {
-        int result = 0;
+    public long getUserIDFromScreenName(String screenName) throws TwitterException {
+        long result = 0;
         ResponseList<User> users = t.lookupUsers(new String[] {screenName});
         if (users.size() > 0) {
             result = users.get(0).getId();
@@ -100,8 +103,8 @@ public class TwitterLib {
         return result;
     }
 
-    public HashMap<String, Integer> getUserIDsFromScreenNames(List<String> screenNames) throws TwitterException {
-        HashMap<String, Integer> result = new HashMap<String, Integer>();
+    public HashMap<String, Long> getUserIDsFromScreenNames(List<String> screenNames) throws TwitterException {
+        HashMap<String, Long> result = new HashMap<String, Long>();
 
         //  Talk about awkward syntax:
         ResponseList<User> users = t.lookupUsers(screenNames.toArray(new String[screenNames.size()]));
@@ -112,5 +115,6 @@ public class TwitterLib {
         }
         return result;
     }
+
 
 }
