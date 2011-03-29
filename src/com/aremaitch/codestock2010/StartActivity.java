@@ -46,6 +46,8 @@ import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
 import com.aremaitch.codestock2010.repository.Track;
 import com.aremaitch.utils.ACLogger;
+import com.aremaitch.utils.Command;
+import com.aremaitch.utils.OnClickCommandWrapper;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -114,32 +116,24 @@ public class StartActivity extends Activity {
 		
 
 //	removed for countdown update
-		
-		//	If the database is empty and we are not curently loading it, ask the user if they
+
+		//	If the database is empty and we are not currently loading it, ask the user if they
 		//	want to load it.
-//		if (databaseIsEmpty && task == null) {
-//			new AlertDialog.Builder(this)
-//				.setCancelable(false)
-//				.setMessage(getString(R.string.empty_db_msg))
-//				.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//						dialog.dismiss();
-//						
-//					}
-//				})
-//				.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which) {
-//						dialog.dismiss();
-//						startDataLoad();
-//					}
-//				})
-//				.setTitle(getString(R.string.app_name))
-//				.show();
-//		}
+//        if (databaseIsEmpty && task == null) {
+//            Command yesCommand = new Command() {
+//                @Override
+//                public void execute() {
+//                    startDataLoad();
+//                }
+//            };
+//            new AlertDialog.Builder(this)
+//                .setCancelable(false)
+//                .setMessage(getString(R.string.empty_db_msg))
+//                .setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(Command.NOOP))
+//                .setPositiveButton(getString(R.string.yes_string), new OnClickCommandWrapper(yesCommand))
+//                .setTitle(getString(R.string.app_name))
+//                .show();
+//        }
 	}
 	
 	@Override
@@ -198,7 +192,8 @@ public class StartActivity extends Activity {
     }
 
 	void showProgressDialog() {
-		_progress = ProgressDialog.show(this, getString(R.string.refresh_data_progress_dialog_title), getString(R.string.refresh_data_progress_dialog_msg));
+		_progress = ProgressDialog.show(this, getString(R.string.refresh_data_progress_dialog_title),
+                getString(R.string.refresh_data_progress_dialog_msg));
 	}
 	
 	void clearProgressDialog() {
@@ -308,26 +303,20 @@ public class StartActivity extends Activity {
 	}
 	
 	private void promptUserToScanQRCode() {
-		
+
+        Command yesCommand = new Command() {
+            @Override
+            public void execute() {
+                IntentIntegrator.initiateScan(StartActivity.this);
+            }
+        };
+
 		// This dialog doesn't show until onCreate() shows.
 
 		new AlertDialog.Builder(this).setCancelable(false)
 			.setMessage(getString(R.string.mysessions_qrscan_prompt_msg))
-			.setNegativeButton(getString(R.string.no_string), new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			})
-			.setPositiveButton(getString(R.string.yes_string), new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog,	int which) {
-					dialog.dismiss();
-					IntentIntegrator.initiateScan(StartActivity.this);
-				}
-			})
+			.setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(Command.NOOP))
+			.setPositiveButton(getString(R.string.yes_string), new OnClickCommandWrapper(yesCommand))
 			.setTitle(getString(R.string.mysessions_qrscan_prompt_title))
 			.show();
 	}
@@ -377,6 +366,7 @@ public class StartActivity extends Activity {
 	}
 
 	private void startMySessions(long userid) {
+
 		Intent i = new Intent();
 		i.setAction(getString(R.string.mysessions_intent_action))
 			.addCategory(Intent.CATEGORY_DEFAULT)

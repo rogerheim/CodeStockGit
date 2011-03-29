@@ -265,12 +265,10 @@ public class MySessionsActivity extends Activity
 		
 		@Override
 		protected void onPreExecute() {
-			//TODO: move strings for localization
-//			dlg = ProgressDialog.show(this.act, "Schedule Builder", "Getting your schedule;\nplease wait...");
-			
+
 			//	This moves ownership of the progress dialog to the activity instead of this class.
-			dlg.setTitle("Schedule Builder");
-			dlg.setMessage("Getting your schedule;\nplease wait...");
+			dlg.setTitle(getString(R.string.mysessions_progress_title));
+			dlg.setMessage(getString(R.string.mysessions_progress_message));
 			dlg.show();
 		}
 

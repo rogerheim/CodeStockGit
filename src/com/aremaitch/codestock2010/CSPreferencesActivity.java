@@ -121,10 +121,10 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
         new AlertDialog.Builder(this)
             .setCancelable(false)
-            .setMessage("Do you want delete your Twitter account from the CodeStock app?")
-            .setNegativeButton("No", new OnClickCommandWrapper(Command.NOOP))
-            .setPositiveButton("Yes", new OnClickCommandWrapper(yesCommand))
-            .setTitle("Delete Twitter Authentication")
+            .setMessage(getString(R.string.pref_query_delete_twitter_text))
+            .setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(Command.NOOP))
+            .setPositiveButton(getString(R.string.yes_string), new OnClickCommandWrapper(yesCommand))
+            .setTitle(getString(R.string.pref_query_delete_twitter_title_text))
             .show();
     }
 
@@ -169,12 +169,10 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
 
         new AlertDialog.Builder(this)
             .setCancelable(false)
-            .setMessage("You've not authorized the CodeStock app to access your Twitter account yet.\n\nIf you press Yes you'll be " +
-                        "taken to a Twitter page where you'll be able to login (if you're not already logged in on this device) " +
-                        "and grant this app access. Your password is not stored on this device.\n\nDo you want to continue?")
-            .setNegativeButton("No", new OnClickCommandWrapper(noCommand))
-            .setPositiveButton("Yes", new OnClickCommandWrapper(yesCommand))
-            .setTitle("Authenticate to Twitter")
+            .setMessage(getString(R.string.pref_query_authenticate_to_twitter_text))
+            .setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(noCommand))
+            .setPositiveButton(getString(R.string.yes_string), new OnClickCommandWrapper(yesCommand))
+            .setTitle(getString(R.string.pref_query_authenticate_to_twitter_title_text))
             .show();
     }
 

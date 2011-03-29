@@ -42,6 +42,8 @@
     <string name="mysessions_qrscan_badscan_msg">Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder</string>
     <string name="mysessions_presentedby">Presented by:&#160;</string>
     <string name="mysessions_room">Room:&#160;</string>
+    <string name="mysessions_progress_title">Schedule Builder</string>
+    <string name="mysessions_progress_message">Getting your schedule;\nplease wait...</string>
     
     <string name="map_title">Conference Center Map</string>
     
@@ -69,6 +71,11 @@
     <string name="menu_home_text">Home</string>
     <string name="menu_search_text">Search</string>
 
+    <!-- Preference activity text -->
+    <string name="pref_query_delete_twitter_text">Do you want to delete your Twitter account from the CodeStock app?</string>
+    <string name="pref_query_delete_twitter_title_text">Delete Twitter Authentication</string>
+    <string name="pref_query_authenticate_to_twitter_text">You\'ve not authorized the CodeStock app to access your Twitter account yet.\n\nIf you press Yes you\'ll be taken to a Twitter page where you\'ll be able to login (if you\'re not already logged in on this device) and grant this app access. Your password is not stored on this device.\n\nDo you want to continue?</string>
+    <string name="pref_query_authenticate_to_twitter_title_text">Authenticate to Twitter</string>
 
 	<!-- Put strings that do not need to be localized below this marker -->
     <!-- Data feed url's -->
