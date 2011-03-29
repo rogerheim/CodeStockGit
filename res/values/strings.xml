@@ -19,7 +19,7 @@
 <resources>
     <string name="app_name">CodeStock 2011</string>
     <string name="header_title">CodeStock 2011 - June 3 - 4, 2011</string>
-    <string name="header_slogan">One Louder</string>
+    <string name="header_slogan">Always in motion is the future</string>
     <string name="about_title">About CodeStock 2011...</string>
     
     <string name="yes_string">Yes</string>
@@ -57,8 +57,8 @@
     
     <string name="about_version_template">Version</string>
     <string name="about_bad_version">Unable to retrieve version</string>
-    <string name="about_copyright">Copyright &#169; 2010-2011 Roger&#160;Heim, All rights reserved</string>
-    <string name="about_regtm">CodeStock and the CodeStock logos are Registered Trademarks of the East Tennessee .NET Users Group, Inc.</string>
+    <string name="about_copyright">Copyright 2010-2011 Roger&#160;Heim\nTwitter4J library Copyright 2007 Yusuke&#160;Yamamoto</string>
+    <string name="about_regtm">\"CodeStock\" and the CodeStock logos are Registered Trademarks of the East Tennessee .NET Users Group, Inc.</string>
     <string name="about_apache_license">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</string>
     
     <string name="friday_string">Friday</string>

@@ -41,7 +41,7 @@
 			<!-- This logo is 182X200 -->
 			<ImageView
 				android:id="@+id/about_codestock_logo"
-				android:src="@drawable/logo_2011_placeholder"
+				android:src="@drawable/yodaskull_2011_about"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -77,8 +77,8 @@
 				android:text="@string/about_copyright"
 				android:textColor="@color/Black"
 				android:textSize="12sp"
-				android:layout_below="@id/about_version"
-				android:layout_alignLeft="@id/about_version"
+				android:layout_below="@id/about_codestock_logo"
+				android:layout_alignLeft="@id/about_codestock_logo"
 				android:layout_marginTop="10dp"
 				/>
 				
@@ -92,7 +92,7 @@
 				android:textSize="12sp"
 				android:layout_below="@id/about_copyright"
 				android:layout_alignLeft="@id/about_copyright"
-				android:layout_marginTop="10dp"
+				android:layout_marginTop="8dp"
 				/>
 				
 			<!-- 9-Jun-10  Add license text -->
@@ -104,8 +104,8 @@
 				android:textColor="@color/Black"
 				android:textSize="10sp"
 				android:layout_below="@id/about_regtm"
-				android:layout_alignLeft="@id/about_codestock_logo"
-				android:layout_marginTop="25dp"
+				android:layout_alignLeft="@id/about_regtm"
+				android:layout_marginTop="8dp"
 				/>
 				
 		</RelativeLayout>
