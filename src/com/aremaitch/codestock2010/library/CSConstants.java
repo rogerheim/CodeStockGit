@@ -35,4 +35,8 @@ public class CSConstants {
 
     public static final String SESSION_DETAILS_SESSIONID = "sessionid";
 
+    //  Navigation preference constants
+    public static final String NAVIGATION_FLING_DISTANCE = "fling_distance_sensitivity";
+    public static final String NAVIGATION_FLING_SPEED = "fling_speed_sensitivity";
+
 }

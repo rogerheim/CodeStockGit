@@ -60,4 +60,32 @@
         <item>28</item>
         <item>-2</item>
     </string-array>
+
+    <!-- Navigation preferences -->
+    <string-array name="navigation_fling_distance_entries">
+        <item>Shortest Distance</item>
+        <item>+1</item>
+        <item>+2</item>
+        <item>Longest Distance</item>
+    </string-array>
+    <string-array name="navigation_fling_distance_entryvalues">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+
+    <string-array name="navigation_fling_speed_entries">
+        <item>Fastest</item>
+        <item>-1</item>
+        <item>-2</item>
+        <item>Slowest</item>
+    </string-array>
+    <string-array name="navigation_fling_speed_entryvalues">
+        <item>1000</item>
+        <item>750</item>
+        <item>500</item>
+        <item>250</item>
+    </string-array>
 </resources>
