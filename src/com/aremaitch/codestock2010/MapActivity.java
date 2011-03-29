@@ -17,10 +17,18 @@
 package com.aremaitch.codestock2010;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
 public class MapActivity extends Activity {
+
+    public static void startMe(Context ctx) {
+        Intent i = new Intent(ctx, MapActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        ctx.startActivity(i);
+    }
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.aremaitch.codestock2010.datadownloader.ScheduleBuilder;
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Session;
@@ -78,7 +79,14 @@ public class MySessionsActivity extends Activity
 	ListView day1LV = null;
 	ListView day2LV = null;
 	ProgressDialog dlg = null;
-	
+
+    //TODO: Change to get userid from prefs here instead of assuming it was passed in via the start intent.
+
+    public static void startMe(Context ctx) {
+        Intent i = new Intent(ctx, MySessionsActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        ctx.startActivity(i);
+    }
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -232,10 +240,11 @@ public class MySessionsActivity extends Activity
 		}
 		
 		//	Otherwise, show the details about the selected session.
-		startActivity(new Intent()
-			.setAction(getString(R.string.session_details_intent_action))
-			.addCategory(Intent.CATEGORY_DEFAULT)
-			.putExtra(getString(R.string.session_details_intent_sessionid), id));
+        DisplaySessionDetailsActivity.startMe(this, id);
+//		startActivity(new Intent()
+//			.setAction(getString(R.string.session_details_intent_action))
+//			.addCategory(Intent.CATEGORY_DEFAULT)
+//			.putExtra(CSConstants.SESSION_DETAILS_SESSIONID, id));
 	}
 	
 	//	This needs the same protection against leaking windows

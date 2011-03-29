@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.Context;
 import com.aremaitch.codestock2010.library.CSConstants;
 import org.xml.sax.XMLReader;
 
@@ -76,7 +77,12 @@ public class DisplaySessionDetailsActivity extends Activity {
 	GetSpeakerPhotoTask task = null;
 
     //TODO: refactor photo downloading code into its own class/source file
-    
+
+    public static void startMe(Context ctx, long sessionId) {
+        //  No CLEAR_TOP here
+        Intent i = new Intent(ctx, DisplaySessionDetailsActivity.class).putExtra(CSConstants.SESSION_DETAILS_SESSIONID, sessionId);
+        ctx.startActivity(i);
+    }
 	//	Orientation change fires onPause(), onCreate(), onStart()
 	//		(there may be a different layout for landscape vs. portrait so Android will
 	//			need the layout re-inflated.)
@@ -129,7 +135,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 		presentedby = (TextView) findViewById(R.id.session_details_presentedby_label);
 		scroller = (ScrollView) findViewById(R.id.session_details_scroller);
 		Intent i = getIntent();
-		long sessionid = i.getLongExtra(getString(R.string.session_details_intent_sessionid), -1);
+		long sessionid = i.getLongExtra(CSConstants.SESSION_DETAILS_SESSIONID, -1);
 		if (sessionid >= 0) {
 
 			Session s = getSessionInfo(sessionid);

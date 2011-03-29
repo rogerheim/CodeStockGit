@@ -71,7 +71,13 @@ public class AgendaActivity extends Activity
 	
 	TextView view0header = null;
 	TextView view1header = null;
-	
+
+    public static void startMe(Context ctx) {
+        //TODO: remove onTouch handling and arrow buttons
+        
+        Intent i = new Intent(ctx, AgendaActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        ctx.startActivity(i);
+    }
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		ACLogger.info(CSConstants.LOG_TAG, "AgendaActivity onRetainNonConfigurationInstance");
@@ -254,10 +260,11 @@ public class AgendaActivity extends Activity
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		// The 'header' for this view is not part of the ListView.
-		startActivity(new Intent()
-			.setAction(getString(R.string.session_details_intent_action))
-			.addCategory(Intent.CATEGORY_DEFAULT)
-			.putExtra(getString(R.string.session_details_intent_sessionid), id));
+        DisplaySessionDetailsActivity.startMe(this, id);
+//		startActivity(new Intent()
+//			.setAction(getString(R.string.session_details_intent_action))
+//			.addCategory(Intent.CATEGORY_DEFAULT)
+//			.putExtra(CSConstants.SESSION_DETAILS_SESSIONID, id));
 	}
 
 	

@@ -65,6 +65,11 @@ public class StartActivity extends Activity {
     TweetDisplayManager tdm = null;
 	View digitsContainer = null;
 
+    public static void startMe(Context ctx) {
+        Intent i = new Intent(ctx, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        ctx.startActivity(i);
+
+    }
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//	Called once when the activity is started.

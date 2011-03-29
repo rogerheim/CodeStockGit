@@ -100,8 +100,7 @@
 
 	<string name="session_details_intent_action">com.aremaitch.codestock2010.DISPLAY_SESSION_DETAILS</string>
 	<string name="session_details_intent_category">android.intent.category.DEFAULT</string>
-	<string name="session_details_intent_sessionid">com.aremaitch.codestock2010.SESSIONID</string>  
-	
+
 	<string name="conference_center_map_intent_action">com.aremaitch.codestock2010.DISPLAY_CONF_CENTER_MAP</string>
 	<string name="conference_center_map_intent_category">android.intent.category.DEFAULT</string>
 	

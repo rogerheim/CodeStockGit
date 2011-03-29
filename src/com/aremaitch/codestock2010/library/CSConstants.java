@@ -32,4 +32,7 @@ public class CSConstants {
 
     public static final String BASE_CACHE_PATH = "com.aremaitch.codestock2010/";
 
+
+    public static final String SESSION_DETAILS_SESSIONID = "sessionid";
+
 }

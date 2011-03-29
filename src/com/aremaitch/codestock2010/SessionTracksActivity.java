@@ -73,11 +73,12 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v,
 					int groupPosition, int childPosition, long id) {
-				
-				startActivity(new Intent()
-					.setAction(getString(R.string.session_details_intent_action))
-					.addCategory(getString(R.string.session_details_intent_category))
-					.putExtra(getString(R.string.session_details_intent_sessionid), id));
+
+                DisplaySessionDetailsActivity.startMe(SessionTracksActivity.this, id);
+//				startActivity(new Intent()
+//					.setAction(getString(R.string.session_details_intent_action))
+//					.addCategory(getString(R.string.session_details_intent_category))
+//					.putExtra(CSConstants.SESSION_DETAILS_SESSIONID, id));
 				return true;
 			}
 		});
