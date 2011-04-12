@@ -33,7 +33,6 @@ public class StartActivityMenuManager {
     private static final String START_OPTIONS_STRING = "Options";
     private static final int START_OPTIONS_ICON = android.R.drawable.ic_menu_preferences;
     private static final int START_MENU_OPTIONS = Menu.FIRST;
-    private static final int START_MENU_CLEAR_LAST_RCVD_TWEET = START_MENU_OPTIONS + 1;
 
     private Context _ctx;
 
@@ -44,7 +43,6 @@ public class StartActivityMenuManager {
     //TODO: Refactor to use command pattern instead of having the menu selection code here. Need wrapper.
     public boolean createStartActivityOptionsMenu(Menu menu) {
         menu.add(0, START_MENU_OPTIONS, 0, START_OPTIONS_STRING).setIcon(START_OPTIONS_ICON);
-        menu.add(0, START_MENU_CLEAR_LAST_RCVD_TWEET, 0, "Reset Last Tweet");
         return true;
     }
 
@@ -54,20 +52,6 @@ public class StartActivityMenuManager {
                 CSPreferencesActivity.startMe(_ctx);
                 return true;
 
-            case START_MENU_CLEAR_LAST_RCVD_TWEET:
-                //  Remove all tweets and user avatars
-                TwitterAvatarManager tam = new TwitterAvatarManager(_ctx);
-                tam.nukeAllAvatars();
-
-                DataHelper dh = new DataHelper(_ctx);
-                dh.dropAllTwitterData();
-                dh.close();
-                
-                SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
-                ed.remove(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF);
-                ed.remove(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF);
-
-                ed.commit();
         }
         return false;
 

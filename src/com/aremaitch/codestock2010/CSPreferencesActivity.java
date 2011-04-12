@@ -18,15 +18,15 @@ package com.aremaitch.codestock2010;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.*;
 import android.text.TextUtils;
-import com.aremaitch.codestock2010.library.BackgroundTaskManager;
-import com.aremaitch.codestock2010.library.CSConstants;
-import com.aremaitch.codestock2010.library.TwitterConstants;
-import com.aremaitch.codestock2010.library.TwitterOAuth;
+import android.util.AttributeSet;
+import com.aremaitch.codestock2010.library.*;
+import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.utils.ACLogger;
 import com.aremaitch.utils.Command;
 import com.aremaitch.utils.OnClickCommandWrapper;
@@ -267,7 +267,20 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         navFlingSpeed.setEntryValues(R.array.navigation_fling_speed_entryvalues);
         navFlingSpeed.setDialogTitle("Fling Speed");
         navCat.addPreference(navFlingSpeed);
-        
+
+        PreferenceCategory toolsCat = new PreferenceCategory(this);
+        toolsCat.setTitle("Tools");
+        root.addPreference(toolsCat);
+
+        ResetTweetsDialog resetTweets = new ResetTweetsDialog(this, null);
+        resetTweets.setTitle("Reset Tweets");
+        resetTweets.setSummary("Clear out tweet database and resets last retrieved/displayed");
+        resetTweets.setDialogTitle("Reset Tweets");
+        resetTweets.setDialogMessage("Are you sure you want to reset the tweet database?");
+        resetTweets.setPositiveButtonText(getString(R.string.yes_string));
+        resetTweets.setNegativeButtonText(getString(R.string.no_string));
+        toolsCat.addPreference(resetTweets);
+
         PreferenceCategory aboutCat = new PreferenceCategory(this);
         aboutCat.setTitle("About");
         root.addPreference(aboutCat);
@@ -284,5 +297,39 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         tweetDisplayDuration.setDependency(TwitterConstants.TWITTER_ENABLED_PREF);
         tweetDaysToKeep.setDependency(TwitterConstants.TWITTER_ENABLED_PREF);
 
+    }
+
+    class ResetTweetsDialog extends DialogPreference {
+
+        Context ctx;
+        public ResetTweetsDialog(Context context, AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+            ctx = context;
+        }
+
+        public ResetTweetsDialog(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            ctx = context;
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+
+                TwitterAvatarManager tam = new TwitterAvatarManager(ctx);
+                tam.nukeAllAvatars();
+
+                DataHelper dh = new DataHelper(ctx);
+                dh.dropAllTwitterData();
+                dh.close();
+
+                SharedPreferences.Editor ed = getPreferenceManager().getSharedPreferences().edit();
+                ed.remove(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF);
+                ed.remove(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF);
+                ed.commit();
+
+            }
+            dialog.dismiss();
+        }
     }
 }
