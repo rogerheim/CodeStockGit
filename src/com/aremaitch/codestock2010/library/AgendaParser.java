@@ -39,7 +39,6 @@ import java.util.TimeZone;
  */
 public class AgendaParser {
     private final IAgendaDownloader _agendaDownloader;
-    private final Context _ctx;
     private List<Speaker> parsedSpeakers = new ArrayList<Speaker>();
     private List<Session> parsedSessions = new ArrayList<Session>();
     private List<ExperienceLevel> parsedLevels = new ArrayList<ExperienceLevel>();
@@ -61,8 +60,7 @@ public class AgendaParser {
         return parsedTracks;
     }
 
-    public AgendaParser(Context ctx, IAgendaDownloader agendaDownloader) {
-        _ctx = ctx;
+    public AgendaParser(IAgendaDownloader agendaDownloader) {
         _agendaDownloader = agendaDownloader;
     }
 
@@ -89,6 +87,7 @@ public class AgendaParser {
 
     public void parseSpeakerData(JSONArray dataArray) {
 
+        ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "parsing speaker data");
         for (int i = 0; i <= dataArray.length() - 1; i++) {
             try {
                 Speaker newSpeaker = new Speaker();
@@ -113,10 +112,12 @@ public class AgendaParser {
     }
 
     public void parseSessionData(JSONArray dataArray) {
+        ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "parsing session data");
+
         for (int i = 0; i <= dataArray.length() - 1; i++) {
             try {
                 Session newSession = new Session();
-                String savedArea = "";
+                String savedArea;
                 JSONObject sessionJSONObject = dataArray.getJSONObject(i);
                 newSession.setSynopsis(sessionJSONObject.getString("Abstract"));
 

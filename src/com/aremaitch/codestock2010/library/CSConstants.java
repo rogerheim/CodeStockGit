@@ -29,6 +29,7 @@ public class CSConstants {
     public static final String LOG_TAG = "CodeStockApp";
     public static final String DBCLEANUPSVC_LOG_TAG = "CodeStockDBClnUpSvc";
     public static final String TWITTERTRACKSVC_LOG_TAG = "CodeStockTwitterSvc";
+    public static final String AGENDADWNLDSVC_LOG_TAG = "CodeStockAgendaDLSvc";
 
     public static final String BASE_CACHE_PATH = "com.aremaitch.codestock2010/";
 

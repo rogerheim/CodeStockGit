@@ -16,7 +16,9 @@
 
 package com.aremaitch.codestock2010.datadownloader;
 
+import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.IAgendaDownloader;
+import com.aremaitch.utils.ACLogger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -37,7 +39,9 @@ import java.io.IOException;
 //  This is meant to be used by a background thread
 public class ConferenceAgendaDownloader implements IAgendaDownloader {
 
+    @SuppressWarnings({"FieldCanBeLocal"})
     private final String SPEAKERS_URL = "http://codestock.org/api/v2.0.svc/AllSpeakersJson";
+    @SuppressWarnings({"FieldCanBeLocal"})
     private final String SESSIONS_URL = "http://codestock.org/api/v2.0.svc/AllSessionsJson";
 
     @Override
@@ -45,6 +49,7 @@ public class ConferenceAgendaDownloader implements IAgendaDownloader {
         JSONObject result = null;
 
         try {
+            ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "downloading speaker data");
             DefaultHttpClient hc = new DefaultHttpClient();
             HttpGet hg = new HttpGet(getSpeakersUrl());
             HttpResponse response = hc.execute(hg);
@@ -65,6 +70,7 @@ public class ConferenceAgendaDownloader implements IAgendaDownloader {
         JSONObject result = null;
 
         try {
+            ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "downloading session data");
             DefaultHttpClient hc = new DefaultHttpClient();
             HttpGet hg = new HttpGet(getSessionUrl());
             HttpResponse response = hc.execute(hg);

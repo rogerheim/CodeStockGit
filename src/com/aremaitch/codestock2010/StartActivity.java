@@ -60,7 +60,7 @@ import com.google.zxing.integration.android.IntentResult;
 public class StartActivity extends Activity {
 	private static final int MENU_REFRESH = Menu.FIRST;
 
-	RefreshCodeStockData task = null;
+//	RefreshCodeStockData task = null;
 	ProgressDialog _progress = null;
 	CountdownManager cMgr = new CountdownManager();
     StartActivityMenuManager menuManager = new StartActivityMenuManager(this);
@@ -93,26 +93,26 @@ public class StartActivity extends Activity {
 		//	disable listeners for countdown
 		//wireupListeners();
 
-		task = (RefreshCodeStockData)getLastNonConfigurationInstance();
+//		task = (RefreshCodeStockData)getLastNonConfigurationInstance();
 		
 		boolean databaseIsEmpty = false;
 		
 		
-		if (task != null) {
-			ACLogger.info(CSConstants.LOG_TAG, "StartActivity reconnecting to running RefreshCodeStockData task");
-			//  We were restarted during a data load (probably because of an orientation change.)
-			//	Reshow the progress dialog.
-			task.attach(this);
-			showProgressDialog();
-			if (task.getStatus() == AsyncTask.Status.FINISHED) {
-				clearProgressDialog();
-			}
-
-		} else {
-			DataHelper localdh = new DataHelper(this);
-			databaseIsEmpty = localdh.isDatabaseEmpty();
-			localdh.close();
-		}
+//		if (task != null) {
+//			ACLogger.info(CSConstants.LOG_TAG, "StartActivity reconnecting to running RefreshCodeStockData task");
+//			//  We were restarted during a data load (probably because of an orientation change.)
+//			//	Reshow the progress dialog.
+//			task.attach(this);
+//			showProgressDialog();
+//			if (task.getStatus() == AsyncTask.Status.FINISHED) {
+//				clearProgressDialog();
+//			}
+//
+//		} else {
+//			DataHelper localdh = new DataHelper(this);
+//			databaseIsEmpty = localdh.isDatabaseEmpty();
+//			localdh.close();
+//		}
 		
 
 //	removed for countdown update
@@ -162,12 +162,12 @@ public class StartActivity extends Activity {
 
     @Override
 	public Object onRetainNonConfigurationInstance() {
-		if (task != null) {
-			ACLogger.info(CSConstants.LOG_TAG, "StartActivity preparing for restart due to config change");
-			task.detach();
-			clearProgressDialog();
-			return task;
-		}
+//		if (task != null) {
+//			ACLogger.info(CSConstants.LOG_TAG, "StartActivity preparing for restart due to config change");
+//			task.detach();
+//			clearProgressDialog();
+//			return task;
+//		}
 		return null;
 	}
 
@@ -203,12 +203,12 @@ public class StartActivity extends Activity {
 		}
 	}
 	
-	private void startDataLoad() {
-		//	No callback here. Actually we could do one to determine if we completed or were cancelled.
-		task = new RefreshCodeStockData(this);
-		task.execute();
-		showProgressDialog();
-	}
+//	private void startDataLoad() {
+//		//	No callback here. Actually we could do one to determine if we completed or were cancelled.
+//		task = new RefreshCodeStockData(this);
+//		task.execute();
+//		showProgressDialog();
+//	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -374,72 +374,72 @@ public class StartActivity extends Activity {
 		startActivity(i);
 	}
 
-	void signalComplete() {
-		ACLogger.info(CSConstants.LOG_TAG, "StartActivity received RefreshCodeStockData complete signal");
-		clearProgressDialog();
-		task = null;
-	}
+//	void signalComplete() {
+//		ACLogger.info(CSConstants.LOG_TAG, "StartActivity received RefreshCodeStockData complete signal");
+//		clearProgressDialog();
+//		task = null;
+//	}
 	
-	public class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
-
-		StartActivity activity = null;
-		DownloaderV2 dlv2 = null;
-		
-		public RefreshCodeStockData(StartActivity activity) {
-			attach(activity);
-		}
-
-
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			ACLogger.info(CSConstants.LOG_TAG, "Starting RefreshCodeStockData.doInBackground()");
-			//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
-			dlv2 = new DownloaderV2(getApplicationContext(), 
-					getString(R.string.json_data_rooms_url_v2), 
-					getString(R.string.json_data_speakers_url_v2), 
-					getString(R.string.json_data_sessions_url_v2));
-			dlv2.getCodeStockData();
-			
-			DataHelper dh = new DataHelper(getApplicationContext());
-			dh.clearAllData();
-			try {
-				for (Track t : dlv2.getParsedTracks()) {
-					dh.insertTrack(t);
-				}
-				for (ExperienceLevel l : dlv2.getParsedLevels()) {
-					dh.insertXPLevel(l);
-				}
-				for (Speaker s : dlv2.getParsedSpeakers()) {
-					dh.insertSpeaker(s);
-				}
-				for (Session s : dlv2.getParsedSessions()) {
-					dh.insertSession(s);
-				}
-			} finally {
-				dh.close();
-			}
-			return null;
-		}
-
-
-		@Override
-		protected void onPostExecute(Void result) {
-			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData.onPostExecute()");
-			
-			if (activity != null) {
-				activity.signalComplete();
-			}
-			super.onPostExecute(result);
-		}
-		
-		void detach() {
-			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData detaching from activity");
-			activity = null;
-		}
-		
-		void attach(StartActivity activity) {
-			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData attaching to new activity");
-			this.activity = activity;
-		}
-	}
+//	public class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
+//
+//		StartActivity activity = null;
+//		DownloaderV2 dlv2 = null;
+//
+//		public RefreshCodeStockData(StartActivity activity) {
+//			attach(activity);
+//		}
+//
+//
+//		@Override
+//		protected Void doInBackground(Void... arg0) {
+//			ACLogger.info(CSConstants.LOG_TAG, "Starting RefreshCodeStockData.doInBackground()");
+//			//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
+//			dlv2 = new DownloaderV2(getApplicationContext(),
+//					getString(R.string.json_data_rooms_url_v2),
+//					getString(R.string.json_data_speakers_url_v2),
+//					getString(R.string.json_data_sessions_url_v2));
+//			dlv2.getCodeStockData();
+//
+//			DataHelper dh = new DataHelper(getApplicationContext());
+//			dh.clearAllData();
+//			try {
+//				for (Track t : dlv2.getParsedTracks()) {
+//					dh.insertTrack(t);
+//				}
+//				for (ExperienceLevel l : dlv2.getParsedLevels()) {
+//					dh.insertXPLevel(l);
+//				}
+//				for (Speaker s : dlv2.getParsedSpeakers()) {
+//					dh.insertSpeaker(s);
+//				}
+//				for (Session s : dlv2.getParsedSessions()) {
+//					dh.insertSession(s);
+//				}
+//			} finally {
+//				dh.close();
+//			}
+//			return null;
+//		}
+//
+//
+//		@Override
+//		protected void onPostExecute(Void result) {
+//			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData.onPostExecute()");
+//
+//			if (activity != null) {
+//				activity.signalComplete();
+//			}
+//			super.onPostExecute(result);
+//		}
+//
+//		void detach() {
+//			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData detaching from activity");
+//			activity = null;
+//		}
+//
+//		void attach(StartActivity activity) {
+//			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData attaching to new activity");
+//			this.activity = activity;
+//		}
+//	}
 }

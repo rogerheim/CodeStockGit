@@ -17,10 +17,13 @@
 package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.AndroidCharacter;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.aremaitch.codestock2010.CSPreferencesActivity;
+import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 
 /**
@@ -33,6 +36,7 @@ public class StartActivityMenuManager {
     private static final String START_OPTIONS_STRING = "Options";
     private static final int START_OPTIONS_ICON = android.R.drawable.ic_menu_preferences;
     private static final int START_MENU_OPTIONS = Menu.FIRST;
+    private static final int START_MENU_REFRESH_DATA = Menu.FIRST + 1;
 
     private Context _ctx;
 
@@ -43,6 +47,7 @@ public class StartActivityMenuManager {
     //TODO: Refactor to use command pattern instead of having the menu selection code here. Need wrapper.
     public boolean createStartActivityOptionsMenu(Menu menu) {
         menu.add(0, START_MENU_OPTIONS, 0, START_OPTIONS_STRING).setIcon(START_OPTIONS_ICON);
+        menu.add(0, START_MENU_REFRESH_DATA, 0, "Refresh").setIcon(R.drawable.ic_menu_refresh);
         return true;
     }
 
@@ -50,6 +55,10 @@ public class StartActivityMenuManager {
         switch (item.getItemId()) {
             case START_MENU_OPTIONS:
                 CSPreferencesActivity.startMe(_ctx);
+                return true;
+
+            case START_MENU_REFRESH_DATA:
+                CSAgendaDownloadSvc.startMe(_ctx);
                 return true;
 
         }
