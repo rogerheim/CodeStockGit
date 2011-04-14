@@ -121,26 +121,19 @@ public class TwitterTrackSvc extends Service {
     }
 
     private long getLastMaxTweetId() {
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        return prefs.getLong(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF, -1);
+        return new CSPreferenceManager(this).getLastRetrievedTweetId();
     }
 
     private void updateLastTweetId(long lastTweetId) {
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor ed = prefs.edit();
-        ed.putLong(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF, lastTweetId);
-        ed.commit();
+        new CSPreferenceManager(this).setLastRetrievedTweetId(lastTweetId);
     }
 
     private void getTwitterAccessToken() {
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         this._consumerKey = this.getString(R.string.twitter_oauth_key);
         this._consumerSecret = this.getString(R.string.twitter_oauth_secret);
-        this._accessToken = prefs.getString(TwitterConstants.ACCESS_TOKEN_PREF, "");
-        this._accessTokenSecret = prefs.getString(TwitterConstants.ACCESS_TOKEN_SECRET_PREF, "");
+        CSPreferenceManager preferenceManager = new CSPreferenceManager(this);
+        this._accessToken = preferenceManager.getTwitterAccessToken();
+        this._accessTokenSecret = preferenceManager.getTwitterAccessTokenSecret();
     }
 
     class TwitterStatusListener implements StatusListener {

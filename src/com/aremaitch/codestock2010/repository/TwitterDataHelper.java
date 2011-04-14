@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.library.TwitterAvatarManager;
 import com.aremaitch.codestock2010.library.TwitterConstants;
 import com.aremaitch.utils.ACLogger;
@@ -107,10 +108,7 @@ public class TwitterDataHelper {
         //  Twitter.)
         //  Also, nuke the tweet pictures.
 
-        SharedPreferences.Editor ed = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
-        ed.remove(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF);
-        ed.remove(TwitterConstants.LAST_RETRIEVED_TWEETID_PREF);
-        ed.commit();
+        new CSPreferenceManager(_ctx).removeLastTweetId();
 
         TwitterAvatarManager tam = new TwitterAvatarManager(_ctx);
         tam.nukeAllAvatars();

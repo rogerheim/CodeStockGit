@@ -114,7 +114,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         Command yesCommand = new Command() {
             @Override
             public void execute() {
-                new TwitterOAuth().forgetOAuthTokens(getPreferenceManager().getSharedPreferences());
+                new TwitterOAuth().forgetOAuthTokens(CSPreferencesActivity.this);
             }
         };
 

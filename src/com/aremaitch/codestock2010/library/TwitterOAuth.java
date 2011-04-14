@@ -16,6 +16,7 @@
 
 package com.aremaitch.codestock2010.library;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -79,20 +80,12 @@ public class TwitterOAuth {
         return twitterUser.getId();
     }
 
-    public void saveOAuthTokens(SharedPreferences prefs, String accessToken, String tokenSecret, String screenName) {
-        SharedPreferences.Editor ed = prefs.edit();
-        ed.putString(TwitterConstants.ACCESS_TOKEN_PREF, accessToken);
-        ed.putString(TwitterConstants.ACCESS_TOKEN_SECRET_PREF, tokenSecret);
-        ed.putString(TwitterConstants.ACCESS_TOKEN_SCREENNAME_PREF, screenName);
-        ed.commit();
+    public void saveOAuthTokens(Context ctx, String accessToken, String tokenSecret, String screenName) {
+        new CSPreferenceManager(ctx).setTwitterOAuthData(accessToken, tokenSecret, screenName);
     }
 
-    public void forgetOAuthTokens(SharedPreferences prefs) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(TwitterConstants.ACCESS_TOKEN_PREF)
-            .remove(TwitterConstants.ACCESS_TOKEN_SECRET_PREF)
-            .remove(TwitterConstants.ACCESS_TOKEN_SCREENNAME_PREF)
-            .commit();
+    public void forgetOAuthTokens(Context ctx) {
+        new CSPreferenceManager(ctx).removeTwitterOAuthData();
     }
 
 

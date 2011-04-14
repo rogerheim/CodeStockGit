@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.library.TwitterConstants;
 
 /**
@@ -43,10 +44,7 @@ public class DatabaseCleanup {
         _dh.cleanUpDeletedTweets();
 
         //  Clean up old tweets based on user's preference
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_ctx);
-        SharedPreferences prefs = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        int daysToKeep = Integer.parseInt(prefs.getString(TwitterConstants.TWEET_DAYS_TO_KEEP_PREF, "21"));
-        _dh.cleanUpOldTweets(daysToKeep);
+        _dh.cleanUpOldTweets(new CSPreferenceManager(_ctx).getTweetDaysToKeep());
         _dh.close();
     }
 }

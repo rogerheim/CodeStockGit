@@ -39,7 +39,6 @@ import android.webkit.WebViewClient;
 
 public class OAuthActivity extends Activity {
 
-	SharedPreferences prefs;
 	WebView wv;
 	TwitterOAuth toa = null;
 
@@ -55,8 +54,6 @@ public class OAuthActivity extends Activity {
         setHeaderText();
 
 	    toa = new TwitterOAuth();
-//        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         Intent i = this.getIntent();
         if (i.getData() == null) {
             try {
@@ -83,7 +80,7 @@ public class OAuthActivity extends Activity {
 			Uri uri = Uri.parse(url);
             if (uri != null && uri.getScheme().equalsIgnoreCase(Uri.parse(TwitterConstants.OAUTH_CALLBACK_URL).getScheme())) {
 
-                toa.saveOAuthTokens(prefs, toa.getAccessToken(), toa.getTokenSecret(), toa.getTwitterUserScreenName());
+                toa.saveOAuthTokens(OAuthActivity.this, toa.getAccessToken(), toa.getTokenSecret(), toa.getTwitterUserScreenName());
                 OAuthActivity.this.finish();
             } else {
                 view.loadUrl(url);
@@ -96,7 +93,8 @@ public class OAuthActivity extends Activity {
             super.onReceivedError(view, errorCode, description, failingUrl);
         }
 
-        @Override
+
+//        @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
             handler.proceed();
         }

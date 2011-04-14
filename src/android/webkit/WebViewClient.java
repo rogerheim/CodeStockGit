@@ -61,7 +61,7 @@ public class WebViewClient {
      * Notify the host application that a page has finished loading. This method
      * is called only for main frame. When onPageFinished() is called, the
      * rendering picture may not be updated yet. To get the notification for the
-     * new Picture, use {@link WebView.PictureListener#onNewPicture}.
+     * new Picture, use .
      * 
      * @param view The WebView that is initiating the callback.
      * @param url The url of the page.

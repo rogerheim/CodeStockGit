@@ -79,9 +79,7 @@ public class TweetDisplayManager {
     public void startTweetDisplayTimer() {
         ACLogger.info(CSConstants.LOG_TAG, "starting tweet display timer");
 
-        _lastDisplayedTweetID = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            .getLong(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF, 0);
-
+        _lastDisplayedTweetID = new CSPreferenceManager(_ctx).getLastDisplayedTweetId();
         tmr = new Timer();
         tmr.scheduleAtFixedRate(createTimerTask(), new Date(), _tweetDisplayInterval);
     }
@@ -131,11 +129,7 @@ public class TweetDisplayManager {
     }
 
     private void saveLastDisplayedTweetID(long lastDisplayedTweetID) {
-        SharedPreferences.Editor editor = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
-        editor.putLong(TwitterConstants.LAST_DISPLAYED_TWEETID_PREF, lastDisplayedTweetID);
-        editor.commit();
-
-
+        new CSPreferenceManager(_ctx).setLastDisplayedTweetId(lastDisplayedTweetID);
     }
 
     //  Changed name from inflateTweetView because we aren't actually 'inflating' anything.

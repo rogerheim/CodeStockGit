@@ -105,7 +105,7 @@ public class MySessionsActivity extends Activity
 		//	the scanner.
 		//	Userid is passed into the activity via an extra in the Intent.
 		Intent i = getIntent();
-		userid = i.getLongExtra(getString(R.string.shared_prefs_userid), 0);
+		userid = i.getLongExtra(CSConstants.SCHEDULE_BUILDER_USERID_PREF, 0);
 		
 		dlg = new ProgressDialog(this);
 		

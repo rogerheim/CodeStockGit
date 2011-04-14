@@ -38,7 +38,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aremaitch.codestock2010.datadownloader.DownloaderV2;
+
 import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
@@ -58,7 +58,6 @@ import com.google.zxing.integration.android.IntentResult;
 //	Beginning revisions for 2011
 
 public class StartActivity extends Activity {
-	private static final int MENU_REFRESH = Menu.FIRST;
 
 //	RefreshCodeStockData task = null;
 	ProgressDialog _progress = null;
@@ -147,8 +146,8 @@ public class StartActivity extends Activity {
     protected void onResume() {
         BackgroundTaskManager btm = new BackgroundTaskManager(this);
         btm.cancelAllRecurringTasks();
-        SharedPreferences prefs = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        if (prefs.getBoolean(TwitterConstants.TWITTER_ENABLED_PREF, false)) {
+
+        if (new CSPreferenceManager(this).isTwitterUpdateEnabled()) {
             btm.setDBCleanupTask();
             btm.setRecurringTweetScan();
         }
@@ -172,15 +171,15 @@ public class StartActivity extends Activity {
 	}
 
     private void startTweetDisplay() {
-        SharedPreferences settings = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        if (settings.getBoolean(TwitterConstants.TWITTER_ENABLED_PREF, false)) {
-            int displaySeconds = Integer.parseInt(settings.getString(TwitterConstants.TWEET_DISPLAY_DURATION_PREF, "10"));
+        CSPreferenceManager preferenceManager = new CSPreferenceManager(this);
+
+        if (preferenceManager.isTwitterUpdateEnabled()) {
             tdm = new TweetDisplayManager(this,
                     AnimationUtils.loadAnimation(this, R.anim.tweet_fade_in),
                     AnimationUtils.loadAnimation(this, R.anim.tweet_fade_out),
                     findViewById(R.id.tweet_view_0),
                     findViewById(R.id.tweet_view_1),
-                    displaySeconds);
+                    preferenceManager.getTweetDisplayDuration());
             tdm.startTweetDisplayTimer();
         }
     }
@@ -274,8 +273,7 @@ public class StartActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				ACLogger.info(CSConstants.LOG_TAG, "Starred button onClick");
-				SharedPreferences settings = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-				long userid = settings.getLong(getString(R.string.shared_prefs_userid), 0);
+				long userid = new CSPreferenceManager(StartActivity.this).getScheduleUserId();
 				if (userid == 0) {
 					promptUserToScanQRCode();
 				} else {
@@ -285,21 +283,6 @@ public class StartActivity extends Activity {
 			}
 		});
 		
-		
-		
-		
-		ImageButton creditsButton = (ImageButton) findViewById(R.id.credits_imagebutton);
-		creditsButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				ACLogger.info(CSConstants.LOG_TAG, "Credits button onClick");
-				Intent i = new Intent();
-				i.setAction(getString(R.string.about_intent_action))
-					.addCategory(getString(R.string.about_intent_category));
-				startActivity(i);
-			}
-		});
 	}
 	
 	private void promptUserToScanQRCode() {
@@ -358,9 +341,8 @@ public class StartActivity extends Activity {
 	private void parseWebsiteLink(String link) {
 		if (link.lastIndexOf("id=") != -1) {
 			Long userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
-			SharedPreferences.Editor editor = getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
-			editor.putLong(getString(R.string.shared_prefs_userid), userid);
-			editor.commit();
+
+            new CSPreferenceManager(this).setScheduleUserId(userid);
 			startMySessions(userid);
 		}
 	}
@@ -370,76 +352,8 @@ public class StartActivity extends Activity {
 		Intent i = new Intent();
 		i.setAction(getString(R.string.mysessions_intent_action))
 			.addCategory(Intent.CATEGORY_DEFAULT)
-			.putExtra(getString(R.string.shared_prefs_userid), userid);
+			.putExtra(CSConstants.SCHEDULE_BUILDER_USERID_PREF, userid);
 		startActivity(i);
 	}
 
-//	void signalComplete() {
-//		ACLogger.info(CSConstants.LOG_TAG, "StartActivity received RefreshCodeStockData complete signal");
-//		clearProgressDialog();
-//		task = null;
-//	}
-	
-//	public class RefreshCodeStockData extends AsyncTask<Void, Void, Void> {
-//
-//		StartActivity activity = null;
-//		DownloaderV2 dlv2 = null;
-//
-//		public RefreshCodeStockData(StartActivity activity) {
-//			attach(activity);
-//		}
-//
-//
-//		@Override
-//		protected Void doInBackground(Void... arg0) {
-//			ACLogger.info(CSConstants.LOG_TAG, "Starting RefreshCodeStockData.doInBackground()");
-//			//			dl = new Downloader(_act, _act.getString(R.string.json_data_url));
-//			dlv2 = new DownloaderV2(getApplicationContext(),
-//					getString(R.string.json_data_rooms_url_v2),
-//					getString(R.string.json_data_speakers_url_v2),
-//					getString(R.string.json_data_sessions_url_v2));
-//			dlv2.getCodeStockData();
-//
-//			DataHelper dh = new DataHelper(getApplicationContext());
-//			dh.clearAllData();
-//			try {
-//				for (Track t : dlv2.getParsedTracks()) {
-//					dh.insertTrack(t);
-//				}
-//				for (ExperienceLevel l : dlv2.getParsedLevels()) {
-//					dh.insertXPLevel(l);
-//				}
-//				for (Speaker s : dlv2.getParsedSpeakers()) {
-//					dh.insertSpeaker(s);
-//				}
-//				for (Session s : dlv2.getParsedSessions()) {
-//					dh.insertSession(s);
-//				}
-//			} finally {
-//				dh.close();
-//			}
-//			return null;
-//		}
-//
-//
-//		@Override
-//		protected void onPostExecute(Void result) {
-//			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData.onPostExecute()");
-//
-//			if (activity != null) {
-//				activity.signalComplete();
-//			}
-//			super.onPostExecute(result);
-//		}
-//
-//		void detach() {
-//			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData detaching from activity");
-//			activity = null;
-//		}
-//
-//		void attach(StartActivity activity) {
-//			ACLogger.info(CSConstants.LOG_TAG, "RefreshCodeStockData attaching to new activity");
-//			this.activity = activity;
-//		}
-//	}
 }

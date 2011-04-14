@@ -120,7 +120,5 @@
 	<string name="agenda_intent_action">com.aremaitch.codestock2010.DISPLAY_AGENDA</string>
 	<string name="agenda_intent_category">android.intent.category.DEFAULT</string>
 	
-	<!-- Miscellaneous strings -->
-	<string name="shared_prefs_userid">userid</string>
-	
+
 </resources>

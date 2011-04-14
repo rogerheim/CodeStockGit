@@ -94,10 +94,8 @@ public class BackgroundTaskManager {
     public void setRecurringTweetScan() {
         ACLogger.info(CSConstants.LOG_TAG, "setting alarm for tweet scan");
 
-//        Calendar cal = Calendar.getInstance();
-        int updateMinutes = Integer.parseInt(_ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
-                .getString(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF, "5"));
-//        cal.add(Calendar.MINUTE, updateMinutes);
+
+        int updateMinutes = new CSPreferenceManager(_ctx).getTwitterUpdateInterval();
 
         getAlarmManager().setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + (MS_IN_ONE_MINUTE * updateMinutes),

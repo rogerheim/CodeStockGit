@@ -52,10 +52,7 @@ public class CSBroadcastReceiver extends BroadcastReceiver {
 
 
     private void handleBootCompletedEvent() {
-//        boolean runServiceInBackground = PreferenceManager.getDefaultSharedPreferences(_ctx)
-        boolean runServiceInBackground = _ctx.getSharedPreferences(CSConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE)
-                .getBoolean(TwitterConstants.TWITTER_BK_UPD_ENABLED_PREF, false);
-        if (runServiceInBackground) {
+        if (new CSPreferenceManager(_ctx).isTwitterUpdateEnabled()) {
             BackgroundTaskManager tm = new BackgroundTaskManager(_ctx);
             tm.setRecurringTweetScan();
             tm.setDBCleanupTask();
