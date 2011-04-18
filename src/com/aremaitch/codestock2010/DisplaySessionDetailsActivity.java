@@ -34,7 +34,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.view.View;
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CountdownManager;
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
@@ -75,6 +77,8 @@ public class DisplaySessionDetailsActivity extends Activity {
 	final String photoCachePath = CSConstants.BASE_CACHE_PATH + "speakerphotocache/";
 
 	GetSpeakerPhotoTask task = null;
+    private CountdownManager cMgr;
+    private View digitsContainer;
 
     //TODO: refactor photo downloading code into its own class/source file
 
@@ -99,11 +103,22 @@ public class DisplaySessionDetailsActivity extends Activity {
 			task.attach(this);
 		}
 		setupTwitterFilter();
-		
+		initializeCountdownClock();
 	}
 
-	
-	private void setupTwitterFilter() {
+    @Override
+    protected void onPause() {
+        stopCountdownClock();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        startCountdownClock();
+        super.onResume();
+    }
+
+    private void setupTwitterFilter() {
 		twitterFilter = new TransformFilter() {
 			
 			@Override
@@ -155,6 +170,20 @@ public class DisplaySessionDetailsActivity extends Activity {
 		return null;
 	}
 	
+    private void initializeCountdownClock() {
+        cMgr = new CountdownManager();
+        digitsContainer = findViewById(R.id.countdown_digit_container);
+    }
+
+    private void startCountdownClock() {
+        cMgr.initializeCountdown(digitsContainer, getAssets());
+        cMgr.start();
+    }
+
+    private void stopCountdownClock() {
+        cMgr.stop();
+    }
+
 	//	Since this is coming from a local database and is fairly quick we can probably
 	//	get away with not using an AsyncTask.
 	private Session getSessionInfo(long sessionid) {

@@ -26,10 +26,13 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import com.aremaitch.codestock2010.library.CSPreferenceManager;
+import com.aremaitch.codestock2010.library.CountdownManager;
 
 public class MapActivity extends Activity {
 
     FlingListener flingListener;
+    CountdownManager cMgr;
+    View digitsContainer;
 
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, MapActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -40,6 +43,8 @@ public class MapActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
+
+        initializeCountdownClock();
 
         //  Create fling listener and attach to the horizontal scroll viewer that contains the map.
         flingListener = new FlingListener(this);
@@ -53,6 +58,18 @@ public class MapActivity extends Activity {
 	}
 
     @Override
+    protected void onPause() {
+        stopCountdownClock();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        startCountdownClock();
+        super.onResume();
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         return flingListener.get_detector().onTouchEvent(event);
     }
@@ -61,6 +78,20 @@ public class MapActivity extends Activity {
     public void onBackPressed() {
         //  Override back handler to go back to start
         SessionTracksActivity.startMe(this);
+    }
+
+    private void initializeCountdownClock() {
+        cMgr = new CountdownManager();
+        digitsContainer = findViewById(R.id.countdown_digit_container);
+    }
+
+    private void startCountdownClock() {
+        cMgr.initializeCountdown(digitsContainer, getAssets());
+        cMgr.start();
+    }
+
+    private void stopCountdownClock() {
+        cMgr.stop();
     }
 
     private class FlingListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {

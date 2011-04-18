@@ -34,10 +34,12 @@ import android.widget.ExpandableListView.OnChildClickListener;
 
 import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.CSPreferenceManager;
+import com.aremaitch.codestock2010.library.CountdownManager;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
 import com.aremaitch.utils.ACLogger;
+import com.aremaitch.utils.NotImplementedException;
 
 //	Orientation change fires onPause, then onCreate, then onStart.
 //	Going to a new activity fires onPause then onStop. On return, onStart will be called
@@ -50,6 +52,8 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	private static ArrayList<Track> sessionTracks = null;
 	static DataHelper dh = null;
     FlingListener flingListener;
+    private CountdownManager cMgr;
+    private View digitsContainer;
 
 //	private static boolean layoutInflated = false;
 
@@ -65,6 +69,8 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
 		//	Orientation changes must re-inflate the layout.
 		setContentView(R.layout.sessiontracks_list);
+
+        initializeCountdownClock();
 
         flingListener = new FlingListener(this);
 
@@ -95,31 +101,52 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		//	ListView.
 		setListAdapter(new EfficientAdapter(this));
 	}
-	
 
-	private void createDataHelperIfNeeded() {
+    private void createDataHelperIfNeeded() {
 		if (dh == null) {
 			dh = new DataHelper(this);
 		}
-		
+
 		if (!dh.isOpen()) {
 			dh.openDatabase();
 		}
-		
+
 		if (sessionTracks == null) {
 			sessionTracks = dh.getListOfTracks();
 		}
 	}
-	
+
+
 	@Override
 	protected void onPause() {
-		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onPause");
+		stopCountdownClock();
 		super.onPause();
-		
+
 		//	Don't close the db onPause() but do close it onStop();
 	}
-	
-	@Override
+
+    @Override
+    protected void onResume() {
+        startCountdownClock();
+        super.onResume();
+    }
+
+
+    private void initializeCountdownClock() {
+        cMgr = new CountdownManager();
+        digitsContainer = findViewById(R.id.countdown_digit_container);
+    }
+
+    private void stopCountdownClock() {
+        cMgr.stop();
+    }
+
+    private void startCountdownClock() {
+        cMgr.initializeCountdown(digitsContainer, getAssets());
+        cMgr.start();
+    }
+
+    @Override
 	protected void onStart() {
 		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onStart");
 		super.onStart();

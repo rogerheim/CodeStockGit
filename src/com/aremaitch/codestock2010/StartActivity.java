@@ -53,7 +53,7 @@ public class StartActivity extends Activity {
 
 //	RefreshCodeStockData task = null;
 	ProgressDialog _progress = null;
-	CountdownManager cMgr = new CountdownManager();
+	CountdownManager cMgr;
     StartActivityMenuManager menuManager = new StartActivityMenuManager(this);
     TweetDisplayManager tdm = null;
 	View digitsContainer = null;
@@ -73,8 +73,8 @@ public class StartActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//setContentView(R.layout.startup_activity);
 		setContentView(R.layout.countdown_startup_activity);
-		
-		digitsContainer = findViewById(R.id.countdown_digit_container);
+
+        initializeCountdownClock();
 
 		//	Header is a standard include; change the text.
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
@@ -131,7 +131,7 @@ public class StartActivity extends Activity {
 	
 	@Override
 	protected void onPause() {
-		cMgr.stop();
+        stopCountdownClock();
         stopTweetDisplay();
 		super.onPause();
 	}
@@ -146,8 +146,7 @@ public class StartActivity extends Activity {
             btm.setRecurringTweetScan();
         }
 
-        cMgr.initializeCountdown(digitsContainer, getAssets());
-        cMgr.start();
+        startCountdownClock();
 
         startTweetDisplay();
         super.onResume();
@@ -163,6 +162,20 @@ public class StartActivity extends Activity {
 //		}
 		return null;
 	}
+
+    private void initializeCountdownClock() {
+        cMgr = new CountdownManager();
+        digitsContainer = findViewById(R.id.countdown_digit_container);
+    }
+
+    private void startCountdownClock() {
+        cMgr.initializeCountdown(digitsContainer, getAssets());
+        cMgr.start();
+    }
+
+    private void stopCountdownClock() {
+        cMgr.stop();
+    }
 
     private void startTweetDisplay() {
         CSPreferenceManager preferenceManager = new CSPreferenceManager(this);
