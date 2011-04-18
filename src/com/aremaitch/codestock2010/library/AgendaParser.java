@@ -139,7 +139,9 @@ public class AgendaParser {
                 newSession.setStartDate(convertToCalendar(sessionJSONObject.getString("StartTime")));
                 newSession.setTechnologies(sessionJSONObject.getString("Technology"));
                 newSession.setSessionTitle(sessionJSONObject.getString("Title"));
-                newSession.setTrack(findOrCreateTrack(sessionJSONObject.getString("Track") + savedArea));
+
+                //  Add a space between track and area.
+                newSession.setTrack(findOrCreateTrack(String.format("%s %s", sessionJSONObject.getString("Track"), savedArea)));
                 newSession.setVoteRank(sessionJSONObject.getString("VoteRank"));
 
                 parsedSessions.add(newSession);
