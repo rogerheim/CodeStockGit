@@ -180,12 +180,12 @@ public class DisplaySessionDetailsActivity extends Activity {
 		Linkify.addLinks(speakernametv, twitterPattern, twitterScheme, null, twitterFilter);
 		
 		sessiontitletv.setText(s.getSessionTitle());
-//		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT);
 		SimpleDateFormat df = new SimpleDateFormat(getString(R.string.standard_where_when_format_string));	//  Sat, June 26 2010 8:30 AM
 		
-		
-		sessionwhenwhere.setText(df.format(s.getStartDate().getTime()) + " " + 
-				getString(R.string.session_details_room_label) + s.getRoom());
+		//TODO: re-enable real when/where when schedule is set.
+        sessionwhenwhere.setText("TBD");
+//		sessionwhenwhere.setText(df.format(s.getStartDate().getTime()) + " " +
+//				getString(R.string.session_details_room_label) + s.getRoom());
 		
 		if (TextUtils.isEmpty(s.getSynopsis()) || s.getSynopsis().equalsIgnoreCase("null")) {
 			synopsistv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_synopsis_tba_msg) + "</i>"));
@@ -237,8 +237,6 @@ public class DisplaySessionDetailsActivity extends Activity {
 	}
 	
 	private void displaySpeakerPhoto(Drawable photo) {
-//		photo.setBounds(0, 0, 60, 60);
-//		presentedby.setCompoundDrawables(null, null, null, photo);
 		presentedby.setCompoundDrawablesWithIntrinsicBounds(null, null, null, photo);
 	}
 	
@@ -603,131 +601,5 @@ public class DisplaySessionDetailsActivity extends Activity {
 				
 			}
 		}
-
-//		private void savePhotoToCache(String fileName, byte[] data) {
-//			File cacheFile = getCachedPhotoName(fileName);
-//			FileOutputStream out = null;
-//			try {
-//				out = new FileOutputStream(cacheFile);
-//				out.write(data);
-//				out.flush();
-//			} catch (FileNotFoundException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			} finally {
-//				if (out != null) {
-//					try {
-//						out.close();
-//					} catch (Exception e) {
-//					}
-//				}
-//				
-//			}
-//					
-//		}
-		
-		
-//		private Drawable downloadSpeakerPhoto(URL theUrl) {
-//			InputStream is = null;
-//			BufferedInputStream bis = null;
-//			Drawable photo = null;
-//			
-//			try {
-//				URLConnection cn = theUrl.openConnection();
-//				int contentLength = cn.getContentLength();
-//				
-//				//	Why is getContentLength() returning -1? Something different in Gingerbread?
-//				ACLogger.info(getString(R.string.logging_tag), "Photo contentlength = " + String.valueOf(contentLength));
-//
-//				byte[] data = new byte[contentLength];
-//				
-//				is = cn.getInputStream();
-//				bis = new BufferedInputStream(is);
-//				int bytesRead = 0;
-//				int offset = 0;
-//				int totalBytes = 0;
-//				
-//				while (offset < contentLength) {
-//					bytesRead = bis.read(data, offset, data.length - offset);
-//					if (bytesRead == -1)
-//						break;
-//					offset += bytesRead;
-//					totalBytes += bytesRead;
-//				}
-//
-//				ACLogger.info(getString(R.string.logging_tag), "Got photo; total bytes = " + String.valueOf(totalBytes));
-//				
-//				//	If the external storage is ready, save the photo to the cache and return
-//				//	the photo from the cache.
-//				//	If the external storage is not ready, convert the byte array directly to a
-//				//	drawable.
-//				if (isExternalStorageReady()) {
-//					savePhotoToCache(stripFileName(theUrl.getFile()), data);
-//					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
-//				} else {
-//					photo = Drawable.createFromStream(new ByteArrayInputStream(data), "session_details_speaker_photo");
-//				}
-//				
-//			} catch (SocketTimeoutException e) {
-//				ACLogger.info(getString(R.string.logging_tag), "Timeout getting speaker photo: ");
-//				e.printStackTrace();
-//			} catch (Exception e) {
-//				ACLogger.error(getString(R.string.logging_tag), "Error getting speaker photo: ");
-//				e.printStackTrace();
-//			} finally {
-//				if (bis != null) {
-//					try {
-//						bis.close();
-//					} catch (Exception e) {
-//					}
-//				}
-//				if (is != null) {
-//					try {
-//						is.close();
-//					} catch (Exception e) {
-//					}
-//				}
-//			}
-//			return photo;
-//		}
-		
 	}
-	
-//	public class QuerySessionDetails extends AsyncTask<Void, Void, Session> {
-//
-//		long _sessionid = -1;
-//		ProgressDialog progress;
-//		
-//		public QuerySessionDetails(long sessionid) {
-//			_sessionid = sessionid;
-//		}
-//
-//		@Override
-//		protected void onPreExecute() {
-//			progress = ProgressDialog.show(DisplaySessionDetailsActivity.this, "CodeStock 2010", "Getting session...");
-//		}
-//		
-//		@Override
-//		protected Session doInBackground(Void... params) {
-//			DataHelper dh = new DataHelper(DisplaySessionDetailsActivity.this);
-//			Session s = null;
-//			try {
-//				s = dh.getSession(_sessionid);
-//			} finally {
-//				dh.close();
-//			}
-//			return s;
-//		}
-//		
-//		@Override
-//		protected void onPostExecute(Session result) {
-//			progress.dismiss();
-//			displaySessionInfo(result);
-//		}
-//
-//	}
-
-
-	
 }

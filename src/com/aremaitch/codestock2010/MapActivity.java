@@ -20,9 +20,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
+import com.aremaitch.codestock2010.library.CSPreferenceManager;
 
 public class MapActivity extends Activity {
+
+    FlingListener flingListener;
 
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, MapActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -34,9 +41,71 @@ public class MapActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
 
+        //  Create fling listener and attach to the horizontal scroll viewer that contains the map.
+        flingListener = new FlingListener(this);
+        HorizontalScrollView horizontalScrollView = (HorizontalScrollView)findViewById(R.id.map_horizontalscrollview);
+        horizontalScrollView.setOnTouchListener(flingListener);
+
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.map_title));
 		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
 		headerSubTitle.setText("");
 	}
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return flingListener.get_detector().onTouchEvent(event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //  Override back handler to go back to start
+        SessionTracksActivity.startMe(this);
+    }
+
+    private class FlingListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+        Context ctx;
+        GestureDetector detector;
+        int horizontalMovementThreshold;
+        int velocityThreshold;
+
+        FlingListener(Context ctx) {
+            this(ctx, null);
+        }
+
+        public FlingListener(Context ctx, GestureDetector detector) {
+            if (detector == null) {
+                detector = new GestureDetector(ctx, this);
+            }
+            this.ctx = ctx;
+            this.detector = detector;
+            CSPreferenceManager preferenceManager = new CSPreferenceManager(ctx);
+            velocityThreshold = preferenceManager.getFlingVelocityThreshold();
+            horizontalMovementThreshold = getWindowManager().getDefaultDisplay().getWidth() / preferenceManager.getFlingDistanceSensitivity();
+        }
+
+        @Override
+        public boolean onFling(MotionEvent startEvent, MotionEvent endEvent, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) >= velocityThreshold) {
+                //  Fling left; go back to home
+                if (startEvent.getX() > endEvent.getX() && startEvent.getX() - endEvent.getX() > horizontalMovementThreshold) {
+                    StartActivity.startMe(ctx);
+                } else if (startEvent.getX() < endEvent.getX() && endEvent.getX() - startEvent.getX() > horizontalMovementThreshold) {
+                    //  Fling right; finish and go back to sessions list
+                    SessionTracksActivity.startMe(ctx);
+                    overridePendingTransition(R.anim.activity_close_enter, R.anim.activity_close_exit);
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            return detector.onTouchEvent(motionEvent);
+        }
+
+        public GestureDetector get_detector() {
+            return detector;
+        }
+    }
 }

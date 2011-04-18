@@ -55,6 +55,9 @@ import android.widget.ViewFlipper;
 public class AgendaActivity extends Activity 
 	implements OnTouchListener, AdapterView.OnItemClickListener {
 
+    public static int AGENDA_FRIDAY = 1;
+    public static int AGENDA_SATURDAY = 2;
+    
 	ViewFlipper flipper;
 	private SimpleDateFormat dateFormatter;
 	float downXValue;
@@ -71,13 +74,15 @@ public class AgendaActivity extends Activity
 	
 	TextView view0header = null;
 	TextView view1header = null;
+    private static final String WHICH_DAY = "whichDay";
 
-    public static void startMe(Context ctx) {
+    public static void startMe(Context ctx, int whichDay) {
         //TODO: remove onTouch handling and arrow buttons
         
-        Intent i = new Intent(ctx, AgendaActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent i = new Intent(ctx, AgendaActivity.class).putExtra(AgendaActivity.WHICH_DAY, whichDay).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         ctx.startActivity(i);
     }
+    
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		ACLogger.info(CSConstants.LOG_TAG, "AgendaActivity onRetainNonConfigurationInstance");
@@ -94,6 +99,8 @@ public class AgendaActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.agenda_activity);
 
+        //TODO: Respect whichDay to display coming in from start intent.
+        
 		ACLogger.info(CSConstants.LOG_TAG, "AgendaActivity onCreate");
 
 		AgendaActivityInstanceData idata = (AgendaActivityInstanceData)getLastNonConfigurationInstance();
@@ -269,21 +276,26 @@ public class AgendaActivity extends Activity
 
 	
 	private void buildSessionStartTimes() {
+        int year = 2011;
+        int month = Calendar.JUNE;
+        int friday = 3;
+        int saturday = 4;
+
 		//	Bite me!  Months are zero based (Calendar.JANUARY = 0, 6 = Calendar.MAY)
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 8, 30));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 9, 50));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 11, 10));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 12, 30));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 13, 50));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 15, 10));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 25, 17, 45));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 8, 30));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 9, 50));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 11, 10));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 12, 30));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 13, 50));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 15, 10));
-		sessionStartTimes.add(createCalendar(2010, Calendar.JUNE, 26, 16, 30));
+		sessionStartTimes.add(createCalendar(year, month, friday, 8, 30));
+		sessionStartTimes.add(createCalendar(year, month, friday, 9, 50));
+		sessionStartTimes.add(createCalendar(year, month, friday, 11, 10));
+		sessionStartTimes.add(createCalendar(year, month, friday, 12, 30));
+		sessionStartTimes.add(createCalendar(year, month, friday, 13, 50));
+		sessionStartTimes.add(createCalendar(year, month, friday, 15, 10));
+		sessionStartTimes.add(createCalendar(year, month, friday, 17, 45));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 8, 30));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 9, 50));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 11, 10));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 12, 30));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 13, 50));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 15, 10));
+		sessionStartTimes.add(createCalendar(year, month, saturday, 16, 30));
 	}
 	
 	

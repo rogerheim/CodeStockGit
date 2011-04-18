@@ -25,9 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -35,6 +33,7 @@ import android.widget.TextView;
 import android.widget.ExpandableListView.OnChildClickListener;
 
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
@@ -50,19 +49,25 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	private static ArrayList<Track> sessionTracks = null;
 	static DataHelper dh = null;
+    FlingListener flingListener;
+
 //	private static boolean layoutInflated = false;
-	
+
+    public static void startMe(Context ctx) {
+        ctx.startActivity(new Intent(ctx, SessionTracksActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    }
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onCreate");
-		
 		super.onCreate(savedInstanceState);
 
 		createDataHelperIfNeeded();
 
 		//	Orientation changes must re-inflate the layout.
 		setContentView(R.layout.sessiontracks_list);
-		
+
+        flingListener = new FlingListener(this);
+
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.session_track_list_header_title));
 		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
@@ -82,7 +87,9 @@ public class SessionTracksActivity extends ExpandableListActivity {
 				return true;
 			}
 		});
-		
+
+        getExpandableListView().setOnTouchListener(flingListener);
+        
 		//	If you use the 'entries' setting in the xml layout the ListView will render the
 		//	list using its default styles. By using 'entries' you aren't associating the item view with the
 		//	ListView.
@@ -143,7 +150,65 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			dh.close();
 		}
 	}
-	
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return flingListener.get_detector().onTouchEvent(event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        StartActivity.startMe(this);
+    }
+
+
+
+    private class FlingListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+        Context ctx;
+        GestureDetector detector;
+        int horizontalMovementThreshold;
+        int velocityThreshold;
+
+        FlingListener(Context ctx) {
+            this(ctx, null);
+        }
+
+        public FlingListener(Context ctx, GestureDetector detector) {
+            if (detector == null) {
+                detector = new GestureDetector(ctx, this);
+            }
+            this.ctx = ctx;
+            this.detector = detector;
+            CSPreferenceManager preferenceManager = new CSPreferenceManager(ctx);
+            velocityThreshold = preferenceManager.getFlingVelocityThreshold();
+            horizontalMovementThreshold = getWindowManager().getDefaultDisplay().getWidth() / preferenceManager.getFlingDistanceSensitivity();
+        }
+
+        @Override
+        public boolean onFling(MotionEvent startEvent, MotionEvent endEvent, float velocityX, float velocityY) {
+            if (Math.abs(velocityX) >= velocityThreshold) {
+                //  Fling left; to to map
+                if (startEvent.getX() > endEvent.getX() && startEvent.getX() - endEvent.getX() > horizontalMovementThreshold) {
+                    MapActivity.startMe(ctx);
+                } else if (startEvent.getX() < endEvent.getX() && endEvent.getX() - startEvent.getX() > horizontalMovementThreshold) {
+                    //  Fling right; go back to home
+                    StartActivity.startMe(ctx);
+                    overridePendingTransition(R.anim.activity_close_enter, R.anim.activity_close_exit);
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            return detector.onTouchEvent(motionEvent);
+        }
+
+        public GestureDetector get_detector() {
+            return detector;
+        }
+    }
+
 	//	This technique of using a ViewHolder comes from 
 	//	<sdk_folder>\platforms\<platform>\samples\ApiDemos\src\com\example\android\apis\view\List14.java
 	
@@ -222,16 +287,11 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			}
 			holder.speakerNameTV.setText(ms.getSpeakerName());
 			
-//			DateFormat formatter = DateFormat.getDateTimeInstance();	// default format, default locale
-//			DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
-//			DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-//			DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-			
-			//	This one will result in "Friday, June 25, 2010 8:30 AM"
-//			DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT);
-			
-			holder.dateTimeTV.setText(formatter.format(ms.getStartDateTime().getTime()));
-			holder.roomTV.setText(ms.getRoom());
+            //TODO: re-enable when schedule is set
+//			holder.dateTimeTV.setText(formatter.format(ms.getStartDateTime().getTime()));
+            holder.dateTimeTV.setText("TBD");
+//			holder.roomTV.setText(ms.getRoom());
+            holder.roomTV.setText("TBD");
 			return convertView;
 		}
 
