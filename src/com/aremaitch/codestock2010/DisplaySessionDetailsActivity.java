@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.view.View;
+import com.aremaitch.codestock2010.library.CSCacheManager;
 import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.CountdownManager;
 import org.xml.sax.XMLReader;
@@ -437,8 +438,9 @@ public class DisplaySessionDetailsActivity extends Activity {
 	
 	
 	private class GetSpeakerPhotoTask extends AsyncTask<Void, Void, Drawable> {
-		static final int BUFFER_SIZE = 8192;
-		
+
+        //  4.18.11: Refactored cache manipulation logic from here into CSCacheManager class.
+
 		String _urlString;
 		DisplaySessionDetailsActivity activity = null;
 		
@@ -449,17 +451,19 @@ public class DisplaySessionDetailsActivity extends Activity {
 		
 		@Override
 		protected Drawable doInBackground(Void... params) {
+            //  Runs on background thread
 			Drawable photo = null;
-			
+            CSCacheManager cacheManager = new CSCacheManager(activity);
+
 			try {
 				URL theUrl = new URL(_urlString);
-				if (isSpeakerPhotoCached(stripFileName(theUrl.getFile()))) {
+                if (cacheManager.isSpeakerPhotoCached(stripFileName(theUrl.getFile()))) {
 					ACLogger.info(CSConstants.LOG_TAG, "Getting speaker photo from cache");
-					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
+					photo = cacheManager.getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
 				} else {
 					
 					ACLogger.info(CSConstants.LOG_TAG, "Downloading speaker photo from " + _urlString);
-					photo = downloadSpeakerPhoto(theUrl);
+					photo = downloadSpeakerPhoto(cacheManager, theUrl);
 				}
 			} catch (MalformedURLException e) {
 				photo = null;
@@ -467,7 +471,41 @@ public class DisplaySessionDetailsActivity extends Activity {
 			}
 			return photo;
 		}
-		
+
+        private String stripFileName(String longFileName) {
+            //	Takes /Assets/Speakers/guid.jpg and just returns guid.jpg
+            return longFileName.substring(longFileName.lastIndexOf('/') + 1);
+        }
+
+        private Drawable downloadSpeakerPhoto(CSCacheManager cacheManager, URL theUrl) {
+            Drawable photo = null;
+
+            HttpURLConnection cn = null;
+            InputStream is = null;
+
+            try {
+                cn = (HttpURLConnection) theUrl.openConnection();
+                is = new BufferedInputStream(cn.getInputStream());
+
+                //	If external storage is ready, save the stream to the cache, then return the photo from the cache.
+                //	If external storage isnot ready, get the photo directly from the stream.
+                //	In either event, return the photo.
+
+                if (cacheManager.isCacheReady()) {
+                    cacheManager.saveSpeakerPhotoToCache(stripFileName(theUrl.getFile()), is);
+                    photo = cacheManager.getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
+                } else {
+                    photo = Drawable.createFromStream(is, "session_details_speaker_photo");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                cn.disconnect();
+            }
+            return photo;
+        }
+
 		@Override
 		protected void onPostExecute(Drawable result) {
 			if (activity != null) {
@@ -479,156 +517,11 @@ public class DisplaySessionDetailsActivity extends Activity {
 		void detach() {
 			activity = null;
 		}
-		
+
+
 		void attach(DisplaySessionDetailsActivity activity) {
 			this.activity = activity;
 		}
-		
-		private String stripFileName(String longFileName) {
-			//	Takes /Assets/Speakers/guid.jpg and just returns guid.jpg
-			return longFileName.substring(longFileName.lastIndexOf('/') + 1);
-		}
-		
-		private Drawable getSpeakerPhotoFromCache(String speakerPhotoName) {
-			File photoPath = getCachedPhotoName(speakerPhotoName);
-			if (photoPath != null) {
-				return Drawable.createFromPath(photoPath.getAbsolutePath());
-			} else
-				return null;
 
-		}
-		
-
-		
-		/**
-		 * Returns a File object containing the full path to the cached speaker photo.<br>
-		 * Note the File object may not yet exist.
-		 * @param speakerPhotoName	The simple name of the photo file.
-		 * @return	The File object.
-		 */
-		private File getCachedPhotoName(String speakerPhotoName) {
-			File cachedFile = null;
-			
-			if (isExternalStorageReady()) {
-				//	The external storage is mounted and ready to go.
-				File cacheDirectory = new File(Environment.getExternalStorageDirectory(), photoCachePath);
-				boolean result = createPhotoCacheDirectoryIfNecessary(cacheDirectory);
-				if (result) {
-					cachedFile = new File(cacheDirectory, speakerPhotoName);
-				}
-			}
-			return cachedFile;
-		}
-		
-		private boolean isExternalStorageReady() {
-			String state = Environment.getExternalStorageState();
-			//ACLogger.info(getString(R.string.logging_tag), "External storage state is " + state);
-			
-			if (Environment.MEDIA_MOUNTED.equals(state)) {
-				return true;
-			}
-			return false;
-		}
-		
-		private boolean isSpeakerPhotoCached(String speakerPhotoName) {
-			boolean result = false;
-		
-			File photo = getCachedPhotoName(speakerPhotoName);
-			if (photo != null) {
-				result = photo.exists();
-			}
-			return result;
-		}
-		
-		private boolean createPhotoCacheDirectoryIfNecessary(File cacheDirectory) {
-			boolean result = true;
-			if (!cacheDirectory.exists()) {
-				//	All of a sudden writing to the sdcard is failing?
-				//	Because of re-targeting 2.1?
-				//	Yes! Prior to 1.6 an app didn't need specific permission to write to external
-				//	storage so by default all apps could (even if they were running on newer firmware.)
-				//	
-				result = cacheDirectory.mkdirs();
-			}
-			
-			//	Add a .nomedia file to the photo cache so the Gallery app does not index it.
-			File flag = new File(cacheDirectory, ".nomedia");
-			if (!flag.exists()) {
-				try {
-                    //noinspection ResultOfMethodCallIgnored
-                    flag.createNewFile();
-				} catch (IOException e) {
-					//	Not a fatal error; basically re-try on the next go round.
-				}
-			}
-			
-			return result;
-		}
-		
-
-		private Drawable downloadSpeakerPhoto(URL theUrl) {
-			Drawable photo = null;
-			
-			HttpURLConnection cn = null;
-			InputStream is = null;
-			
-			try {
-				cn = (HttpURLConnection) theUrl.openConnection();
-				is = new BufferedInputStream(cn.getInputStream());
-				
-				//	If external storage is ready, save the stream to the cache, then return the photo from the cache.
-				//	If external storage isnot ready, get the photo directly from the stream.
-				//	In either event, return the photo.
-				
-				if (isExternalStorageReady()) {
-					savePhotoToCache(stripFileName(theUrl.getFile()), is);
-					photo = getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
-				} else {
-					photo = Drawable.createFromStream(is, "session_details_speaker_photo");
-				}
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				cn.disconnect();
-			}
-			return photo;
-		}
-
-		private void savePhotoToCache(String fileName, InputStream stream) {
-			File cacheFile = getCachedPhotoName(fileName);
-			FileOutputStream out = null;
-			int totalBytes = 0;
-			
-			byte[] data = new byte[BUFFER_SIZE];
-			
-			try {
-				out = new FileOutputStream(cacheFile);
-				ACLogger.info(CSConstants.LOG_TAG, "Enter download photo loop");
-
-				int bytesRead = stream.read(data, 0, BUFFER_SIZE);
-				while (bytesRead > -1) {
-					out.write(data, 0, bytesRead);
-					totalBytes += bytesRead;
-					bytesRead = stream.read(data, 0, BUFFER_SIZE);
-				}
-				out.flush();
-				ACLogger.info(CSConstants.LOG_TAG, "Saved " + fileName + " of size " + String.valueOf(totalBytes));
-				
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (out != null) {
-					try {
-						out.close();
-					} catch (Exception e) {
-					}
-				}
-				
-			}
-		}
 	}
 }

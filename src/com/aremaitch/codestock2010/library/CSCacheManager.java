@@ -41,9 +41,12 @@ public class CSCacheManager {
     //      strictly concerned with where to store them, where to retrieve them from, and where
     //      to delete them from.
 
+    //  4.18.11: Added code to manage speaker photos (removed from DisplaySessionDetailsActivity class.)
+
     private Context _ctx;
     private static final File tweetAvatarCachePath = new File(CSConstants.BASE_CACHE_PATH, "twavatarcache");
     private static final File speakerPhotoCachePath = new File(CSConstants.BASE_CACHE_PATH, "speakerphotocache");
+    static final int BUFFER_SIZE = 8192;
 
 
     public CSCacheManager(Context _ctx) {
@@ -53,6 +56,37 @@ public class CSCacheManager {
 
     public boolean isCacheReady() {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+    }
+
+    public void saveSpeakerPhotoToCache(String fileName, InputStream inputStream) {
+        File cacheFile = getCachedSpeakerPhotoName(fileName);
+        FileOutputStream outputStream = null;
+        int totalBytes = 0;
+
+        byte[] data = new byte[BUFFER_SIZE];
+        try {
+            outputStream = new FileOutputStream(cacheFile);
+            ACLogger.info(CSConstants.LOG_TAG, "enter save photo loop");
+            int bytesRead = inputStream.read(data, 0, BUFFER_SIZE);
+            while (bytesRead > -1) {
+                outputStream.write(data, 0, bytesRead);
+                totalBytes += bytesRead;
+                bytesRead = inputStream.read(data, 0, BUFFER_SIZE);
+            }
+            outputStream.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public String saveImageToTweetAvatarCache(String fileName, Drawable image, Bitmap.CompressFormat format) throws IOException {
@@ -114,6 +148,37 @@ public class CSCacheManager {
         return new File(Environment.getExternalStorageDirectory(), speakerPhotoCachePath.getAbsolutePath());
     }
 
+    /**
+     * Is the passed speaker photo name already cached?
+     * @param speakerPhotoName The JPG name of the speaker photo.
+     * @return True if the speaker photo is already cached, false otherwise.
+     */
+    public boolean isSpeakerPhotoCached(String speakerPhotoName) {
+        boolean result = false;
+
+        File photo = getCachedSpeakerPhotoName(speakerPhotoName);
+        if (photo != null) {
+            result = photo.exists();
+        }
+        return result;
+    }
+
+    public Drawable getSpeakerPhotoFromCache(String speakerPhotoName) {
+        File photoPath = getCachedSpeakerPhotoName(speakerPhotoName);
+        if (photoPath != null) {
+            return Drawable.createFromPath(photoPath.getAbsolutePath());
+        } else
+            return null;
+    }
+
+    private File getCachedSpeakerPhotoName(String speakerPhotoName) {
+        File cachedFile = null;
+        if (isCacheReady()) {
+            cachedFile = new File(getSpeakerPhotoCachePath(), speakerPhotoName);
+        }
+        return cachedFile;
+    }
+
     public boolean deleteTweetAvatar(String fileName) {
         if (isCacheReady()) {
             return deleteTweetAvatar(new File(getTweetAvatarCachePath(), fileName));
@@ -147,7 +212,8 @@ public class CSCacheManager {
             }
 
             if (!getSpeakerPhotoCachePath().exists()) {
-                createCacheDirectory(getTweetAvatarCachePath());
+                //  Bug fix: was creating tweet avatar cache twice instead of speaker photo cache
+                createCacheDirectory(getSpeakerPhotoCachePath());
             }
         } catch (IOException e) {
             e.printStackTrace();
