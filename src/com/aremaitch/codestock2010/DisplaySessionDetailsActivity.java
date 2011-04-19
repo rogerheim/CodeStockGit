@@ -34,7 +34,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.text.*;
+import android.text.style.ImageSpan;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import com.aremaitch.codestock2010.library.CSCacheManager;
 import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.CountdownManager;
@@ -46,11 +50,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.style.TypefaceSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.TransformFilter;
@@ -63,7 +62,7 @@ import com.aremaitch.utils.ACLogger;
 
 public class DisplaySessionDetailsActivity extends Activity {
 
-//	private boolean _gotSession = false;
+    Session session;
 	TextView sessiontitletv = null;
 	TextView sessionwhenwhere = null;
 	TextView synopsistv = null;
@@ -71,7 +70,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 	TextView speakerbiotv = null;
 	TextView presentedby = null;
 	ScrollView scroller = null;
-	
+
 	TransformFilter twitterFilter = null;
 	Pattern twitterPattern = null;
 	String twitterScheme = "http://twitter.com/";	// I can't find a standard for calling a default Twitter activity
@@ -80,6 +79,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 	GetSpeakerPhotoTask task = null;
     private CountdownManager cMgr;
     private View digitsContainer;
+    private TextView aboutHeaderBar;
 
     //TODO: refactor photo downloading code into its own class/source file
 
@@ -137,26 +137,32 @@ public class DisplaySessionDetailsActivity extends Activity {
 		// the browser. Back will then return here. If we alreay have the session data, do not
 		// get it again.
 		super.onStart();
-		
+
+        RelativeLayout sessionDetailsContainer = (RelativeLayout)findViewById(R.id.session_details_layout);
+        scroller = (ScrollView) findViewById(R.id.session_details_scroller);
+
 		sessiontitletv = (TextView) findViewById(R.id.header_title);
 		sessionwhenwhere = (TextView) findViewById(R.id.header_subtitle);
-		synopsistv = (TextView) findViewById(R.id.session_details_synopsis_text);
-		speakernametv = (TextView) findViewById(R.id.session_details_speaker_name);
-		speakerbiotv = (TextView) findViewById(R.id.session_details_speaker_bio);
+        //  All of these are children of the relative layout.
+        //  Use the RelativeLayout as the base for findViewById.
+		synopsistv = (TextView) sessionDetailsContainer.findViewById(R.id.session_details_synopsis_text);
+		speakernametv = (TextView) sessionDetailsContainer.findViewById(R.id.session_details_speaker_name);
+		speakerbiotv = (TextView) sessionDetailsContainer.findViewById(R.id.session_details_speaker_bio);
+
 		sessiontitletv.setText("");
 		synopsistv.setText("");
 		speakernametv.setText("");
 		speakerbiotv.setText("");
 
-		presentedby = (TextView) findViewById(R.id.session_details_presentedby_label);
-		scroller = (ScrollView) findViewById(R.id.session_details_scroller);
+		presentedby = (TextView) sessionDetailsContainer.findViewById(R.id.session_details_presentedby_label);
+        aboutHeaderBar = (TextView) sessionDetailsContainer.findViewById(R.id.session_details_speakerbio_hdr);
 		Intent i = getIntent();
 		long sessionid = i.getLongExtra(CSConstants.SESSION_DETAILS_SESSIONID, -1);
 		if (sessionid >= 0) {
 
-			Session s = getSessionInfo(sessionid);
+			session = getSessionInfo(sessionid);
 
-			displaySessionInfo(s);
+			displaySessionInfo();
 
 		}
 	}
@@ -199,17 +205,17 @@ public class DisplaySessionDetailsActivity extends Activity {
 	}
 	
 	
-	private void displaySessionInfo(Session s) {
+	private void displaySessionInfo() {
 		
-		String fullName = s.getSpeaker().getSpeakerName();
-		if (!TextUtils.isEmpty(s.getSpeaker().getTwitterHandle()) && !s.getSpeaker().getTwitterHandle().equalsIgnoreCase("null")) {
-			fullName = fullName + " (@" + s.getSpeaker().getTwitterHandle() + ")";
+		String fullName = session.getSpeaker().getSpeakerName();
+		if (!TextUtils.isEmpty(session.getSpeaker().getTwitterHandle()) && !session.getSpeaker().getTwitterHandle().equalsIgnoreCase("null")) {
+			fullName = fullName + " (@" + session.getSpeaker().getTwitterHandle() + ")";
 		}
 		speakernametv.setText(fullName);
 		Linkify.addLinks(speakernametv, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);		// not phone numbers; too many false positives
 		Linkify.addLinks(speakernametv, twitterPattern, twitterScheme, null, twitterFilter);
 		
-		sessiontitletv.setText(s.getSessionTitle());
+		sessiontitletv.setText(session.getSessionTitle());
 		SimpleDateFormat df = new SimpleDateFormat(getString(R.string.standard_where_when_format_string));	//  Sat, June 26 2010 8:30 AM
 		
 		//TODO: re-enable real when/where when schedule is set.
@@ -217,10 +223,10 @@ public class DisplaySessionDetailsActivity extends Activity {
 //		sessionwhenwhere.setText(df.format(s.getStartDate().getTime()) + " " +
 //				getString(R.string.session_details_room_label) + s.getRoom());
 		
-		if (TextUtils.isEmpty(s.getSynopsis()) || s.getSynopsis().equalsIgnoreCase("null")) {
+		if (TextUtils.isEmpty(session.getSynopsis()) || session.getSynopsis().equalsIgnoreCase("null")) {
 			synopsistv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_synopsis_tba_msg) + "</i>"));
 		} else {
-			synopsistv.setText(Html.fromHtml(hackText(s.getSynopsis()), 
+			synopsistv.setText(Html.fromHtml(hackText(session.getSynopsis()),
 					null, 
 					new MyTagHandler()));
 		}
@@ -231,24 +237,27 @@ public class DisplaySessionDetailsActivity extends Activity {
 		//	Basically you get the image as a drawable then call setBounds() to define a bounding rectangle
 		//	around it.
 		//	Then call setCompoundDrawables() on the TextView.
-		
-		if (TextUtils.isEmpty(s.getSpeaker().getSpeakerBio()) || s.getSpeaker().getSpeakerBio().equalsIgnoreCase("null")) {
-			speakerbiotv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_bio_missing_msg) + "</i>"));
-		} else {
-			speakerbiotv.setText(Html.fromHtml(
-					hackText(s.getSpeaker().getSpeakerBio())
-					, null, new MyTagHandler()));
-		}
-		Linkify.addLinks(speakerbiotv, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
-		
-		//	This technique for Linkifying Twitter comes from http://www.indelible.org/ink/android-linkify/
-		
-		Linkify.addLinks(speakerbiotv, twitterPattern, twitterScheme, null, twitterFilter);
+
+        aboutHeaderBar.setText(String.format("About %s", session.getSpeaker().getSpeakerName()));
+
+//		if (TextUtils.isEmpty(s.getSpeaker().getSpeakerBio()) || s.getSpeaker().getSpeakerBio().equalsIgnoreCase("null")) {
+//			speakerbiotv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_bio_missing_msg) + "</i>"));
+//		} else {
+//			speakerbiotv.setText(Html.fromHtml(
+//					hackText(s.getSpeaker().getSpeakerBio())
+//					, null, new MyTagHandler()));
+//		}
+//		Linkify.addLinks(speakerbiotv, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+//
+//		//	This technique for Linkifying Twitter comes from http://www.indelible.org/ink/android-linkify/
+//
+//		Linkify.addLinks(speakerbiotv, twitterPattern, twitterScheme, null, twitterFilter);
 
 		
-		String speakerPhotoUrl = s.getSpeaker().getSpeakerPhotoUrl();
+		String speakerPhotoUrl = session.getSpeaker().getSpeakerPhotoUrl();
 		if (TextUtils.isEmpty(speakerPhotoUrl) || speakerPhotoUrl.equalsIgnoreCase("null")) {
 			//	No photo
+            displaySpeakerPhoto(null);
 		} else {
 			//	Another option could be passing the 'presentedby' TextView to the AsyncTask (which will
 			//	save it as a WeakReference. Then the AsyncTask's onPostExecute() will get the TextView
@@ -267,7 +276,36 @@ public class DisplaySessionDetailsActivity extends Activity {
 	}
 	
 	private void displaySpeakerPhoto(Drawable photo) {
-		presentedby.setCompoundDrawablesWithIntrinsicBounds(null, null, null, photo);
+//		presentedby.setCompoundDrawablesWithIntrinsicBounds(null, null, null, photo);
+        //  Instead of placing the photo to the bottom of the presentedby field, place it to the
+        //  right of the speaker's biography.
+//        speakerbiotv.setCompoundDrawablesWithIntrinsicBounds(null, null, photo, null);
+
+        SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
+
+        if (photo != null) {
+            //  Have to give span something to latch onto
+            stringBuilder.append("  ");
+            photo.setBounds(0, 0, photo.getIntrinsicWidth(), photo.getIntrinsicHeight());
+            ImageSpan imageSpan = new ImageSpan(photo, ImageSpan.ALIGN_BOTTOM);
+            stringBuilder.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+
+        if (TextUtils.isEmpty(session.getSpeaker().getSpeakerBio()) || session.getSpeaker().getSpeakerBio().equalsIgnoreCase("null")) {
+            stringBuilder.append(Html.fromHtml("<i>" + getString(R.string.session_details_bio_missing_msg) + "</i>"));
+
+        } else {
+            stringBuilder.append(Html.fromHtml(hackText(session.getSpeaker().getSpeakerBio()), null, new MyTagHandler()));
+        }
+        speakerbiotv.setText(stringBuilder);
+
+        Linkify.addLinks(speakerbiotv, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+
+        //	This technique for Linkifying Twitter comes from http://www.indelible.org/ink/android-linkify/
+
+        Linkify.addLinks(speakerbiotv, twitterPattern, twitterScheme, null, twitterFilter);
+
 	}
 	
 	private String hackText(String textToHack) {

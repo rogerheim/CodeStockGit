@@ -42,8 +42,17 @@
 			android:paddingBottom="5dp"
 			>
 		
-		
-				
+
+            <TextView
+                android:id="@+id/session_details_abstract_hdr"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="3dp"
+                android:background="@color/DimGray"
+                android:textColor="@color/Snow"
+                android:text="Abstract"
+                />
+
 			<TextView
 				android:id="@+id/session_details_presentedby_label"
 				android:layout_width="wrap_content"
@@ -52,6 +61,7 @@
 				android:textStyle="bold"
 				android:layout_marginTop="5dp"
 				android:textColor="@color/Red"
+                android:layout_below="@id/session_details_abstract_hdr"
 				/>
 	
 			<TextView
@@ -64,26 +74,42 @@
 				android:text="Speaker Name"
 				/>
 				
-
+            <!--Add a little more top margin for twitter handles that wrap-->
 			<TextView
 				android:id="@+id/session_details_synopsis_text"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:layout_below="@id/session_details_presentedby_label"
-				android:layout_marginTop="8dp"
+				android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"
 				android:textColor="@color/Black"
 				android:text="Session synopsis goes here"
 				/>
+
+            <TextView
+                android:id="@+id/session_details_speakerbio_hdr"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="3dp"
+                android:background="@color/DimGray"
+                android:textColor="@color/Snow"
+                android:layout_below="@id/session_details_synopsis_text"
+                android:text="About"
+                />
 
 			<TextView
 				android:id="@+id/session_details_speaker_bio"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/session_details_synopsis_text"
+				android:layout_below="@id/session_details_speakerbio_hdr"
 				android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
 				android:textColor="@color/Black"
 				android:text="Speaker bio goes here"
 				/>
+
+
+
 							
 		</RelativeLayout>
 	</ScrollView>
