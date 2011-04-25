@@ -39,9 +39,7 @@ import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import com.aremaitch.codestock2010.library.CSCacheManager;
-import com.aremaitch.codestock2010.library.CSConstants;
-import com.aremaitch.codestock2010.library.CountdownManager;
+import com.aremaitch.codestock2010.library.*;
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
@@ -80,6 +78,7 @@ public class DisplaySessionDetailsActivity extends Activity {
     private CountdownManager cMgr;
     private View digitsContainer;
     private TextView aboutHeaderBar;
+    QuickActionMenuManager qaMgr;
 
     //TODO: refactor photo downloading code into its own class/source file
 
@@ -109,12 +108,15 @@ public class DisplaySessionDetailsActivity extends Activity {
 
     @Override
     protected void onPause() {
+        qaMgr.destroyQuickActionMenu();
         stopCountdownClock();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
+        qaMgr.initializeQuickActionMenu();
         startCountdownClock();
         super.onResume();
     }

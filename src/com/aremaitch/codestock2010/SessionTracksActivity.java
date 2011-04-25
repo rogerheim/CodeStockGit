@@ -71,7 +71,6 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		//	Orientation changes must re-inflate the layout.
 		setContentView(R.layout.sessiontracks_list);
 
-        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
         initializeCountdownClock();
 
 
