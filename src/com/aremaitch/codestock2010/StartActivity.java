@@ -60,7 +60,6 @@ public class StartActivity extends Activity {
 	View digitsContainer = null;
     QuickActionMenuManager qaMgr = null;
 
-//    FlingListener flingListener;
 
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -91,7 +90,6 @@ public class StartActivity extends Activity {
 //		task = (RefreshCodeStockData)getLastNonConfigurationInstance();
 		
 		boolean databaseIsEmpty = false;
-//        flingListener = new FlingListener(this);
 
 		
 //		if (task != null) {
@@ -369,62 +367,4 @@ public class StartActivity extends Activity {
 			.putExtra(CSConstants.SCHEDULE_BUILDER_USERID_PREF, userid);
 		startActivity(i);
 	}
-
-
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        return flingListener.get_detector().onTouchEvent(event);
-//    }
-
-    private class FlingListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
-        Context ctx;
-        GestureDetector detector;
-        int velocityThreshold;
-        int horizontalMovementThreshold;
-
-        public FlingListener(Context ctx) {
-            this(ctx, null);
-        }
-
-        public FlingListener(Context ctx, GestureDetector detector) {
-            if (detector == null) {
-                detector = new GestureDetector(ctx, this);
-            }
-            this.ctx = ctx;
-            this.detector = detector;
-
-            CSPreferenceManager prefMgr = new CSPreferenceManager(ctx);
-            velocityThreshold = prefMgr.getFlingVelocityThreshold();
-            horizontalMovementThreshold = getWindowManager().getDefaultDisplay().getWidth() / prefMgr.getFlingDistanceSensitivity();
-        }
-
-
-        @Override
-        public boolean onFling(MotionEvent startEvent, MotionEvent endEvent, float velocityX, float velocityY) {
-            if (Math.abs(velocityX) >= velocityThreshold) {
-                if (startEvent.getX() > endEvent.getX() && startEvent.getX() - endEvent.getX() > horizontalMovementThreshold) {
-                    // fling to left; go to session tracks
-                    SessionTracksActivity.startMe(ctx);
-                } else if (startEvent.getX() < endEvent.getX() && endEvent.getX() - startEvent.getX() > horizontalMovementThreshold) {
-                    // fling to right; go to map activity
-                    MapActivity.startMe(ctx);
-
-                    //  This should be the reverse of the normal animation. Normally this would be
-                    //  activity_open_enter and activity_open_exit. Reverse it to use
-                    //  activity_close_enter and activity_close_exit.
-                    overridePendingTransition(R.anim.activity_close_enter, R.anim.activity_close_exit);
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            return detector.onTouchEvent(motionEvent);
-        }
-
-        public GestureDetector get_detector() {
-            return detector;
-        }
-    }
 }

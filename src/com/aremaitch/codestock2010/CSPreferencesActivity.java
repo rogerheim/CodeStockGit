@@ -244,29 +244,6 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         tweetDaysToKeep.setDialogTitle("Days of Tweets to Keep");
         twitterCat.addPreference(tweetDaysToKeep);
 
-        PreferenceCategory navCat = new PreferenceCategory(this);
-        navCat.setTitle("Navigation");
-        root.addPreference(navCat);
-
-        ListPreference navFlingDistance = new ListPreference(this);
-        navFlingDistance.setKey(CSConstants.NAVIGATION_FLING_DISTANCE);
-        navFlingDistance.setDefaultValue("2");
-        navFlingDistance.setTitle("Fling Distance Sensitivity");
-        navFlingDistance.setSummary("How far to slide your finger to register a fling");
-        navFlingDistance.setEntries(R.array.navigation_fling_distance_entries);
-        navFlingDistance.setEntryValues(R.array.navigation_fling_distance_entryvalues);
-        navFlingDistance.setDialogTitle("Fling Distance");
-        navCat.addPreference(navFlingDistance);
-
-        ListPreference navFlingSpeed = new ListPreference(this);
-        navFlingSpeed.setKey(CSConstants.NAVIGATION_FLING_SPEED);
-        navFlingSpeed.setDefaultValue("1000");
-        navFlingSpeed.setTitle("Fling Speed Sensitivity");
-        navFlingSpeed.setSummary("How fast to slide your finger to register a fling");
-        navFlingSpeed.setEntries(R.array.navigation_fling_speed_entries);
-        navFlingSpeed.setEntryValues(R.array.navigation_fling_speed_entryvalues);
-        navFlingSpeed.setDialogTitle("Fling Speed");
-        navCat.addPreference(navFlingSpeed);
 
         PreferenceCategory toolsCat = new PreferenceCategory(this);
         toolsCat.setTitle("Tools");

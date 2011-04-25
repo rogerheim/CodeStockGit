@@ -52,7 +52,6 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	private static ArrayList<Track> sessionTracks = null;
 	static DataHelper dh = null;
-//    FlingListener flingListener;
     private CountdownManager cMgr;
     private View digitsContainer;
     QuickActionMenuManager qaMgr;
@@ -75,7 +74,6 @@ public class SessionTracksActivity extends ExpandableListActivity {
         qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
         initializeCountdownClock();
 
-//        flingListener = new FlingListener(this);
 
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.session_track_list_header_title));
@@ -97,8 +95,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			}
 		});
 
-//        getExpandableListView().setOnTouchListener(flingListener);
-        
+
 		//	If you use the 'entries' setting in the xml layout the ListView will render the
 		//	list using its default styles. By using 'entries' you aren't associating the item view with the
 		//	ListView.
@@ -185,63 +182,6 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		}
 	}
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        return flingListener.get_detector().onTouchEvent(event);
-//    }
-//
-//    @Override
-//    public void onBackPressed() {
-//        StartActivity.startMe(this);
-//    }
-
-
-
-    private class FlingListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
-        Context ctx;
-        GestureDetector detector;
-        int horizontalMovementThreshold;
-        int velocityThreshold;
-
-        FlingListener(Context ctx) {
-            this(ctx, null);
-        }
-
-        public FlingListener(Context ctx, GestureDetector detector) {
-            if (detector == null) {
-                detector = new GestureDetector(ctx, this);
-            }
-            this.ctx = ctx;
-            this.detector = detector;
-            CSPreferenceManager preferenceManager = new CSPreferenceManager(ctx);
-            velocityThreshold = preferenceManager.getFlingVelocityThreshold();
-            horizontalMovementThreshold = getWindowManager().getDefaultDisplay().getWidth() / preferenceManager.getFlingDistanceSensitivity();
-        }
-
-        @Override
-        public boolean onFling(MotionEvent startEvent, MotionEvent endEvent, float velocityX, float velocityY) {
-            if (Math.abs(velocityX) >= velocityThreshold) {
-                //  Fling left; to to map
-                if (startEvent.getX() > endEvent.getX() && startEvent.getX() - endEvent.getX() > horizontalMovementThreshold) {
-                    MapActivity.startMe(ctx);
-                } else if (startEvent.getX() < endEvent.getX() && endEvent.getX() - startEvent.getX() > horizontalMovementThreshold) {
-                    //  Fling right; go back to home
-                    StartActivity.startMe(ctx);
-                    overridePendingTransition(R.anim.activity_close_enter, R.anim.activity_close_exit);
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            return detector.onTouchEvent(motionEvent);
-        }
-
-        public GestureDetector get_detector() {
-            return detector;
-        }
-    }
 
 	//	This technique of using a ViewHolder comes from 
 	//	<sdk_folder>\platforms\<platform>\samples\ApiDemos\src\com\example\android\apis\view\List14.java

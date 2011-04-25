@@ -254,11 +254,4 @@ public class CSPreferenceManager {
         createSharedPreferences().edit().putLong(CSConstants.SCHEDULE_BUILDER_USERID_PREF, userId).commit();
     }
 
-    public int getFlingDistanceSensitivity() {
-        return Integer.parseInt(createSharedPreferences().getString(CSConstants.NAVIGATION_FLING_DISTANCE, "2"));
-    }
-
-    public int getFlingVelocityThreshold() {
-        return Integer.parseInt(createSharedPreferences().getString(CSConstants.NAVIGATION_FLING_SPEED, "1000"));
-    }
 }
