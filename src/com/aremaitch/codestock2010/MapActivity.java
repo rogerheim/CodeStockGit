@@ -27,12 +27,15 @@ import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.library.CountdownManager;
+import com.aremaitch.codestock2010.library.QuickActionMenu;
+import com.aremaitch.codestock2010.library.QuickActionMenuManager;
 
 public class MapActivity extends Activity {
 
     FlingListener flingListener;
     CountdownManager cMgr;
     View digitsContainer;
+    QuickActionMenuManager qaMgr;
 
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, MapActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -47,9 +50,9 @@ public class MapActivity extends Activity {
         initializeCountdownClock();
 
         //  Create fling listener and attach to the horizontal scroll viewer that contains the map.
-        flingListener = new FlingListener(this);
-        HorizontalScrollView horizontalScrollView = (HorizontalScrollView)findViewById(R.id.map_horizontalscrollview);
-        horizontalScrollView.setOnTouchListener(flingListener);
+//        flingListener = new FlingListener(this);
+//        HorizontalScrollView horizontalScrollView = (HorizontalScrollView)findViewById(R.id.map_horizontalscrollview);
+//        horizontalScrollView.setOnTouchListener(flingListener);
 
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.map_title));
@@ -59,26 +62,30 @@ public class MapActivity extends Activity {
 
     @Override
     protected void onPause() {
+        qaMgr.destroyQuickActionMenu();
         stopCountdownClock();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
+
+        qaMgr.initializeQuickActionMenu();
         startCountdownClock();
         super.onResume();
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return flingListener.get_detector().onTouchEvent(event);
-    }
-
-    @Override
-    public void onBackPressed() {
-        //  Override back handler to go back to start
-        SessionTracksActivity.startMe(this);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        return flingListener.get_detector().onTouchEvent(event);
+//    }
+//
+//    @Override
+//    public void onBackPressed() {
+//        //  Override back handler to go back to start
+//        SessionTracksActivity.startMe(this);
+//    }
 
     private void initializeCountdownClock() {
         cMgr = new CountdownManager();

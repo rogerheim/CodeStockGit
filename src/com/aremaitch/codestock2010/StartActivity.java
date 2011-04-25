@@ -32,6 +32,7 @@ import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +58,9 @@ public class StartActivity extends Activity {
     StartActivityMenuManager menuManager = new StartActivityMenuManager(this);
     TweetDisplayManager tdm = null;
 	View digitsContainer = null;
-    FlingListener flingListener;
+    QuickActionMenuManager qaMgr = null;
+
+//    FlingListener flingListener;
 
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, StartActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -88,7 +91,7 @@ public class StartActivity extends Activity {
 //		task = (RefreshCodeStockData)getLastNonConfigurationInstance();
 		
 		boolean databaseIsEmpty = false;
-        flingListener = new FlingListener(this);
+//        flingListener = new FlingListener(this);
 
 		
 //		if (task != null) {
@@ -131,6 +134,7 @@ public class StartActivity extends Activity {
 	
 	@Override
 	protected void onPause() {
+        qaMgr.destroyQuickActionMenu();
         stopCountdownClock();
         stopTweetDisplay();
 		super.onPause();
@@ -146,8 +150,9 @@ public class StartActivity extends Activity {
             btm.setRecurringTweetScan();
         }
 
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
+        qaMgr.initializeQuickActionMenu();
         startCountdownClock();
-
         startTweetDisplay();
         super.onResume();
     }
@@ -162,6 +167,8 @@ public class StartActivity extends Activity {
 //		}
 		return null;
 	}
+
+
 
     private void initializeCountdownClock() {
         cMgr = new CountdownManager();
@@ -364,10 +371,10 @@ public class StartActivity extends Activity {
 	}
 
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return flingListener.get_detector().onTouchEvent(event);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        return flingListener.get_detector().onTouchEvent(event);
+//    }
 
     private class FlingListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
         Context ctx;

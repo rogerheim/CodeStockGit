@@ -35,6 +35,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import com.aremaitch.codestock2010.library.CSConstants;
 import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.library.CountdownManager;
+import com.aremaitch.codestock2010.library.QuickActionMenuManager;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
@@ -51,9 +52,10 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	private static ArrayList<Track> sessionTracks = null;
 	static DataHelper dh = null;
-    FlingListener flingListener;
+//    FlingListener flingListener;
     private CountdownManager cMgr;
     private View digitsContainer;
+    QuickActionMenuManager qaMgr;
 
 //	private static boolean layoutInflated = false;
 
@@ -70,9 +72,10 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		//	Orientation changes must re-inflate the layout.
 		setContentView(R.layout.sessiontracks_list);
 
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
         initializeCountdownClock();
 
-        flingListener = new FlingListener(this);
+//        flingListener = new FlingListener(this);
 
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.session_track_list_header_title));
@@ -94,7 +97,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			}
 		});
 
-        getExpandableListView().setOnTouchListener(flingListener);
+//        getExpandableListView().setOnTouchListener(flingListener);
         
 		//	If you use the 'entries' setting in the xml layout the ListView will render the
 		//	list using its default styles. By using 'entries' you aren't associating the item view with the
@@ -119,6 +122,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
 	@Override
 	protected void onPause() {
+        qaMgr.destroyQuickActionMenu();
 		stopCountdownClock();
 		super.onPause();
 
@@ -127,6 +131,9 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
     @Override
     protected void onResume() {
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
+
+        qaMgr.initializeQuickActionMenu();
         startCountdownClock();
         super.onResume();
     }
@@ -178,15 +185,15 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		}
 	}
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return flingListener.get_detector().onTouchEvent(event);
-    }
-
-    @Override
-    public void onBackPressed() {
-        StartActivity.startMe(this);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        return flingListener.get_detector().onTouchEvent(event);
+//    }
+//
+//    @Override
+//    public void onBackPressed() {
+//        StartActivity.startMe(this);
+//    }
 
 
 
