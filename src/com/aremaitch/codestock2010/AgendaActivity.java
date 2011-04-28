@@ -16,6 +16,7 @@
 
 package com.aremaitch.codestock2010;
 
+import java.security.PrivilegedActionException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CountdownManager;
+import com.aremaitch.codestock2010.library.QuickActionMenuManager;
 import com.aremaitch.codestock2010.repository.AgendaSession;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
@@ -76,6 +79,11 @@ public class AgendaActivity extends Activity
 	TextView view1header = null;
     private static final String WHICH_DAY = "whichDay";
 
+    private CountdownManager cMgr;
+    private View digitsContainer;
+    private QuickActionMenuManager qaMgr;
+
+    //TODO: Same download options as in SessionTracksActivity
     public static void startMe(Context ctx, int whichDay) {
         //TODO: remove onTouch handling and arrow buttons
         
@@ -101,7 +109,8 @@ public class AgendaActivity extends Activity
 
         //TODO: Respect whichDay to display coming in from start intent.
         
-		ACLogger.info(CSConstants.LOG_TAG, "AgendaActivity onCreate");
+		initializeCountdownClock();
+
 
 		AgendaActivityInstanceData idata = (AgendaActivityInstanceData)getLastNonConfigurationInstance();
 		
@@ -185,7 +194,36 @@ public class AgendaActivity extends Activity
 		}
 	}
 
-	protected void showNextTimeslot() {
+    @Override
+    protected void onPause() {
+        qaMgr.destroyQuickActionMenu();
+        stopCountdownClock();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
+        qaMgr.initializeQuickActionMenu();
+        startCountdownClock();
+        super.onResume();
+    }
+
+    private void initializeCountdownClock() {
+        cMgr = new CountdownManager();
+        digitsContainer = findViewById(R.id.countdown_digit_container);
+    }
+
+    private void startCountdownClock() {
+        cMgr.initializeCountdown(digitsContainer, getAssets());
+        cMgr.start();
+    }
+
+    private void stopCountdownClock() {
+        cMgr.stop();
+    }
+
+    protected void showNextTimeslot() {
 		
 		currentSlotIndex++;
 		if (currentSlotIndex > maxSlotIndex)

@@ -26,7 +26,8 @@
     <string name="no_string">No</string>
     
     <string name="standard_where_when_format_string">EEE, MMM d yyyy h:mm a</string>
-    <string name="empty_db_msg">The current session list is empty\n\nWould you like to download the session list now?</string>
+    <!-- Changed this to be used for an empty session list -->
+    <string name="empty_db_msg">The current session list is empty.\n\nDid you download the session list?\n\nTouch here to download the current session list.</string>
     <string name="refresh_data_progress_dialog_msg">Downloading CodeStock agenda...</string>
     <string name="refresh_data_progress_dialog_title">CodeStock</string>
     <string name="update_db_progress_dialog_msg">Updating session list;\nPlease wait...</string>

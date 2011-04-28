@@ -15,12 +15,13 @@
 
 package com.aremaitch.codestock2010.library;
 
+import android.os.Environment;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.ImageView;
-import com.aremaitch.codestock2010.MapActivity;
-import com.aremaitch.codestock2010.R;
-import com.aremaitch.codestock2010.SessionTracksActivity;
-import com.aremaitch.codestock2010.StartActivity;
+import com.aremaitch.codestock2010.*;
+
+import java.util.Date;
 
 public class QuickActionMenuManager {
     private View anchorView;
@@ -50,6 +51,13 @@ public class QuickActionMenuManager {
             @Override
             public void onClick(View view) {
                 SessionTracksActivity.startMe(view.getContext());
+            }
+        }));
+        qam.addActionItem(new ActionItem("Agenda", null, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: have a pref that lets the user decide if the agenda should autoscroll to the next slot or should always start from the top.
+                AgendaActivity.startMe(view.getContext(), AgendaActivity.AGENDA_FRIDAY);
             }
         }));
         qam.setAnimationStyle(QuickActionMenu.ANIM_AUTO);

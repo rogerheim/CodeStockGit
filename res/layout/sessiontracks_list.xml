@@ -37,6 +37,28 @@
 		android:cacheColorHint="#00000000"
 		/>
 
-	<include layout="@layout/std_footer"/>		
+    <!-- This view is displayed instead of the listview if there is no data -->
+    <LinearLayout
+        android:id="@android:id/empty"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/empty_db_text"
+            android:text="@string/empty_db_msg"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:gravity="center"
+            android:textColor="@color/Black"
+            android:textSize="20sp"
+            />
+
+    </LinearLayout>
+
+
+	<include layout="@layout/std_footer"/>
 	
 </LinearLayout>

@@ -220,10 +220,10 @@ public class DisplaySessionDetailsActivity extends Activity {
 		sessiontitletv.setText(session.getSessionTitle());
 		SimpleDateFormat df = new SimpleDateFormat(getString(R.string.standard_where_when_format_string));	//  Sat, June 26 2010 8:30 AM
 		
-		//TODO: re-enable real when/where when schedule is set.
-        sessionwhenwhere.setText("TBD");
-//		sessionwhenwhere.setText(df.format(s.getStartDate().getTime()) + " " +
-//				getString(R.string.session_details_room_label) + s.getRoom());
+
+//        sessionwhenwhere.setText("TBD");
+		sessionwhenwhere.setText(df.format(session.getStartDate().getTime()) + " " +
+				getString(R.string.session_details_room_label) + session.getRoom());
 		
 		if (TextUtils.isEmpty(session.getSynopsis()) || session.getSynopsis().equalsIgnoreCase("null")) {
 			synopsistv.setText(Html.fromHtml("<i>" + getString(R.string.session_details_synopsis_tba_msg) + "</i>"));

@@ -19,10 +19,12 @@ package com.aremaitch.codestock2010.library;
 import android.app.*;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import com.aremaitch.codestock2010.R;
+import com.aremaitch.codestock2010.SessionTracksActivity;
 import com.aremaitch.codestock2010.StartActivity;
 import com.aremaitch.codestock2010.datadownloader.ConferenceAgendaDownloader;
 import com.aremaitch.codestock2010.repository.*;
@@ -110,7 +112,8 @@ public class CSAgendaDownloadSvc extends IntentService {
             NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(R.string.refresh_data_progress_dialog_msg, notification);
 
-
+            sendBroadcast(new Intent().setAction(SessionTracksActivity.AgendaDownloadCompleteReceiver.AGENDADOWNLOADCOMPLETE_INTENT));
+            
             stopForeground(true);
             ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "agenda download complete");
         }

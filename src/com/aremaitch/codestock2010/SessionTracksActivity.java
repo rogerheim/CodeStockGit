@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ExpandableListActivity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -32,10 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ExpandableListView.OnChildClickListener;
 
-import com.aremaitch.codestock2010.library.CSConstants;
-import com.aremaitch.codestock2010.library.CSPreferenceManager;
-import com.aremaitch.codestock2010.library.CountdownManager;
-import com.aremaitch.codestock2010.library.QuickActionMenuManager;
+import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
@@ -67,6 +66,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 		super.onCreate(savedInstanceState);
 
 		createDataHelperIfNeeded();
+        setListAdapter(new EfficientAdapter(this));
 
 		//	Orientation changes must re-inflate the layout.
 		setContentView(R.layout.sessiontracks_list);
@@ -94,13 +94,40 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			}
 		});
 
+        agendaDownloadCompleteReceiver = new AgendaDownloadCompleteReceiver();
 
-		//	If you use the 'entries' setting in the xml layout the ListView will render the
-		//	list using its default styles. By using 'entries' you aren't associating the item view with the
-		//	ListView.
-		setListAdapter(new EfficientAdapter(this));
+        if (getExpandableListAdapter().isEmpty()) {
+            ACLogger.info(CSConstants.LOG_TAG, "session list is empty");
+            TextView emptyMsg = (TextView) findViewById(R.id.empty_db_text);
+            emptyMsg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    registerAgendaDownloadCompleteReceiver();
+                    CSAgendaDownloadSvc.startMe(SessionTracksActivity.this);
+                }
+            });
+        }
 	}
 
+    public class AgendaDownloadCompleteReceiver extends BroadcastReceiver {
+
+        public static final String AGENDADOWNLOADCOMPLETE_INTENT = "com.aremaitch.codestock2010.AGENDADOWNLOADCOMPLETE";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //  Normally we will only receive this intent but it *is* possible for other, unrelated intents
+            //  to arrive here. Ignore everything but the one we are interested in.
+            if (intent.getAction().equals(AGENDADOWNLOADCOMPLETE_INTENT)) {
+                SessionTracksActivity.this.refreshList();
+            }
+        }
+    }
+
+    private void refreshList() {
+        createDataHelperIfNeeded();
+        ((EfficientAdapter) getExpandableListAdapter()).notifyDataSetChanged();
+    }
+    
     private void createDataHelperIfNeeded() {
 		if (dh == null) {
 			dh = new DataHelper(this);
@@ -110,14 +137,15 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			dh.openDatabase();
 		}
 
-		if (sessionTracks == null) {
+		if (sessionTracks == null || sessionTracks.size() == 0) {
 			sessionTracks = dh.getListOfTracks();
 		}
 	}
 
-
+    BroadcastReceiver agendaDownloadCompleteReceiver;
 	@Override
 	protected void onPause() {
+        unregisterAgendaDownloadCompleteReceiver();
         qaMgr.destroyQuickActionMenu();
 		stopCountdownClock();
 		super.onPause();
@@ -127,6 +155,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 
     @Override
     protected void onResume() {
+        registerAgendaDownloadCompleteReceiver();
         qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
 
         qaMgr.initializeQuickActionMenu();
@@ -134,7 +163,13 @@ public class SessionTracksActivity extends ExpandableListActivity {
         super.onResume();
     }
 
+    private void unregisterAgendaDownloadCompleteReceiver() {
+        unregisterReceiver(agendaDownloadCompleteReceiver);
+    }
 
+    private void registerAgendaDownloadCompleteReceiver() {
+        registerReceiver(agendaDownloadCompleteReceiver, new IntentFilter(AgendaDownloadCompleteReceiver.AGENDADOWNLOADCOMPLETE_INTENT));
+    }
     private void initializeCountdownClock() {
         cMgr = new CountdownManager();
         digitsContainer = findViewById(R.id.countdown_digit_container);
@@ -260,13 +295,14 @@ public class SessionTracksActivity extends ExpandableListActivity {
 			}
 			holder.speakerNameTV.setText(ms.getSpeakerName());
 			
-            //TODO: re-enable when schedule is set
-//			holder.dateTimeTV.setText(formatter.format(ms.getStartDateTime().getTime()));
-            holder.dateTimeTV.setText("TBD");
-//			holder.roomTV.setText(ms.getRoom());
-            holder.roomTV.setText("TBD");
+
+			holder.dateTimeTV.setText(formatter.format(ms.getStartDateTime().getTime()));
+//            holder.dateTimeTV.setText("TBD");
+			holder.roomTV.setText(ms.getRoom());
+//            holder.roomTV.setText("TBD");
 			return convertView;
 		}
+
 
 		
 		@Override
