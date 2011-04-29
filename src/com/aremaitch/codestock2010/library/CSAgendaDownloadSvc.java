@@ -59,7 +59,7 @@ public class CSAgendaDownloadSvc extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         // NB: This ctor for Notification is deprecated as of Honeycomb.
-        Notification notification = new Notification(R.drawable.yodaskull_2011_icon,
+        Notification notification = new Notification(R.drawable.yodaskull_2011_notify,
                 getString(R.string.refresh_data_progress_dialog_msg),
                 System.currentTimeMillis());
         
