@@ -37,5 +37,6 @@ public class CSConstants {
     public static final String SESSION_DETAILS_SESSIONID = "sessionid";
     public static final String SCHEDULE_BUILDER_USERID_PREF = "userid";
 
+    public static final String FIRST_RUN_PREF = "first_run_";
 
 }

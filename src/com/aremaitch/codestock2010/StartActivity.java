@@ -27,20 +27,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 
 import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.utils.ACLogger;
 import com.aremaitch.utils.Command;
 import com.aremaitch.utils.OnClickCommandWrapper;
+import com.aremaitch.utils.VersionUtils;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -91,7 +90,15 @@ public class StartActivity extends Activity {
 		
 		boolean databaseIsEmpty = false;
 
-		
+        //  Can't show a popup window until the activity's window is shown. Post a runnable
+        //  to the footer logo that will run on the ui thread when the layout is complete.
+        findViewById(R.id.footer_logo).post(new Runnable() {
+            @Override
+            public void run() {
+                checkAndShowTicklerPopup();
+            }
+        });
+
 //		if (task != null) {
 //			ACLogger.info(CSConstants.LOG_TAG, "StartActivity reconnecting to running RefreshCodeStockData task");
 //			//  We were restarted during a data load (probably because of an orientation change.)
@@ -129,8 +136,38 @@ public class StartActivity extends Activity {
 //                .show();
 //        }
 	}
-	
-	@Override
+
+
+
+    private void checkAndShowTicklerPopup() {
+        final CSPreferenceManager preferenceManager = new CSPreferenceManager(this);
+        VersionUtils vUtils = new VersionUtils(this);
+
+        final String versionString = vUtils.getApplicationVersion();
+        if (!preferenceManager.hasVersionRun(versionString)) {
+
+            //  Can I use CSPopupWindow directly? Need to pass it a view (inflated or resource id)
+            QuickActionMenu qam = new QuickActionMenu(findViewById(R.id.footer_logo));
+            qam.addActionItem(new ActionItem("Touch the CodeStock logo\r\nto display the navigation menu", null, new OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    preferenceManager.setVersionHasRun(versionString, true);
+                }
+            }));
+
+            qam.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    preferenceManager.setVersionHasRun(versionString, true);
+                }
+            });
+            qam.setAnimationStyle(QuickActionMenu.ANIM_AUTO);
+            qam.show();
+        }
+    }
+
+    @Override
 	protected void onPause() {
         qaMgr.destroyQuickActionMenu();
         stopCountdownClock();

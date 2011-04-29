@@ -254,4 +254,23 @@ public class CSPreferenceManager {
         createSharedPreferences().edit().putLong(CSConstants.SCHEDULE_BUILDER_USERID_PREF, userId).commit();
     }
 
+    /**
+     * Returns if the current version has been run before.
+     *
+     * @param versionString The version of the current instance.
+     * @return True if this is the first run for this version, false otherwise.
+     */
+    public boolean hasVersionRun(String versionString) {
+        return createSharedPreferences().getBoolean(CSConstants.FIRST_RUN_PREF + versionString, false);
+    }
+
+    /**
+     * Set if the current version has been run before.
+     *
+     * @param versionString The version of the current instance.
+     * @param value True if this version has been run before, false otherwise.
+     */
+    public void setVersionHasRun(String versionString, boolean value) {
+        createSharedPreferences().edit().putBoolean(CSConstants.FIRST_RUN_PREF + versionString, value).commit();
+    }
 }

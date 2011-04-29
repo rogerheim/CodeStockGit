@@ -21,6 +21,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
+import com.aremaitch.utils.VersionUtils;
 
 public class AboutActivity extends Activity {
 	@Override
@@ -34,13 +35,7 @@ public class AboutActivity extends Activity {
 		headerSubTitle.setText("");
 		
 		TextView versiontv = (TextView) this.findViewById(R.id.about_version);
-		try {
-			PackageManager pmgr = this.getPackageManager();
-			PackageInfo pi = pmgr.getPackageInfo(this.getPackageName(), 0);
-			
-			versiontv.setText(getString(R.string.about_version_template) + " " + pi.versionName);
-		} catch(Exception e) {
-			versiontv.setText(getString(R.string.about_bad_version));
-		}
+        VersionUtils vUtils = new VersionUtils(this);
+        versiontv.setText(getString(R.string.about_version_template) + " " + vUtils.getApplicationVersion());
 	}
 }
