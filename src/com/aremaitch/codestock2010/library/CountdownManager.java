@@ -23,7 +23,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.aremaitch.codestock2010.R;
-import com.aremaitch.utils.ACLogger;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
@@ -87,7 +86,6 @@ public class CountdownManager {
 
     void updateCountdownDisplay(int iDays, int iHours, int iMinutes, int iSeconds) {
 
-        ACLogger.info(CSConstants.LOG_TAG, String.format("updateCountdownDisplay: iDays=%d iHours=%d iMinutes=%d iSeconds=%d", iDays, iHours, iMinutes, iSeconds));
         tvdays.setText(df3digitsnolead.format(iDays));                // no leading zeros; number can be 3, 2, or 1 digit
         tvhours.setText(df2digitsnolead.format(iHours));              // no leading zeros; number can be 2 or 1 digit
         tvminutes.setText(df2digitsnolead.format(iMinutes));          // no leading zeros; number can be 2 or 1 digit
