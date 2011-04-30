@@ -273,4 +273,18 @@ public class CSPreferenceManager {
     public void setVersionHasRun(String versionString, boolean value) {
         createSharedPreferences().edit().putBoolean(CSConstants.FIRST_RUN_PREF + versionString, value).commit();
     }
+
+    /**
+     * Returns if the user wants the agenda to start on a slot based on the current date/time.
+     * <br/><br/>
+     * Note that the preference is set by the preference screen.
+     *
+     * @return True if the agenda display should start on the next schedule slot, false to always start on the first slot on Friday.
+     *
+     */
+    public boolean isStartAgendaBasedOnDateTimeEnabled() {
+        return createSharedPreferences().getBoolean(CSConstants.START_AGENDA_BASEDON_DATETIME_PREF, true);
+    }
+
+
 }

@@ -17,14 +17,12 @@
 package com.aremaitch.codestock2010;
 
 import java.security.PrivilegedActionException;
+
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.TimeZone;
+import java.util.*;
 
 import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.library.CountdownManager;
 import com.aremaitch.codestock2010.library.QuickActionMenuManager;
 import com.aremaitch.codestock2010.repository.AgendaSession;
@@ -58,9 +56,7 @@ import android.widget.ViewFlipper;
 public class AgendaActivity extends Activity 
 	implements OnTouchListener, AdapterView.OnItemClickListener {
 
-    public static int AGENDA_FRIDAY = 1;
-    public static int AGENDA_SATURDAY = 2;
-    
+
 	ViewFlipper flipper;
 	private SimpleDateFormat dateFormatter;
 	float downXValue;
@@ -77,17 +73,18 @@ public class AgendaActivity extends Activity
 	
 	TextView view0header = null;
 	TextView view1header = null;
-    private static final String WHICH_DAY = "whichDay";
+
 
     private CountdownManager cMgr;
     private View digitsContainer;
     private QuickActionMenuManager qaMgr;
 
     //TODO: Same download options as in SessionTracksActivity
-    public static void startMe(Context ctx, int whichDay) {
+    public static void startMe(Context ctx) {
         //TODO: remove onTouch handling and arrow buttons
         
-        Intent i = new Intent(ctx, AgendaActivity.class).putExtra(AgendaActivity.WHICH_DAY, whichDay).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent i = new Intent(ctx, AgendaActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         ctx.startActivity(i);
     }
     
@@ -107,8 +104,6 @@ public class AgendaActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.agenda_activity);
 
-        //TODO: Respect whichDay to display coming in from start intent.
-        
 		initializeCountdownClock();
 
 
@@ -191,8 +186,29 @@ public class AgendaActivity extends Activity
 			currentSlotIndex = idata.currentSlotIndex;
 			currentView = idata.currentView;
 			showTimeSlot();
-		}
+		} else {
+            //  Get preference setting. If set, find first slot and start the display on that.
+            if (new CSPreferenceManager(this).isStartAgendaBasedOnDateTimeEnabled()) {
+                Calendar targetSlot = findFirstSlotAfterDate(Calendar.getInstance());
+                if (targetSlot != null) {
+                    currentSlotIndex = sessionStartTimes.indexOf(targetSlot);
+                    currentSlotIndex = currentSlotIndex == 0 ? maxSlotIndex : --currentSlotIndex;
+                    showNextTimeslot();
+                }
+            }
+        }
 	}
+
+    private Calendar findFirstSlotAfterDate(Calendar targetDate) {
+        Calendar result = null;
+        for (Calendar slot : sessionStartTimes) {
+            if (targetDate.before(slot)) {
+                result = slot;
+                break;
+            }
+        }
+        return result;
+    }
 
     @Override
     protected void onPause() {
@@ -224,29 +240,29 @@ public class AgendaActivity extends Activity
     }
 
     protected void showNextTimeslot() {
-		
+
 		currentSlotIndex++;
 		if (currentSlotIndex > maxSlotIndex)
 			currentSlotIndex = 0;
 
 		showTimeSlot();
-		
+
 		flipper.setInAnimation(this, R.anim.slide_left_in);
 		flipper.setOutAnimation(this, R.anim.slide_left_out);
 		flipper.showNext();
-		
+
 		currentView++;
 		if (currentView > 1)
 			currentView = 0;
 	}
-	
+
 	protected void showPreviousTimeslot() {
 		currentSlotIndex--;
 		if (currentSlotIndex < 0)
 			currentSlotIndex = maxSlotIndex;
 
 		showTimeSlot();
-		
+
 		flipper.setInAnimation(this, R.anim.slide_right_in);
 		flipper.setOutAnimation(this, R.anim.slide_right_out);
 		flipper.showPrevious();
@@ -264,10 +280,11 @@ public class AgendaActivity extends Activity
 			da = (DayAdapter) day0list.getAdapter();
 			view0header.setText(dateFormatter.format(sessionStartTimes.get(currentSlotIndex).getTime()));
 		}
-		
+
 		da.setDataSource(getSessionsInSlot(sessionStartTimes.get(currentSlotIndex)));
 	}
-	
+
+
 	private ArrayList<AgendaSession> getSessionsInSlot(Calendar desiredSlot) {
 		DataHelper dh = new DataHelper(this);
 		ArrayList<AgendaSession> sessions = new ArrayList<AgendaSession>();
@@ -279,7 +296,7 @@ public class AgendaActivity extends Activity
 		return sessions;
 	}
 
-	
+
 	//	Refactor to share with MySessionsActivity() ?
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
@@ -301,7 +318,7 @@ public class AgendaActivity extends Activity
 		return true;
 	}
 
-	
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		// The 'header' for this view is not part of the ListView.
@@ -312,7 +329,6 @@ public class AgendaActivity extends Activity
 //			.putExtra(CSConstants.SESSION_DETAILS_SESSIONID, id));
 	}
 
-	
 	private void buildSessionStartTimes() {
         int year = 2011;
         int month = Calendar.JUNE;
@@ -325,8 +341,12 @@ public class AgendaActivity extends Activity
 		sessionStartTimes.add(createCalendar(year, month, friday, 11, 10));
 		sessionStartTimes.add(createCalendar(year, month, friday, 12, 30));
 		sessionStartTimes.add(createCalendar(year, month, friday, 13, 50));
-		sessionStartTimes.add(createCalendar(year, month, friday, 15, 10));
-		sessionStartTimes.add(createCalendar(year, month, friday, 17, 45));
+
+        //  For 2011, these times are not in the schedule:
+        //      3:10 on Friday is Panel Discussion/Opening Circles
+        //      Keynote is 6:00PM
+//		sessionStartTimes.add(createCalendar(year, month, friday, 15, 10));
+//		sessionStartTimes.add(createCalendar(year, month, friday, 17, 45));
 		sessionStartTimes.add(createCalendar(year, month, saturday, 8, 30));
 		sessionStartTimes.add(createCalendar(year, month, saturday, 9, 50));
 		sessionStartTimes.add(createCalendar(year, month, saturday, 11, 10));
@@ -334,9 +354,9 @@ public class AgendaActivity extends Activity
 		sessionStartTimes.add(createCalendar(year, month, saturday, 13, 50));
 		sessionStartTimes.add(createCalendar(year, month, saturday, 15, 10));
 		sessionStartTimes.add(createCalendar(year, month, saturday, 16, 30));
+        maxSlotIndex = sessionStartTimes.size() - 1;
 	}
-	
-	
+
 	private Calendar createCalendar(int year, int month, int day, int hour, int minute) {
 		Calendar cal = Calendar.getInstance();
 		cal.set(year, month, day, hour, minute, 0);

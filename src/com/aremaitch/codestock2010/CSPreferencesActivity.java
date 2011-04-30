@@ -195,7 +195,9 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         root.getPreferenceManager().setSharedPreferencesName(CSConstants.SHARED_PREF_NAME);
         root.setTitle("CodeStock Preferences");
 
-
+        /*
+         *      Twitter category
+         */
         PreferenceCategory twitterCat = new PreferenceCategory(this);
         twitterCat.setTitle("Twitter");
         root.addPreference(twitterCat);
@@ -244,7 +246,9 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         tweetDaysToKeep.setDialogTitle("Days of Tweets to Keep");
         twitterCat.addPreference(tweetDaysToKeep);
 
-
+        /*
+         *      Tools category
+         */
         PreferenceCategory toolsCat = new PreferenceCategory(this);
         toolsCat.setTitle("Tools");
         root.addPreference(toolsCat);
@@ -258,6 +262,25 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         resetTweets.setNegativeButtonText(getString(R.string.no_string));
         toolsCat.addPreference(resetTweets);
 
+        /*
+         *      Navigation category
+         */
+
+        PreferenceCategory navCat = new PreferenceCategory(this);
+        navCat.setTitle("Navigation");
+        root.addPreference(navCat);
+
+        CheckBoxPreference startAgendaBasedOnDateTime = new CheckBoxPreference(this);
+        startAgendaBasedOnDateTime.setKey(CSConstants.START_AGENDA_BASEDON_DATETIME_PREF);
+        startAgendaBasedOnDateTime.setDefaultValue(true);
+        startAgendaBasedOnDateTime.setTitle("Start agenda based on date/time");
+        startAgendaBasedOnDateTime.setSummaryOn("Agenda display will start with the next schedule slot");
+        startAgendaBasedOnDateTime.setSummaryOff("Agenda display will always start with the first slot on Friday");
+        navCat.addPreference(startAgendaBasedOnDateTime);
+
+        /*
+         *      About category
+         */
         PreferenceCategory aboutCat = new PreferenceCategory(this);
         aboutCat.setTitle("About");
         root.addPreference(aboutCat);

@@ -39,4 +39,5 @@ public class CSConstants {
 
     public static final String FIRST_RUN_PREF = "first_run_";
 
+    public static final String START_AGENDA_BASEDON_DATETIME_PREF = "start_agenda_basedon_datetime";
 }
