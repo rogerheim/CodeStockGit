@@ -78,6 +78,35 @@
     <string name="pref_query_authenticate_to_twitter_text">You\'ve not authorized the CodeStock app to access your Twitter account yet.\n\nIf you press Yes you\'ll be taken to a Twitter page where you\'ll be able to login (if you\'re not already logged in on this device) and grant this app access. Your password is not stored on this device.\n\nDo you want to continue?</string>
     <string name="pref_query_authenticate_to_twitter_title_text">Authenticate to Twitter</string>
 
+    <string name="pref_root_title">CodeStock Preferences</string>
+    <string name="pref_twitter_cat_title">Twitter</string>
+    <string name="pref_twitter_enabled_title">Enable Twitter</string>
+    <string name="pref_twitter_summary_on">You\'re authenticated to Twitter and integration is turned on</string>
+    <string name="pref_twitter_summary_off">Twitter integration is currently turned off</string>
+    <string name="pref_twitter_background_title">Updated Tweets in background</string>
+    <string name="pref_twitter_background_summary_on">Tweets will update in the background (if background data is enabled)</string>
+    <string name="pref_twitter_background_summary_off">Tweets will not update in the background</string>
+    <string name="pref_twitter_upd_int_title">Minutes between updates</string>
+    <string name="pref_twitter_upd_int_summary">15, 30, &amp; 60 are more efficient</string>
+    <string name="pref_twitter_upd_int_dlg_title">Background Update Interval</string>
+    <string name="pref_twitter_display_title">Tweet display seconds</string>
+    <string name="pref_twitter_display_summary">Seconds to display each tweet</string>
+    <string name="pref_twitter_display_dlg_title">Tweet Display Seconds</string>
+    <string name="pref_twitter_keep_title">Tweet Days to Keep</string>
+    <string name="pref_twitter_keep_summary">How many days of tweets do you want to keep?</string>
+    <string name="pref_twitter_keep_dlg_title">Days of Tweets to Keep</string>
+    <string name="pref_tools_cat_title">Tools</string>
+    <string name="pref_tools_reset_title">Reset Tweets</string>
+    <string name="pref_tools_reset_summary">Clear out tweet database and resets last retrieved/displayed</string>
+    <string name="pref_tools_reset_dlg_title">Reset Tweets</string>
+    <string name="pref_tools_reset_dlg_msg">Are you sure you want to reset the tweet database?</string>
+    <string name="pref_nav_cat_title">Navigation</string>
+    <string name="pref_nav_agenda_title">Start agenda based on date/time</string>
+    <string name="pref_nav_agenda_summary_on">Agenda display will start with the next schedule slot</string>
+    <string name="pref_nav_agenda_summary_off">Agenda display will always start with the first slot on Friday</string>
+    <string name="pref_about_cat_title">About</string>
+    <string name="pref_about_about_title">About CodeStock...</string>
+
 	<!-- Put strings that do not need to be localized below this marker -->
     <!-- Data feed url's -->
     <string name="json_data_url">http://codestock.org/api/v1.0.svc/AllSessionsJson</string>
@@ -120,6 +149,6 @@
 	
 	<string name="agenda_intent_action">com.aremaitch.codestock2010.DISPLAY_AGENDA</string>
 	<string name="agenda_intent_category">android.intent.category.DEFAULT</string>
-	
+
 
 </resources>

@@ -193,71 +193,73 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
     private void initializePreferenceScreen() {
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
         root.getPreferenceManager().setSharedPreferencesName(CSConstants.SHARED_PREF_NAME);
-        root.setTitle("CodeStock Preferences");
+        root.setTitle(R.string.pref_root_title);
 
         /*
          *      Twitter category
          */
         PreferenceCategory twitterCat = new PreferenceCategory(this);
-        twitterCat.setTitle("Twitter");
+        twitterCat.setTitle(R.string.pref_twitter_cat_title);
         root.addPreference(twitterCat);
 
         CheckBoxPreference twitterEnabled = new CheckBoxPreference(this);
         twitterEnabled.setKey(TwitterConstants.TWITTER_ENABLED_PREF);
         twitterEnabled.setDefaultValue(false);
-        twitterEnabled.setTitle("Enable Twitter");
-        twitterEnabled.setSummary("Enable Twitter support");
+        twitterEnabled.setTitle(R.string.pref_twitter_enabled_title);
+        twitterEnabled.setSummaryOn(R.string.pref_twitter_summary_on);
+        twitterEnabled.setSummaryOff(R.string.pref_twitter_summary_off);
         twitterCat.addPreference(twitterEnabled);
 
         CheckBoxPreference bkUpdEnabled = new CheckBoxPreference(this);
         bkUpdEnabled.setKey(TwitterConstants.TWITTER_BK_UPD_ENABLED_PREF);
         bkUpdEnabled.setDefaultValue(false);
-        bkUpdEnabled.setTitle("Update Tweets in background");
-        bkUpdEnabled.setSummary("This will run your battery down faster.");
+        bkUpdEnabled.setTitle(R.string.pref_twitter_background_title);
+        bkUpdEnabled.setSummaryOn(R.string.pref_twitter_background_summary_on);
+        bkUpdEnabled.setSummaryOff(R.string.pref_twitter_background_summary_off);
         twitterCat.addPreference(bkUpdEnabled);
 
         ListPreference bkUpdInterval = new ListPreference(this);
         bkUpdInterval.setKey(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF);
         bkUpdInterval.setDefaultValue("5");
-        bkUpdInterval.setTitle("Minutes between updates");
-        bkUpdInterval.setSummary("15, 30, & 60 are more efficient");
+        bkUpdInterval.setTitle(R.string.pref_twitter_upd_int_title);
+        bkUpdInterval.setSummary(R.string.pref_twitter_upd_int_summary);
         bkUpdInterval.setEntries(R.array.twitter_bk_upd_interval_entries);
         bkUpdInterval.setEntryValues(R.array.twitter_bk_upd_interval_entryvalues);
-        bkUpdInterval.setDialogTitle("Background Update Interval");
+        bkUpdInterval.setDialogTitle(R.string.pref_twitter_upd_int_dlg_title);
         twitterCat.addPreference(bkUpdInterval);
 
         ListPreference tweetDisplayDuration = new ListPreference(this);
         tweetDisplayDuration.setKey(TwitterConstants.TWEET_DISPLAY_DURATION_PREF);
         tweetDisplayDuration.setDefaultValue("10");
-        tweetDisplayDuration.setTitle("Tweet display seconds");
-        tweetDisplayDuration.setSummary("Seconds to display each tweet");
+        tweetDisplayDuration.setTitle(R.string.pref_twitter_display_title);
+        tweetDisplayDuration.setSummary(R.string.pref_twitter_display_summary);
         tweetDisplayDuration.setEntries(R.array.tweet_dsply_duration_entries);
         tweetDisplayDuration.setEntryValues(R.array.tweet_dsply_duration_entryvalues);
-        tweetDisplayDuration.setDialogTitle("Tweet Display Seconds");
+        tweetDisplayDuration.setDialogTitle(R.string.pref_twitter_display_dlg_title);
         twitterCat.addPreference(tweetDisplayDuration);
 
         ListPreference tweetDaysToKeep = new ListPreference(this);
         tweetDaysToKeep.setKey(TwitterConstants.TWEET_DAYS_TO_KEEP_PREF);
         tweetDaysToKeep.setDefaultValue("21");
-        tweetDaysToKeep.setTitle("Tweet Days to Keep");
-        tweetDaysToKeep.setSummary("How many days of tweets do you want to keep?");
+        tweetDaysToKeep.setTitle(R.string.pref_twitter_keep_title);
+        tweetDaysToKeep.setSummary(R.string.pref_twitter_keep_summary);
         tweetDaysToKeep.setEntries(R.array.tweet_db_daystokeep_entries);
         tweetDaysToKeep.setEntryValues(R.array.tweet_db_daystokeep_entryvalues);
-        tweetDaysToKeep.setDialogTitle("Days of Tweets to Keep");
+        tweetDaysToKeep.setDialogTitle(R.string.pref_twitter_keep_dlg_title);
         twitterCat.addPreference(tweetDaysToKeep);
 
         /*
          *      Tools category
          */
         PreferenceCategory toolsCat = new PreferenceCategory(this);
-        toolsCat.setTitle("Tools");
+        toolsCat.setTitle(R.string.pref_tools_cat_title);
         root.addPreference(toolsCat);
 
         ResetTweetsDialog resetTweets = new ResetTweetsDialog(this, null);
-        resetTweets.setTitle("Reset Tweets");
-        resetTweets.setSummary("Clear out tweet database and resets last retrieved/displayed");
-        resetTweets.setDialogTitle("Reset Tweets");
-        resetTweets.setDialogMessage("Are you sure you want to reset the tweet database?");
+        resetTweets.setTitle(R.string.pref_tools_reset_title);
+        resetTweets.setSummary(R.string.pref_tools_reset_summary);
+        resetTweets.setDialogTitle(R.string.pref_tools_reset_dlg_title);
+        resetTweets.setDialogMessage(R.string.pref_tools_reset_dlg_msg);
         resetTweets.setPositiveButtonText(getString(R.string.yes_string));
         resetTweets.setNegativeButtonText(getString(R.string.no_string));
         toolsCat.addPreference(resetTweets);
@@ -267,26 +269,26 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
          */
 
         PreferenceCategory navCat = new PreferenceCategory(this);
-        navCat.setTitle("Navigation");
+        navCat.setTitle(R.string.pref_nav_cat_title);
         root.addPreference(navCat);
 
         CheckBoxPreference startAgendaBasedOnDateTime = new CheckBoxPreference(this);
         startAgendaBasedOnDateTime.setKey(CSConstants.START_AGENDA_BASEDON_DATETIME_PREF);
         startAgendaBasedOnDateTime.setDefaultValue(true);
-        startAgendaBasedOnDateTime.setTitle("Start agenda based on date/time");
-        startAgendaBasedOnDateTime.setSummaryOn("Agenda display will start with the next schedule slot");
-        startAgendaBasedOnDateTime.setSummaryOff("Agenda display will always start with the first slot on Friday");
+        startAgendaBasedOnDateTime.setTitle(R.string.pref_nav_agenda_title);
+        startAgendaBasedOnDateTime.setSummaryOn(R.string.pref_nav_agenda_summary_on);
+        startAgendaBasedOnDateTime.setSummaryOff(R.string.pref_nav_agenda_summary_off);
         navCat.addPreference(startAgendaBasedOnDateTime);
 
         /*
          *      About category
          */
         PreferenceCategory aboutCat = new PreferenceCategory(this);
-        aboutCat.setTitle("About");
+        aboutCat.setTitle(R.string.pref_about_cat_title);
         root.addPreference(aboutCat);
 
         PreferenceScreen aboutPref = getPreferenceManager().createPreferenceScreen(this);
-        aboutPref.setTitle("About CodeStock...");
+        aboutPref.setTitle(R.string.pref_about_about_title);
         aboutPref.setIntent(new Intent(this, AboutActivity.class));
         aboutCat.addPreference(aboutPref);
 
