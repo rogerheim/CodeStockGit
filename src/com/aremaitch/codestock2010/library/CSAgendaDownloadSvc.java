@@ -29,6 +29,7 @@ import com.aremaitch.codestock2010.StartActivity;
 import com.aremaitch.codestock2010.datadownloader.ConferenceAgendaDownloader;
 import com.aremaitch.codestock2010.repository.*;
 import com.aremaitch.utils.ACLogger;
+import com.flurry.android.FlurryAgent;
 
 import java.beans.IndexedPropertyChangeEvent;
 
@@ -80,6 +81,8 @@ public class CSAgendaDownloadSvc extends IntentService {
 
         synchronized (this) {
             ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "starting agenda download");
+            FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_START);
+
             AgendaParser parser = new AgendaParser(new ConferenceAgendaDownloader());
             parser.doGetData();
 
@@ -106,6 +109,8 @@ public class CSAgendaDownloadSvc extends IntentService {
             } finally {
                 dh.close();
             }
+
+            FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_STOP);
 
             notification.tickerText = "Agenda download complete";
 

@@ -18,6 +18,7 @@ package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.flurry.android.FlurryAgent;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -82,10 +83,12 @@ public class TwitterOAuth {
 
     public void saveOAuthTokens(Context ctx, String accessToken, String tokenSecret, String screenName) {
         new CSPreferenceManager(ctx).setTwitterOAuthData(accessToken, tokenSecret, screenName);
+        FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_ON);
     }
 
     public void forgetOAuthTokens(Context ctx) {
         new CSPreferenceManager(ctx).removeTwitterOAuthData();
+        FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_OFF);
     }
 
 

@@ -40,6 +40,7 @@ import com.aremaitch.utils.ACLogger;
 import com.aremaitch.utils.Command;
 import com.aremaitch.utils.OnClickCommandWrapper;
 import com.aremaitch.utils.VersionUtils;
+import com.flurry.android.FlurryAgent;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -190,6 +191,18 @@ public class StartActivity extends Activity {
         startCountdownClock();
         startTweetDisplay();
         super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        FlurryAgent.onEndSession(this);
+        super.onStop();
     }
 
     @Override

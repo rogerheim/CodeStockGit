@@ -30,6 +30,7 @@ import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.TweetObj;
 import com.aremaitch.utils.ACLogger;
+import com.flurry.android.FlurryAgent;
 import twitter4j.*;
 
 import java.util.*;
@@ -84,6 +85,7 @@ public class TwitterTrackSvc extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received onStartCommand");
 
+        FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_START);
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         _wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TweetSearchTask");
         _wl.acquire();
@@ -91,6 +93,7 @@ public class TwitterTrackSvc extends Service {
         //  If the global background data setting is turned off, respect it and do not scan for tweets.
         ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         if (!cm.getBackgroundDataSetting()) {
+            FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP_NO_BKGND);
             stopSelf();
             return Service.START_NOT_STICKY;
         }
@@ -273,6 +276,7 @@ public class TwitterTrackSvc extends Service {
         protected void onPostExecute(Void aVoid) {
             _dh.close();
             updateLastTweetId(_sinceId);
+            FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP);
             stopSelf();
         }
 

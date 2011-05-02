@@ -30,6 +30,7 @@ import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.utils.ACLogger;
 import com.aremaitch.utils.Command;
 import com.aremaitch.utils.OnClickCommandWrapper;
+import com.flurry.android.FlurryAgent;
 
 /**
  * Created by IntelliJ IDEA.
@@ -99,6 +100,9 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
                 //  Twitter was enabled; if not already authenticated, ask user if they want to authenticate.
                 if (!isAlreadyAuthenticated(sharedPreferences)) {
                     doesUserWantToAuthenticate();
+                } else {
+                    //  Twitter is enabled and we already had oauth tokens. Just log it.
+                    FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_RESUMED);
                 }
             } else {
                 //  Twitter was disabled; if already authenticated, ask user if they want to delete tokens.
@@ -118,11 +122,18 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
             }
         };
 
+        Command noCommand = new Command() {
+            @Override
+            public void execute() {
+                FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_PAUSED);
+            }
+        };
+
 
         new AlertDialog.Builder(this)
             .setCancelable(false)
             .setMessage(getString(R.string.pref_query_delete_twitter_text))
-            .setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(Command.NOOP))
+            .setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(noCommand))
             .setPositiveButton(getString(R.string.yes_string), new OnClickCommandWrapper(yesCommand))
             .setTitle(getString(R.string.pref_query_delete_twitter_title_text))
             .show();

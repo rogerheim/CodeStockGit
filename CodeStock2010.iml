@@ -52,6 +52,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Twitter4j-2.2.1" level="project" />
+    <orderEntry type="library" name="FlurryAnalytics" level="project" />
   </component>
 </module>
 

@@ -29,6 +29,7 @@ import com.aremaitch.codestock2010.library.CSPreferenceManager;
 import com.aremaitch.codestock2010.library.CountdownManager;
 import com.aremaitch.codestock2010.library.QuickActionMenu;
 import com.aremaitch.codestock2010.library.QuickActionMenuManager;
+import com.flurry.android.FlurryAgent;
 
 public class MapActivity extends Activity {
 
@@ -71,6 +72,17 @@ public class MapActivity extends Activity {
         super.onResume();
     }
 
+    @Override
+    protected void onStart() {
+        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        FlurryAgent.onEndSession(this);
+        super.onStop();
+    }
 
     private void initializeCountdownClock() {
         cMgr = new CountdownManager();

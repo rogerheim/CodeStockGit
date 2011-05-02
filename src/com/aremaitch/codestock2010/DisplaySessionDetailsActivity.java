@@ -165,7 +165,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 			session = getSessionInfo(sessionid);
 
 			displaySessionInfo();
-
+            FlurryEvent.logSessionPageViewed(sessionid);
 		}
 	}
 	

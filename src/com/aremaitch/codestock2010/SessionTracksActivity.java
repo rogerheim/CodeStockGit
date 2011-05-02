@@ -40,6 +40,7 @@ import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Track;
 import com.aremaitch.utils.ACLogger;
 import com.aremaitch.utils.NotImplementedException;
+import com.flurry.android.FlurryAgent;
 
 //	Orientation change fires onPause, then onCreate, then onStart.
 //	Going to a new activity fires onPause then onStop. On return, onStart will be called
@@ -187,9 +188,10 @@ public class SessionTracksActivity extends ExpandableListActivity {
     @Override
 	protected void onStart() {
 		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onStart");
+        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        createDataHelperIfNeeded();
 		super.onStart();
 
-		createDataHelperIfNeeded();
 
 		//	When backing into the activity the expandablelistview is being collapsed.
 		//	I think it may be because the layout is being inflated again.
@@ -209,11 +211,12 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onStop() {
-		super.onStop();
+        FlurryAgent.onEndSession(this);
 		//	If switching to a different activity close the database if open.
 		if (dh != null && dh.isOpen()) {
 			dh.close();
 		}
+        super.onStop();
 	}
 
 

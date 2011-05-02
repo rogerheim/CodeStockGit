@@ -25,6 +25,7 @@ import android.os.PowerManager;
 import android.util.Log;
 import com.aremaitch.codestock2010.repository.DatabaseCleanup;
 import com.aremaitch.utils.ACLogger;
+import com.flurry.android.FlurryAgent;
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,10 +55,12 @@ public class DatabaseCleanupSvc extends Service {
             PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
             wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DatabaseCleanupTask");
             wl.acquire();
+            FlurryAgent.logEvent(FlurryEvent.DB_CLEANUP_START);
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            FlurryAgent.logEvent(FlurryEvent.DB_CLEANUP_STOP);
             wl.release();
             ACLogger.info(CSConstants.DBCLEANUPSVC_LOG_TAG, "stopping db cleanup service");
             DatabaseCleanupSvc.this.stopSelf();

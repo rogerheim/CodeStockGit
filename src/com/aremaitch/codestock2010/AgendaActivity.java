@@ -52,6 +52,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
+import com.flurry.android.FlurryAgent;
 
 public class AgendaActivity extends Activity 
 	implements OnTouchListener, AdapterView.OnItemClickListener {
@@ -223,6 +224,18 @@ public class AgendaActivity extends Activity
         qaMgr.initializeQuickActionMenu();
         startCountdownClock();
         super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        FlurryAgent.onEndSession(this);
+        super.onStop();
     }
 
     private void initializeCountdownClock() {
