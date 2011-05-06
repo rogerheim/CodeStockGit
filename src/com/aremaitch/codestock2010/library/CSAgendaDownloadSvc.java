@@ -44,6 +44,7 @@ import java.beans.IndexedPropertyChangeEvent;
 
 public class CSAgendaDownloadSvc extends IntentService {
 
+    private Notification notification;
 
     public CSAgendaDownloadSvc() {
         super("CSAgendaDownloadSvc");
@@ -60,7 +61,7 @@ public class CSAgendaDownloadSvc extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         // NB: This ctor for Notification is deprecated as of Honeycomb.
-        Notification notification = new Notification(R.drawable.yodaskull_2011_notify,
+        notification = new Notification(R.drawable.yodaskull_2011_notify,
                 getString(R.string.refresh_data_progress_dialog_msg),
                 System.currentTimeMillis());
         
@@ -86,6 +87,14 @@ public class CSAgendaDownloadSvc extends IntentService {
             AgendaParser parser = new AgendaParser(new ConferenceAgendaDownloader());
             parser.doGetData();
 
+            if (parser.isError()) {
+                FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_FAILED);
+                //  Don't send the broadcast?
+                notifyUser("Could not download agenda", R.string.refresh_data_progress_dialog_msg);
+                stopForeground(true);
+                ACLogger.error(CSConstants.AGENDADWNLDSVC_LOG_TAG, "agenda download failed");
+                return;
+            }
             DataHelper dh = new DataHelper(this);
             dh.clearAllData();
 
@@ -112,10 +121,7 @@ public class CSAgendaDownloadSvc extends IntentService {
 
             FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_STOP);
 
-            notification.tickerText = "Agenda download complete";
-
-            NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(R.string.refresh_data_progress_dialog_msg, notification);
+            notifyUser("Agenda download complete", R.string.refresh_data_progress_dialog_msg);
 
             sendBroadcast(new Intent().setAction(SessionTracksActivity.AgendaDownloadCompleteReceiver.AGENDADOWNLOADCOMPLETE_INTENT));
             
@@ -124,5 +130,10 @@ public class CSAgendaDownloadSvc extends IntentService {
         }
     }
 
+    private void notifyUser(String tickerText, int notificationId) {
+        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        notification.tickerText = tickerText;
+        notificationManager.notify(notificationId, this.notification);
+    }
 
 }

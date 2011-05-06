@@ -61,6 +61,7 @@ public class FlurryEvent {
 
     public static final String AGENDA_DL_START = "agenda_dl_start";
     public static final String AGENDA_DL_STOP = "agenda_dl_stop";
+    public static final String AGENDA_DL_FAILED = "agenda_dl_failed";
 
     public static void logSessionPageViewed(long sessionid) {
         Map<String, String> parameters = new HashMap<String, String>();

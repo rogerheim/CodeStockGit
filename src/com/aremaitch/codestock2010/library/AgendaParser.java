@@ -17,6 +17,7 @@
 package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
+import android.widget.Toast;
 import com.aremaitch.codestock2010.repository.ExperienceLevel;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.codestock2010.repository.Speaker;
@@ -43,6 +44,7 @@ public class AgendaParser {
     private List<Session> parsedSessions = new ArrayList<Session>();
     private List<ExperienceLevel> parsedLevels = new ArrayList<ExperienceLevel>();
     private List<Track> parsedTracks = new ArrayList<Track>();
+    private boolean isError = false;
 
     public List<Speaker> getParsedSpeakers() {
         return parsedSpeakers;
@@ -64,23 +66,38 @@ public class AgendaParser {
         _agendaDownloader = agendaDownloader;
     }
 
+    public boolean isError() {
+        return this.isError;
+    }
 
     public void doGetData() {
 
         try {
             JSONObject speakerObj = _agendaDownloader.getSpeakerData();
+            if (speakerObj == null) {
+                ACLogger.error(CSConstants.LOG_TAG, "error getting speaker data: could not get speaker list");
+                isError = true;
+                return;
+            }
             JSONArray dataArray = speakerObj.getJSONArray("d");
             parseSpeakerData(dataArray);
         } catch (JSONException e) {
             ACLogger.error(CSConstants.LOG_TAG, "error getting speaker data: 'd' array not found");
+            isError = true;
         }
 
         try {
             JSONObject sessionObj = _agendaDownloader.getSessionData();
+            if (sessionObj == null) {
+                ACLogger.error(CSConstants.LOG_TAG, "error getting session data: could not get session list");
+                isError = true;
+                return;
+            }
             JSONArray dataArray = sessionObj.getJSONArray("d");
             parseSessionData(dataArray);
         } catch (JSONException e) {
             ACLogger.error(CSConstants.LOG_TAG, "error getting session data: 'd' array not found");
+            isError = true;
         }
 
     }
@@ -107,6 +124,7 @@ public class AgendaParser {
                 parsedSpeakers.add(newSpeaker);
             } catch (JSONException e) {
                 ACLogger.error(CSConstants.LOG_TAG, "error parsing speaker data: " + e.getMessage());
+                isError = true;
             }
         }
     }
@@ -147,6 +165,7 @@ public class AgendaParser {
                 parsedSessions.add(newSession);
             } catch (JSONException e) {
                 ACLogger.error(CSConstants.LOG_TAG, "error parsing session data: " + e.getMessage());
+                isError = true;
             }
         }
     }
