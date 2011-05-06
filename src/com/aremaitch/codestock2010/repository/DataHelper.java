@@ -43,7 +43,8 @@ import java.util.List;
  */
 public class DataHelper {
 	private static final String DATABASE_NAME = "codestock2010.db";
-	private static final int DATABASE_VERSION = 5;
+    //  5.5.11: Bumped db version for new url fields.
+	private static final int DATABASE_VERSION = 6;
 	private static final String XPLEVELS_TABLE_NAME = "xplevels";
 	private static final String TRACKS_TABLE_NAME = "tracks";
 	private static final String SPEAKERS_TABLE_NAME = "speakers";
@@ -338,7 +339,7 @@ public class DataHelper {
 				result.setEndDate(calEnd);
 				result.setRoom(c.getString(c.getColumnIndexOrThrow("room")));
 				result.setVoteRank(c.getString(c.getColumnIndexOrThrow("voterank")));
-				
+				result.setUrl(c.getString(c.getColumnIndexOrThrow("url")));
 				result.setAdditionalSpeakers(getAdditionalSpeakers(c.getLong(c.getColumnIndexOrThrow("id"))));
 			}
 		} finally {
@@ -437,6 +438,7 @@ public class DataHelper {
 				result.setCompany(c.getString(c.getColumnIndexOrThrow("company")));
 				result.setWebSite(c.getString(c.getColumnIndexOrThrow("website")));
 				result.setSpeakerPhotoUrl(c.getString(c.getColumnIndexOrThrow("photourl")));
+                result.setUrl(c.getString(c.getColumnIndexOrThrow("url")));
 			}
 		} finally {
 			if (c != null && !c.isClosed()) {
@@ -488,6 +490,7 @@ public class DataHelper {
 		newRow.put("twitterhandle", newSpeaker.getTwitterHandle());
 		newRow.put("company", newSpeaker.getCompany());
 		newRow.put("website", newSpeaker.getWebSite());
+        newRow.put("url", newSpeaker.getUrl());
 		newRow.put("photourl", newSpeaker.getSpeakerPhotoUrl());
 		return db.insert(SPEAKERS_TABLE_NAME, null, newRow);
 	}
@@ -516,6 +519,7 @@ public class DataHelper {
 		newRow.put("startdatetime", String.valueOf(newSession.getStartDate().getTimeInMillis()));
 		newRow.put("enddatetime", String.valueOf(newSession.getEndDate().getTimeInMillis()));
 		newRow.put("room", newSession.getRoom());
+        newRow.put("url", newSession.getUrl());
 		newRow.put("voterank", newSession.getVoteRank());
 
 		Long sessionID = db.insert(SESSIONS_TABLE_NAME, null, newRow);
@@ -730,6 +734,7 @@ public class DataHelper {
 				.append("twitterhandle text,")
 				.append("company text,")
 				.append("website text,")
+                .append("url text,")
 				.append("photourl text)"));
 			tables.add(new StringBuilder()
 				.append("create table " + SESSIONS_TABLE_NAME)
@@ -745,6 +750,7 @@ public class DataHelper {
 				.append("startdatetime text,")			// sqlite has no datetime datatype
 				.append("enddatetime text,")			// these fields hold the time in milliseconds since 1/1/1970 as a string
 				.append("room text,")
+                .append("url text,")
 				.append("voterank text)"));
 			tables.add(new StringBuilder()
 				.append("create table " + ADD_SPEAKERS_TABLE_NAME)

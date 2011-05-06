@@ -28,7 +28,8 @@ public class Speaker {
 	private String speakerPhotoUrl;
 	private List<Session> sessions;
 	private List<Session> sessionsWhereAdditionalSpeaker;
-	
+	private String url;
+
 	public long getId() {
 		return id;
 	}
@@ -71,7 +72,16 @@ public class Speaker {
 	public String getSpeakerPhotoUrl() {
 		return speakerPhotoUrl;
 	}
-	public List<Session> getSessions() {
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public List<Session> getSessions() {
 		return sessions;
 	}
 	public void setSessions(List<Session> _sessions) {

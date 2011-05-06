@@ -115,6 +115,7 @@ public class AgendaParser {
                 newSpeaker.setSpeakerPhotoUrl(speakerJSONObject.getString("PhotoUrl"));
                 newSpeaker.setId(speakerJSONObject.getLong("SpeakerID"));
                 newSpeaker.setTwitterHandle(speakerJSONObject.getString("TwitterID"));
+                newSpeaker.setUrl(speakerJSONObject.getString("Url"));
                 String website = speakerJSONObject.getString("Website");
                 if (website.equalsIgnoreCase("http://"))
                     newSpeaker.setWebSite("");
@@ -160,6 +161,9 @@ public class AgendaParser {
 
                 //  Add a space between track and area.
                 newSession.setTrack(findOrCreateTrack(String.format("%s %s", sessionJSONObject.getString("Track"), savedArea)));
+
+                // 5.5.11: Add new url property
+                newSession.setUrl(sessionJSONObject.getString("Url"));
                 newSession.setVoteRank(sessionJSONObject.getString("VoteRank"));
 
                 parsedSessions.add(newSession);

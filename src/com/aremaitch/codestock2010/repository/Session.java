@@ -38,58 +38,60 @@ public class Session {
 	private String room;
 	private List<Speaker> additionalSpeakers;
 	private String voteRank;
-	
-	
+
+    private String url;
+
 	public long getId() {
 		return id;
 	}
-	public void setId(long id) {
+
+    public void setId(long id) {
 		this.id = id;
 	}
-	public String getSessionTitle() {
+    public String getSessionTitle() {
 		return sessionTitle;
 	}
-	public void setSessionTitle(String sessionTitle) {
+    public void setSessionTitle(String sessionTitle) {
 		this.sessionTitle = sessionTitle;
 	}
-	public String getSynopsis() {
+    public String getSynopsis() {
 		return synopsis;
 	}
-	public void setSynopsis(String synopsis) {
+    public void setSynopsis(String synopsis) {
 		this.synopsis = synopsis;
 	}
-	public Track getTrack() {
+    public Track getTrack() {
 		if (track == null) {
 			loadTrack();
 		}
 		return track;
 	}
-	public void setTrack(Track track) {
+    public void setTrack(Track track) {
 		this.track = track;
 	}
-	
 	private void loadTrack() {
-		
+
 	}
-	public Speaker getSpeaker() {
+
+    public Speaker getSpeaker() {
 		return speaker;
 	}
-	public void setSpeaker(Speaker speaker) {
+    public void setSpeaker(Speaker speaker) {
 		this.speaker = speaker;
 	}
-	public ExperienceLevel getGeneralExperienceLevel() {
+    public ExperienceLevel getGeneralExperienceLevel() {
 		return generalExperienceLevel;
 	}
-	public void setGeneralExperienceLevel(ExperienceLevel generalExperienceLevel) {
+    public void setGeneralExperienceLevel(ExperienceLevel generalExperienceLevel) {
 		this.generalExperienceLevel = generalExperienceLevel;
 	}
-	public ExperienceLevel getSpecificExperienceLevel() {
+    public ExperienceLevel getSpecificExperienceLevel() {
 		return specificExperienceLevel;
 	}
-	public void setSpecificExperienceLevel(ExperienceLevel specificExperienceLevel) {
+    public void setSpecificExperienceLevel(ExperienceLevel specificExperienceLevel) {
 		this.specificExperienceLevel = specificExperienceLevel;
 	}
-//	public String getAward() {
+    //	public String getAward() {
 //		return award;
 //	}
 //	public void setAward(String award) {
@@ -98,47 +100,55 @@ public class Session {
 	public String getTechnologies() {
 		return technologies;
 	}
-	public void setTechnologies(String technologies) {
+    public void setTechnologies(String technologies) {
 		this.technologies = technologies;
 	}
-	public void setStartDate(Calendar startDate) {
+    public void setStartDate(Calendar startDate) {
 		this.startDate = startDate;
 	}
-	public Calendar getStartDate() {
+    public Calendar getStartDate() {
 		return startDate;
 	}
-	public void setEndDate(Calendar endDate) {
+    public void setEndDate(Calendar endDate) {
 		this.endDate = endDate;
 	}
-	public Calendar getEndDate() {
+    public Calendar getEndDate() {
 		return endDate;
 	}
-	public void setRoom(String room) {
+    public void setRoom(String room) {
 		this.room = room;
 	}
-	public String getRoom() {
+    public String getRoom() {
 		return room;
 	}
-	public void setAdditionalSpeakers(List<Speaker> additionalSpeakers) {
+    public void setAdditionalSpeakers(List<Speaker> additionalSpeakers) {
 		this.additionalSpeakers = additionalSpeakers;
 	}
-	public List<Speaker> getAdditionalSpeakers() {
+    public List<Speaker> getAdditionalSpeakers() {
 		if (this.additionalSpeakers == null) {
 			this.additionalSpeakers = new ArrayList<Speaker>();
 		}
 		return this.additionalSpeakers;
 	}
-	public void addAdditionalSpeaker(Speaker additionalSpeaker) {
+    public void addAdditionalSpeaker(Speaker additionalSpeaker) {
 		if (this.additionalSpeakers == null) {
 			this.additionalSpeakers = new ArrayList<Speaker>();
 		}
 		this.additionalSpeakers.add(additionalSpeaker);
 	}
-	
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
 	public String getVoteRank() {
 		return voteRank;
 	}
-	public void setVoteRank(String voteRank) {
+    public void setVoteRank(String voteRank) {
 		this.voteRank = voteRank;
 	}
 }
