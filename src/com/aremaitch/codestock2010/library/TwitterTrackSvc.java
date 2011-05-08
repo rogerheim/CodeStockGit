@@ -30,6 +30,7 @@ import com.aremaitch.codestock2010.R;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.TweetObj;
 import com.aremaitch.utils.ACLogger;
+import com.aremaitch.utils.NetworkUtils;
 import com.flurry.android.FlurryAgent;
 import twitter4j.*;
 
@@ -91,13 +92,18 @@ public class TwitterTrackSvc extends Service {
         _wl.acquire();
 
         //  If the global background data setting is turned off, respect it and do not scan for tweets.
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        if (!cm.getBackgroundDataSetting()) {
+        if (!new NetworkUtils().isBackgroundDataAllowed(this)) {
             FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP_NO_BKGND);
             stopSelf();
             return Service.START_NOT_STICKY;
         }
 
+        if (!new NetworkUtils().isOnline(this)) {
+            FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP_NO_NET);
+            stopSelf();
+            return Service.START_NOT_STICKY;
+        }
+        
         _startedByAlarm = true;
         getHashTweetsSince(getLastMaxTweetId(), intent.getStringArrayExtra(TwitterConstants.TWEET_SCAN_HASHTAG_EXTRA_KEY));
         return Service.START_NOT_STICKY;

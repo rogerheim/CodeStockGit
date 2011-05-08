@@ -55,6 +55,7 @@ public class FlurryEvent {
     public static final String TWITTER_SVC_START = "twitter_svc_start";
     public static final String TWITTER_SVC_STOP = "twitter_svc_stop";
     public static final String TWITTER_SVC_STOP_NO_BKGND = "twitter_svc_stop_no_bkgnd";
+    public static final String TWITTER_SVC_STOP_NO_NET = "twitter_svc_stop_no_net";
 
     public static final String DB_CLEANUP_START = "db_cleanup_start";
     public static final String DB_CLEANUP_STOP = "db_cleanup_stop";

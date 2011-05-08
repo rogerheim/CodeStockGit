@@ -1,18 +1,17 @@
-
 /*
- * Copyright 2010-2011 Roger Heim
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2010-2011 Roger Heim
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.aremaitch.codestock2010.library;
 
@@ -29,6 +28,7 @@ import com.aremaitch.codestock2010.StartActivity;
 import com.aremaitch.codestock2010.datadownloader.ConferenceAgendaDownloader;
 import com.aremaitch.codestock2010.repository.*;
 import com.aremaitch.utils.ACLogger;
+import com.aremaitch.utils.NetworkUtils;
 import com.flurry.android.FlurryAgent;
 
 import java.beans.IndexedPropertyChangeEvent;
@@ -53,7 +53,7 @@ public class CSAgendaDownloadSvc extends IntentService {
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, CSAgendaDownloadSvc.class);
         ctx.startService(i);
-        
+
     }
 
 
@@ -64,7 +64,7 @@ public class CSAgendaDownloadSvc extends IntentService {
         notification = new Notification(R.drawable.yodaskull_2011_notify,
                 getString(R.string.refresh_data_progress_dialog_msg),
                 System.currentTimeMillis());
-        
+
         Intent notificationIntent = new Intent(this, StartActivity.class);
 
         //  If the task is already running (which it will be) then this flag simply brings it
@@ -83,6 +83,15 @@ public class CSAgendaDownloadSvc extends IntentService {
         synchronized (this) {
             ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "starting agenda download");
             FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_START);
+
+            NetworkUtils networkUtils = new NetworkUtils();
+            if (!networkUtils.isOnline(this) || !networkUtils.isCodeStockReachable(this)) {
+                FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_FAILED);
+                notifyUser("No network access", R.string.refresh_data_progress_dialog_msg);
+                stopForeground(true);
+                ACLogger.error(CSConstants.AGENDADWNLDSVC_LOG_TAG, "agenda download failed: no network");
+                return;
+            }
 
             AgendaParser parser = new AgendaParser(new ConferenceAgendaDownloader());
             parser.doGetData();
@@ -124,14 +133,14 @@ public class CSAgendaDownloadSvc extends IntentService {
             notifyUser("Agenda download complete", R.string.refresh_data_progress_dialog_msg);
 
             sendBroadcast(new Intent().setAction(SessionTracksActivity.AgendaDownloadCompleteReceiver.AGENDADOWNLOADCOMPLETE_INTENT));
-            
+
             stopForeground(true);
             ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "agenda download complete");
         }
     }
 
     private void notifyUser(String tickerText, int notificationId) {
-        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notification.tickerText = tickerText;
         notificationManager.notify(notificationId, this.notification);
     }

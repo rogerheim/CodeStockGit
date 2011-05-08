@@ -40,6 +40,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import com.aremaitch.codestock2010.library.*;
+import com.aremaitch.utils.NetworkUtils;
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
@@ -520,28 +521,30 @@ public class DisplaySessionDetailsActivity extends Activity {
         private Drawable downloadSpeakerPhoto(CSCacheManager cacheManager, URL theUrl) {
             Drawable photo = null;
 
-            HttpURLConnection cn = null;
-            InputStream is = null;
+            if (new NetworkUtils().isCodeStockReachable(DisplaySessionDetailsActivity.this)) {
+                HttpURLConnection cn = null;
+                InputStream is = null;
 
-            try {
-                cn = (HttpURLConnection) theUrl.openConnection();
-                is = new BufferedInputStream(cn.getInputStream());
+                try {
+                    cn = (HttpURLConnection) theUrl.openConnection();
+                    is = new BufferedInputStream(cn.getInputStream());
 
-                //	If external storage is ready, save the stream to the cache, then return the photo from the cache.
-                //	If external storage isnot ready, get the photo directly from the stream.
-                //	In either event, return the photo.
+                    //	If external storage is ready, save the stream to the cache, then return the photo from the cache.
+                    //	If external storage isnot ready, get the photo directly from the stream.
+                    //	In either event, return the photo.
 
-                if (cacheManager.isCacheReady()) {
-                    cacheManager.saveSpeakerPhotoToCache(stripFileName(theUrl.getFile()), is);
-                    photo = cacheManager.getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
-                } else {
-                    photo = Drawable.createFromStream(is, "session_details_speaker_photo");
+                    if (cacheManager.isCacheReady()) {
+                        cacheManager.saveSpeakerPhotoToCache(stripFileName(theUrl.getFile()), is);
+                        photo = cacheManager.getSpeakerPhotoFromCache(stripFileName(theUrl.getFile()));
+                    } else {
+                        photo = Drawable.createFromStream(is, "session_details_speaker_photo");
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    cn.disconnect();
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                cn.disconnect();
             }
             return photo;
         }
