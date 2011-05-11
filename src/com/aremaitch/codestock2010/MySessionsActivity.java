@@ -36,6 +36,7 @@ import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.utils.ACLogger;
+import com.flurry.android.FlurryAgent;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -178,12 +179,18 @@ public class MySessionsActivity extends Activity
     }
 
     @Override
+    protected void onStart() {
+        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        super.onStart();
+    }
+
+    @Override
 	protected void onStop() {
 		super.onStop();
 		if (dlg != null) {
 			dlg.dismiss();
-			
 		}
+        FlurryAgent.onEndSession(this);
 	}
 
     private void initializeCountdownClock() {
