@@ -56,6 +56,9 @@ public class CSPopupWindow {
         onCreate();
     }
 
+    protected boolean isShowing() {
+        return this.window.isShowing();
+    }
 
     protected void showWindowAtLocation(View parent, int gravity, int x, int y) {
         this.window.showAtLocation(parent,  gravity,  x, y);

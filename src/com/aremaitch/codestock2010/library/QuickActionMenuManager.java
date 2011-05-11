@@ -22,6 +22,7 @@ public class QuickActionMenuManager {
     private View anchorView;
     private QuickActionMenu qam = null;
 
+
     public QuickActionMenuManager(View anchorView) {
         this.anchorView = anchorView;
     }
@@ -67,7 +68,7 @@ public class QuickActionMenuManager {
 
             @Override
             public void onClick(View view) {
-                qam.show();
+                    qam.show();
             }
         });
 

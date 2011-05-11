@@ -26,11 +26,11 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.aremaitch.codestock2010.R;
+import com.aremaitch.utils.ACLogger;
 
 import java.util.ArrayList;
 
@@ -100,6 +100,11 @@ public class QuickActionMenu extends CSPopupWindow {
     }
 
     public void show() {
+        if (this.isShowing()) {
+            ACLogger.info(CSConstants.LOG_TAG, "QuickActionMenu.show: attempt to show window that is already showing");
+            return;
+        }
+
         preShow();
 
         int[] location = new int[2];
