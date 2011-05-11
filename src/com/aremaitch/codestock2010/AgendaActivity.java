@@ -21,10 +21,7 @@ import java.security.PrivilegedActionException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.aremaitch.codestock2010.library.CSConstants;
-import com.aremaitch.codestock2010.library.CSPreferenceManager;
-import com.aremaitch.codestock2010.library.CountdownManager;
-import com.aremaitch.codestock2010.library.QuickActionMenuManager;
+import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.codestock2010.repository.AgendaSession;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
@@ -228,13 +225,13 @@ public class AgendaActivity extends Activity
 
     @Override
     protected void onStart() {
-        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        AnalyticsManager.logStartSession(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        FlurryAgent.onEndSession(this);
+        AnalyticsManager.logEndSession(this);
         super.onStop();
     }
 

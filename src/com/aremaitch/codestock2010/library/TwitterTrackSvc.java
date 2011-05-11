@@ -86,20 +86,20 @@ public class TwitterTrackSvc extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         ACLogger.info(CSConstants.TWITTERTRACKSVC_LOG_TAG, "received onStartCommand");
 
-        FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_START);
+        AnalyticsManager.logEvent(this, FlurryEvent.TWITTER_SVC_START);
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         _wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TweetSearchTask");
         _wl.acquire();
 
         //  If the global background data setting is turned off, respect it and do not scan for tweets.
         if (!new NetworkUtils().isBackgroundDataAllowed(this)) {
-            FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP_NO_BKGND);
+            AnalyticsManager.logEvent(this, FlurryEvent.TWITTER_SVC_STOP_NO_BKGND);
             stopSelf();
             return Service.START_NOT_STICKY;
         }
 
         if (!new NetworkUtils().isOnline(this)) {
-            FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP_NO_NET);
+            AnalyticsManager.logEvent(this, FlurryEvent.TWITTER_SVC_STOP_NO_NET);
             stopSelf();
             return Service.START_NOT_STICKY;
         }
@@ -282,7 +282,7 @@ public class TwitterTrackSvc extends Service {
         protected void onPostExecute(Void aVoid) {
             _dh.close();
             updateLastTweetId(_sinceId);
-            FlurryAgent.logEvent(FlurryEvent.TWITTER_SVC_STOP);
+            AnalyticsManager.logEvent(TwitterTrackSvc.this, FlurryEvent.TWITTER_SVC_STOP);
             stopSelf();
         }
 

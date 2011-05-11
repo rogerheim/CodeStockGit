@@ -25,10 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
-import com.aremaitch.codestock2010.library.CSPreferenceManager;
-import com.aremaitch.codestock2010.library.CountdownManager;
-import com.aremaitch.codestock2010.library.QuickActionMenu;
-import com.aremaitch.codestock2010.library.QuickActionMenuManager;
+import com.aremaitch.codestock2010.library.*;
 import com.flurry.android.FlurryAgent;
 
 public class MapActivity extends Activity {
@@ -74,13 +71,13 @@ public class MapActivity extends Activity {
 
     @Override
     protected void onStart() {
-        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        AnalyticsManager.logStartSession(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        FlurryAgent.onEndSession(this);
+        AnalyticsManager.logEndSession(this);
         super.onStop();
     }
 

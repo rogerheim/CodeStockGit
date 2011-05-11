@@ -82,11 +82,11 @@ public class CSAgendaDownloadSvc extends IntentService {
 
         synchronized (this) {
             ACLogger.info(CSConstants.AGENDADWNLDSVC_LOG_TAG, "starting agenda download");
-            FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_START);
+            AnalyticsManager.logEvent(this, FlurryEvent.AGENDA_DL_START);
 
             NetworkUtils networkUtils = new NetworkUtils();
             if (!networkUtils.isOnline(this) || !networkUtils.isCodeStockReachable(this)) {
-                FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_FAILED);
+                AnalyticsManager.logEvent(this, FlurryEvent.AGENDA_DL_FAILED);
                 notifyUser("No network access", R.string.refresh_data_progress_dialog_msg);
                 stopForeground(true);
                 ACLogger.error(CSConstants.AGENDADWNLDSVC_LOG_TAG, "agenda download failed: no network");
@@ -97,7 +97,7 @@ public class CSAgendaDownloadSvc extends IntentService {
             parser.doGetData();
 
             if (parser.isError()) {
-                FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_FAILED);
+                AnalyticsManager.logEvent(this, FlurryEvent.AGENDA_DL_FAILED);
                 //  Don't send the broadcast?
                 notifyUser("Could not download agenda", R.string.refresh_data_progress_dialog_msg);
                 stopForeground(true);
@@ -128,7 +128,7 @@ public class CSAgendaDownloadSvc extends IntentService {
                 dh.close();
             }
 
-            FlurryAgent.logEvent(FlurryEvent.AGENDA_DL_STOP);
+            AnalyticsManager.logEvent(this, FlurryEvent.AGENDA_DL_STOP);
 
             notifyUser("Agenda download complete", R.string.refresh_data_progress_dialog_msg);
 

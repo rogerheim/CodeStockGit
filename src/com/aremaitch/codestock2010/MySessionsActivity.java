@@ -28,10 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.*;
 import com.aremaitch.codestock2010.datadownloader.ScheduleBuilder;
-import com.aremaitch.codestock2010.library.CSAgendaDownloadSvc;
-import com.aremaitch.codestock2010.library.CSPreferenceManager;
-import com.aremaitch.codestock2010.library.CountdownManager;
-import com.aremaitch.codestock2010.library.QuickActionMenuManager;
+import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Session;
@@ -180,7 +177,7 @@ public class MySessionsActivity extends Activity
 
     @Override
     protected void onStart() {
-        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        AnalyticsManager.logStartSession(this);
         super.onStart();
     }
 
@@ -190,7 +187,7 @@ public class MySessionsActivity extends Activity
 		if (dlg != null) {
 			dlg.dismiss();
 		}
-        FlurryAgent.onEndSession(this);
+        AnalyticsManager.logEndSession(this);
 	}
 
     private void initializeCountdownClock() {

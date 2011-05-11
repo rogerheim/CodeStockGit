@@ -188,13 +188,13 @@ public class StartActivity extends Activity {
 
     @Override
     protected void onStart() {
-        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        AnalyticsManager.logStartSession(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        FlurryAgent.onEndSession(this);
+        AnalyticsManager.logEndSession(this);
         super.onStop();
     }
 

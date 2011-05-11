@@ -188,7 +188,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
     @Override
 	protected void onStart() {
 		ACLogger.verbose(CSConstants.LOG_TAG, "SessionTracksActivity.onStart");
-        FlurryAgent.onStartSession(this, getString(R.string.flurry_analytics_api_key));
+        AnalyticsManager.logStartSession(this);
         createDataHelperIfNeeded();
 		super.onStart();
 
@@ -211,7 +211,7 @@ public class SessionTracksActivity extends ExpandableListActivity {
 	
 	@Override
 	protected void onStop() {
-        FlurryAgent.onEndSession(this);
+        AnalyticsManager.logEndSession(this);
 		//	If switching to a different activity close the database if open.
 		if (dh != null && dh.isOpen()) {
 			dh.close();

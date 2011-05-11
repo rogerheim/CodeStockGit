@@ -83,12 +83,12 @@ public class TwitterOAuth {
 
     public void saveOAuthTokens(Context ctx, String accessToken, String tokenSecret, String screenName) {
         new CSPreferenceManager(ctx).setTwitterOAuthData(accessToken, tokenSecret, screenName);
-        FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_ON);
+        AnalyticsManager.logEvent(ctx, FlurryEvent.TWITTER_INTEG_ON);
     }
 
     public void forgetOAuthTokens(Context ctx) {
         new CSPreferenceManager(ctx).removeTwitterOAuthData();
-        FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_OFF);
+        AnalyticsManager.logEvent(ctx, FlurryEvent.TWITTER_INTEG_OFF);
     }
 
 

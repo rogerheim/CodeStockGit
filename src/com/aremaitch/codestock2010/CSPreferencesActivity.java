@@ -102,7 +102,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
                     doesUserWantToAuthenticate();
                 } else {
                     //  Twitter is enabled and we already had oauth tokens. Just log it.
-                    FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_RESUMED);
+                    AnalyticsManager.logEvent(CSPreferencesActivity.this, FlurryEvent.TWITTER_INTEG_RESUMED);
                 }
             } else {
                 //  Twitter was disabled; if already authenticated, ask user if they want to delete tokens.
@@ -125,7 +125,7 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         Command noCommand = new Command() {
             @Override
             public void execute() {
-                FlurryAgent.logEvent(FlurryEvent.TWITTER_INTEG_PAUSED);
+                AnalyticsManager.logEvent(CSPreferencesActivity.this, FlurryEvent.TWITTER_INTEG_PAUSED);
             }
         };
 
