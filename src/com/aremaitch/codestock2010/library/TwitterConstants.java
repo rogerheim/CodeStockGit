@@ -29,7 +29,12 @@ public class TwitterConstants {
     public static final String ACCESS_TOKEN_SCREENNAME_PREF = "twitter_access_token_screenname";
     
     public static final String TWEET_SCAN_HASHTAG_EXTRA_KEY = "hashtags" ;
-    public static final String[] SEARCH_HASHTAGS = new String[] {"#codestock","#codestock2011","codestock"};
+
+    // 10-May-2011: only scan for hashtag and @tag. Do not scan for all tweets that only mention
+    //              'codestock'. Too broad and some tweets show up that don't really belong in
+    //              the public codestock timeline. I know I'd be pissed.
+    // After discussion with Mike I've decided to just look for 'codestock'. Nothing else.
+    public static final String[] SEARCH_HASHTAGS = new String[] {"codestock"};
     public static final String DB_CLEANUP_EXTRA_KEY = "cleanup";
     
     public static final String TWITTER_BK_UPD_ENABLED_PREF = "twitter_bk_upd_enabled";
