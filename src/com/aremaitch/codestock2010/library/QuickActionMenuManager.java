@@ -15,13 +15,8 @@
 
 package com.aremaitch.codestock2010.library;
 
-import android.os.Environment;
-import android.os.SystemClock;
 import android.view.View;
-import android.widget.ImageView;
 import com.aremaitch.codestock2010.*;
-
-import java.util.Date;
 
 public class QuickActionMenuManager {
     private View anchorView;
@@ -57,6 +52,13 @@ public class QuickActionMenuManager {
             @Override
             public void onClick(View view) {
                 AgendaActivity.startMe(view.getContext());
+            }
+        }));
+
+        qam.addActionItem(new ActionItem("My Schedule", null, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MySessionsActivity.startMe(view.getContext());
             }
         }));
         qam.setAnimationStyle(QuickActionMenu.ANIM_AUTO);

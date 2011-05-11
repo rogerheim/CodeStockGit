@@ -19,30 +19,23 @@ package com.aremaitch.codestock2010;
 //import org.joda.time.DateTime;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
-
-
+import android.widget.ImageButton;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.utils.ACLogger;
-import com.aremaitch.utils.Command;
-import com.aremaitch.utils.OnClickCommandWrapper;
 import com.aremaitch.utils.VersionUtils;
 import com.flurry.android.FlurryAgent;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 //	Theme.NoTitleBar hides the app's title bar.
 //	Theme.NoTitleBar.Fullscreen also covers the notification bar.
@@ -149,7 +142,7 @@ public class StartActivity extends Activity {
 
             //  Can I use CSPopupWindow directly? Need to pass it a view (inflated or resource id)
             QuickActionMenu qam = new QuickActionMenu(findViewById(R.id.footer_logo));
-            qam.addActionItem(new ActionItem("Touch the CodeStock logo\r\nto display the navigation menu", null, new OnClickListener() {
+            qam.addActionItem(new ActionItem(getString(R.string.first_run_prompt), null, new OnClickListener() {
 
                 @Override
                 public void onClick(View view) {
@@ -327,94 +320,5 @@ public class StartActivity extends Activity {
 		});
 		
 		
-		ImageButton starredButton = (ImageButton) findViewById(R.id.starred_imagebutton);
-		starredButton.setOnClickListener(new OnClickListener() {
-			
-			//	This works however, after the scan an error occurs in MySessionsActivity.
-			//	Running it again (after the userid has been pref'd) results in no error.
-			@Override
-			public void onClick(View v) {
-				ACLogger.info(CSConstants.LOG_TAG, "Starred button onClick");
-				long userid = new CSPreferenceManager(StartActivity.this).getScheduleUserId();
-				if (userid == 0) {
-					promptUserToScanQRCode();
-				} else {
-					startMySessions(userid);
-				}
-			
-			}
-		});
-		
-	}
-	
-	private void promptUserToScanQRCode() {
-
-        Command yesCommand = new Command() {
-            @Override
-            public void execute() {
-                IntentIntegrator.initiateScan(StartActivity.this);
-            }
-        };
-
-		// This dialog doesn't show until onCreate() shows.
-
-		new AlertDialog.Builder(this).setCancelable(false)
-			.setMessage(getString(R.string.mysessions_qrscan_prompt_msg))
-			.setNegativeButton(getString(R.string.no_string), new OnClickCommandWrapper(Command.NOOP))
-			.setPositiveButton(getString(R.string.yes_string), new OnClickCommandWrapper(yesCommand))
-			.setTitle(getString(R.string.mysessions_qrscan_prompt_title))
-			.show();
-	}
-
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-		if (scanResult != null) {
-			//	result should be the url: http://codestock.org/ViewSchedule.aspx?id=111
-			//	find the last position of 'id=', bump by 3 to point to number, then parse it to a long.
-			
-			//	17-Jun-10: In the emulator the call to initiateScan() returns immediately. scanResult is 
-			//				a valid object but getContents() returns null.
-			
-			String result = scanResult.getContents();
-			if (TextUtils.isEmpty(result)) {
-//				Toast.makeText(this, "Scan results contents were empty; do you not have a camera?", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			
-			//	17-Jun-10:	Looks like the format of the link changed. I love moving targets.
-			if (result.toLowerCase().startsWith("http://codestock.org/viewschedule.aspx?id=")) {
-				parseWebsiteLink(result);
-				return;
-			}
-			
-			if (result.toLowerCase().startsWith("http://codestock.org/m/viewschedule.aspx?id=")) {
-				parseWebsiteLink(result);
-				return;
-			}
-			
-			Toast.makeText(this, 
-					getString(R.string.mysessions_qrscan_badscan_msg), 
-					Toast.LENGTH_LONG).show();
-			return;
-			
-		}
-	}
-
-	private void parseWebsiteLink(String link) {
-		if (link.lastIndexOf("id=") != -1) {
-			Long userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
-
-            new CSPreferenceManager(this).setScheduleUserId(userid);
-			startMySessions(userid);
-		}
-	}
-
-	private void startMySessions(long userid) {
-
-		Intent i = new Intent();
-		i.setAction(getString(R.string.mysessions_intent_action))
-			.addCategory(Intent.CATEGORY_DEFAULT)
-			.putExtra(CSConstants.SCHEDULE_BUILDER_USERID_PREF, userid);
-		startActivity(i);
 	}
 }

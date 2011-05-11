@@ -21,7 +21,8 @@
     <string name="header_title">CodeStock 2011 - June 3 - 4, 2011</string>
     <string name="header_slogan">Always in motion is the future</string>
     <string name="about_title">About CodeStock 2011...</string>
-    
+
+    <string name="first_run_prompt">Touch the CodeStock logo\nto display the navigation menu</string>
     <string name="yes_string">Yes</string>
     <string name="no_string">No</string>
     
@@ -38,14 +39,15 @@
     <string name="sessions_in_track_room">Room:&#160;</string>
     
     <string name="mysessions_title">My Sessions</string>
-    <string name="mysessions_qrscan_prompt_msg">To use My Sessions you need to first build your schedule using the CodeStock website. The web site will show you a QR barcode you can scan that will link it with your phone. Note that you need a free barcode scanning app on your phone, which you will be prompted to download if you don\'t have it. Do you want to continue?</string>
+    <string name="mysessions_qrscan_prompt_msg">To use My Sessions you need to first build your schedule using the CodeStock website.\n\nThen you can either scan the QR code (using a free app available in the Android Market) or by entering the email address you registered with.</string>
     <string name="mysessions_qrscan_prompt_title">Schedule Builder</string>
     <string name="mysessions_qrscan_badscan_msg">Unknown scan; the code you scanned was not a link to the CodeStock Schedule Builder</string>
     <string name="mysessions_presentedby">Presented by:&#160;</string>
     <string name="mysessions_room">Room:&#160;</string>
     <string name="mysessions_progress_title">Schedule Builder</string>
     <string name="mysessions_progress_message">Getting your schedule;\nplease wait...</string>
-    
+    <string name="mysessions_regemail_prompt">Enter the email address you used to register for CodeStock</string>
+
     <string name="map_title">Conference Center Map</string>
     
     <string name="session_details_room_label">Rm:</string>
@@ -119,11 +121,11 @@
      -->
      
     <!-- Local resources for testing -->
-    <string name="json_data_rooms_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllRoomsJson.txt</string>
-    <string name="json_data_speakers_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllSpeakersJson.txt</string>
-    <string name="json_data_sessions_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllSessionsJson.txt</string>
-    <string name="schedule_builder_url">http://10.0.2.2/LocalCodestockSite/api/data/GetScheduleJson.txt</string>
-    <string name="schedule_builder_parameter">ScheduleID</string>
+    <!--<string name="json_data_rooms_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllRoomsJson.txt</string>-->
+    <!--<string name="json_data_speakers_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllSpeakersJson.txt</string>-->
+    <!--<string name="json_data_sessions_url_v2">http://10.0.2.2/LocalCodestockSite/api/data/AllSessionsJson.txt</string>-->
+    <!--<string name="schedule_builder_url">http://10.0.2.2/LocalCodestockSite/api/data/GetScheduleJson.txt</string>-->
+    <!--<string name="schedule_builder_parameter">ScheduleID</string>-->
     
     <!-- Vote rank strings -->
     <string name="voterank_none">NONE</string>

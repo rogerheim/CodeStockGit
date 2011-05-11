@@ -16,9 +16,6 @@
 
 package com.aremaitch.codestock2010.datadownloader;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -28,6 +25,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Interfoce to codestock.org ScheduleBuilder
  * @author roger
@@ -35,16 +35,38 @@ import org.json.JSONObject;
  */
 public class ScheduleBuilder {
 	long _builderID = 0;
-	String scheduleBuilderURL = "";
-	String scheduleBuilderSvc = "";
-	
-	public ScheduleBuilder(String scheduleBuilderURL, String scheduleBuilderSvc, long builderID) {
-		this.scheduleBuilderURL = scheduleBuilderURL;
-		this.scheduleBuilderSvc = scheduleBuilderSvc;
-		
+	String scheduleBuilderURL = "http://codestock.org/api/v2.0.svc/GetScheduleJson";
+	String scheduleBuilderSvc = "ScheduleID";
+	String userIDFromEmailURL = "http://codestock.org/api/v2.0.svc/GetUserIDJson";
+    String userIDFromEmailSvc = "Email";
+
+	public ScheduleBuilder(long builderID) {
+
 		_builderID = builderID;
 	}
-	
+
+    public long getUserIDFromEmail(String emailAddress) {
+        long userid = 0;
+
+        DefaultHttpClient hc = new DefaultHttpClient();
+        HttpGet hg = new HttpGet(userIDFromEmailURL + "?" + userIDFromEmailSvc + "=" + emailAddress);
+        HttpResponse response;
+        try {
+            response = hc.execute(hg);
+            String queryResult = EntityUtils.toString(response.getEntity());
+            JSONObject jObj = new JSONObject(queryResult);
+
+            userid = jObj.getLong("d");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return userid;
+    }
+
 	public ArrayList<Long> getBuiltSchedule() {
 		ArrayList<Long> result = new ArrayList<Long>();
 		

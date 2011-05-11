@@ -16,15 +16,16 @@
 
 package com.aremaitch.codestock2010;
 
+import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.ViewFlipper;
 import com.aremaitch.utils.ACLogger;
 
-import android.content.Context;
-import android.os.Build;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.ViewFlipper;
-
 //HACK: Workaround for bug in Android 2.1 & 2.2 SDK. See http://code.google.com/p/android/issues/detail?id=6191
+// 9-May-2011. It appears this *may* finally be fixed in Honeycomb(!) (it's definately been seen in Gingerbread.)
+// However, this code would only check for Froyo or better which means it could still
+// crash on Eclair.
+// Removed the apilevel check completely.
 
 public class MyViewFlipper extends ViewFlipper {
 
@@ -38,18 +39,12 @@ public class MyViewFlipper extends ViewFlipper {
 	
 	@Override
 	protected void onDetachedFromWindow() {
-		int apiLevel = Integer.parseInt(Build.VERSION.SDK);
-		if (apiLevel >= 8) {
-			try {
-				super.onDetachedFromWindow();
-			} catch (IllegalArgumentException e) {
-				ACLogger.warn("MyViewFlipper", "Android project issue 6191 workaround");
-			} finally {
-				super.stopFlipping();
-			}
-		} else {
-			super.onDetachedFromWindow();
-		}
+        try {
+            super.onDetachedFromWindow();
+        } catch (IllegalArgumentException e) {
+            ACLogger.warn("MyViewFlipper", "Android project issue 6191 workaround");
+        } finally {
+            super.stopFlipping();
+        }
 	}
-
 }

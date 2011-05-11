@@ -16,12 +16,22 @@
 
 package com.aremaitch.codestock2010;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.*;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.*;
 import com.aremaitch.codestock2010.datadownloader.ScheduleBuilder;
-import com.aremaitch.codestock2010.library.CSConstants;
+import com.aremaitch.codestock2010.library.CSAgendaDownloadSvc;
+import com.aremaitch.codestock2010.library.CSPreferenceManager;
+import com.aremaitch.codestock2010.library.CountdownManager;
+import com.aremaitch.codestock2010.library.QuickActionMenuManager;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.MiniSession;
 import com.aremaitch.codestock2010.repository.Session;
@@ -29,35 +39,9 @@ import com.aremaitch.utils.ACLogger;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.ViewFlipper;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 /*
  * The idea is that the contents of the view is a ViewFlipper. The ViewFlipper
@@ -80,7 +64,9 @@ public class MySessionsActivity extends Activity
 	ListView day2LV = null;
 	ProgressDialog dlg = null;
 
-    //TODO: Change to get userid from prefs here instead of assuming it was passed in via the start intent.
+    CountdownManager cMgr;
+    View digitsContainer = null;
+    QuickActionMenuManager qaMgr = null;
 
     public static void startMe(Context ctx) {
         Intent i = new Intent(ctx, MySessionsActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -92,6 +78,9 @@ public class MySessionsActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_sessions);
 
+        initializeCountdownClock();
+        checkAndStartAgendaDownload();
+
 		TextView headerTitle = (TextView)findViewById(R.id.header_title);
 		headerTitle.setText(getString(R.string.mysessions_title));
 		TextView headerSubTitle = (TextView)findViewById(R.id.header_subtitle);
@@ -101,20 +90,7 @@ public class MySessionsActivity extends Activity
 		day1Sessions = new ArrayList<MiniSession>();
 		day2Sessions = new ArrayList<MiniSession>();
 		
-		//	This works when StartActivity is responsible for digging the userid out of pref's or
-		//	the scanner.
-		//	Userid is passed into the activity via an extra in the Intent.
-		Intent i = getIntent();
-		userid = i.getLongExtra(CSConstants.SCHEDULE_BUILDER_USERID_PREF, 0);
-		
-		dlg = new ProgressDialog(this);
-		
-		//	There was a complaint in the Market about not using AsyncTask; this is probably what the user was
-		//	complaining about.
-		
-		GetScheduleBuilderSessions gsb = new GetScheduleBuilderSessions(this, userid);
-		gsb.execute();
-		
+
 		dateFormatter = new SimpleDateFormat(getString(R.string.standard_where_when_format_string));
 		flipper = (ViewFlipper) findViewById(R.id.my_sessions_flipper);
 		
@@ -124,11 +100,7 @@ public class MySessionsActivity extends Activity
 		day1LV = (ListView)day1View.findViewById(android.R.id.list);
 		day2LV = (ListView)day2View.findViewById(android.R.id.list);
 		
-//		View day1ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
-//		day1ViewHeader.setTag("day:friday");
-//		View day2ViewHeader = LayoutInflater.from(this).inflate(R.layout.my_sessions_listheader_item, null);
-//		day2ViewHeader.setTag("day:saturday");
-		
+
 		TextView tv1 = (TextView) day1View.findViewById(R.id.my_sessions_header_date);
 		TextView tv2 = (TextView) day2View.findViewById(R.id.my_sessions_header_date);
 		tv1.setText(getString(R.string.friday_string));
@@ -168,8 +140,6 @@ public class MySessionsActivity extends Activity
 		});
 		
 		//	Must add headerview before calling setAdapter()
-//		day1LV.addHeaderView(day1ViewHeader);
-//		day2LV.addHeaderView(day2ViewHeader);
 		day1LV.setOnItemClickListener(this);
 		day2LV.setOnItemClickListener(this);
 		
@@ -181,9 +151,33 @@ public class MySessionsActivity extends Activity
 		
 		LinearLayout my_sessions_main = (LinearLayout) findViewById(R.id.my_sessions_main);
 		my_sessions_main.setOnTouchListener((OnTouchListener) this);
-	}
-	
-	@Override
+
+        //  Get the stored userid from preferences. If not stored, prompt the user to
+        //  scan the qr code.
+        userid = new CSPreferenceManager(this).getScheduleUserId();
+        if (userid == 0) {
+            //  Don't have their userid yet.
+            promptUserToScanQRCode();
+        } else {
+            dlg = new ProgressDialog(this);
+            new GetScheduleBuilderSessions(this, userid).execute();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, Menu.FIRST, Menu.NONE, "Change User");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //  The user wants to respecify the userid.
+        promptUserToScanQRCode();
+        return true;
+    }
+
+    @Override
 	protected void onStop() {
 		super.onStop();
 		if (dlg != null) {
@@ -191,8 +185,37 @@ public class MySessionsActivity extends Activity
 			
 		}
 	}
-	
-	@Override
+
+    private void initializeCountdownClock() {
+        cMgr = new CountdownManager();
+        digitsContainer = findViewById(R.id.countdown_digit_container);
+    }
+
+    @Override
+    protected void onResume() {
+        qaMgr = new QuickActionMenuManager(findViewById(R.id.footer_logo));
+        qaMgr.initializeQuickActionMenu();
+        startCountdownClock();
+        super.onResume();
+    }
+
+    private void startCountdownClock() {
+        cMgr.initializeCountdown(digitsContainer, getAssets());
+        cMgr.start();
+    }
+
+    @Override
+    protected void onPause() {
+        qaMgr.destroyQuickActionMenu();
+        stopCountdownClock();
+        super.onPause();
+    }
+
+    private void stopCountdownClock() {
+        cMgr.stop();
+    }
+
+    @Override
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN: {
@@ -241,12 +264,126 @@ public class MySessionsActivity extends Activity
 		
 		//	Otherwise, show the details about the selected session.
         DisplaySessionDetailsActivity.startMe(this, id);
-//		startActivity(new Intent()
-//			.setAction(getString(R.string.session_details_intent_action))
-//			.addCategory(Intent.CATEGORY_DEFAULT)
-//			.putExtra(CSConstants.SESSION_DETAILS_SESSIONID, id));
 	}
-	
+
+    private static final int REQUEST_USERID_PROMPT = 19630809;
+    private static final int REQUEST_REGEMAIL_PROMPT = 19630810;
+    // The scanner's request code is 195543262
+
+    private void promptUserToScanQRCode() {
+        startActivityForResult(new Intent(this, GetCSUserIDActivity.class), REQUEST_USERID_PROMPT);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch (requestCode) {
+            case REQUEST_USERID_PROMPT:
+                handleQRPromptResult(resultCode, intent);
+                break;
+
+            case REQUEST_REGEMAIL_PROMPT:
+                handleEMailPromptResult(resultCode, intent);
+                break;
+
+            default:
+                handleScanResult(requestCode, resultCode, intent);
+                break;
+        }
+    }
+
+    private void handleEMailPromptResult(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            userid = new ScheduleBuilder(userid).getUserIDFromEmail(intent.getStringExtra("email"));
+            if (userid != 0) {
+                new CSPreferenceManager(this).setScheduleUserId(userid);
+                dlg = new ProgressDialog(this);
+                new GetScheduleBuilderSessions(this, userid).execute();
+                return;
+            }
+        }
+    }
+
+    private void handleQRPromptResult(int resultCode, Intent intent) {
+        switch (resultCode) {
+            case GetCSUserIDActivity.RESULT_QRCODE:
+                IntentIntegrator.initiateScan(MySessionsActivity.this);
+                break;
+
+            case GetCSUserIDActivity.RESULT_EMAIL:
+                startActivityForResult(new Intent(this, GetCSUserEmailActivity.class), REQUEST_REGEMAIL_PROMPT);
+                break;
+
+            default:
+                finish();       // bail out from here
+                break;
+        }
+    }
+
+    private void handleScanResult(int requestCode, int resultCode, Intent intent) {
+        
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanResult != null) {
+            //	result should be the url: http://codestock.org/ViewSchedule.aspx?id=111
+            //	find the last position of 'id=', bump by 3 to point to number, then parse it to a long.
+
+            //	17-Jun-10: In the emulator the call to initiateScan() returns immediately. scanResult is
+            //				a valid object but getContents() returns null.
+
+            String result = scanResult.getContents();
+            if (TextUtils.isEmpty(result)) {
+                return;
+            }
+
+            //	17-Jun-10:	Looks like the format of the link changed. I love moving targets.
+            if (result.toLowerCase().startsWith("http://codestock.org/viewschedule.aspx?id=")) {
+                parseWebsiteLink(result);
+                return;
+            }
+
+            if (result.toLowerCase().startsWith("http://codestock.org/m/viewschedule.aspx?id=")) {
+                parseWebsiteLink(result);
+                dlg = new ProgressDialog(this);
+
+                //	There was a complaint in the Market about not using AsyncTask; this is probably what the user was
+                //	complaining about.
+
+                new GetScheduleBuilderSessions(this, userid).execute();
+                return;
+            }
+
+            Toast.makeText(this,
+                    getString(R.string.mysessions_qrscan_badscan_msg),
+                    Toast.LENGTH_LONG).show();
+
+
+        } else {
+            finish();
+        }
+    }
+
+    private void parseWebsiteLink(String link) {
+        if (link.lastIndexOf("id=") != -1) {
+            userid = Long.parseLong(link.substring(link.lastIndexOf("id=") + 3));
+
+            new CSPreferenceManager(this).setScheduleUserId(userid);
+
+        }
+    }
+
+    private void checkAndStartAgendaDownload() {
+        DataHelper dh = null;
+        try {
+            dh = new DataHelper(this);
+            if (dh.isDatabaseEmpty()) {
+                CSAgendaDownloadSvc.startMe(this);
+            }
+        } finally {
+            if (dh != null) {
+                dh.close();
+            }
+        }
+    }
+
+
 	//	This needs the same protection against leaking windows
 	private class GetScheduleBuilderSessions extends AsyncTask<Void, Void, Void> {
 
@@ -289,11 +426,9 @@ public class MySessionsActivity extends Activity
 		
 		private ArrayList<Long> getUserSessions() {
 			ScheduleBuilder sb = new ScheduleBuilder( 
-					getString(R.string.schedule_builder_url),
-					getString(R.string.schedule_builder_parameter),
 					this.userid);
 			
-			//	This list is already sorted chronoloically.
+			//	This list is already sorted chronologically.
 			ArrayList<Long> userSessions = sb.getBuiltSchedule();
 			return userSessions;
 //			splitUserSessions(userSessions);

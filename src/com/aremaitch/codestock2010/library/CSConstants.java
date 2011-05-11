@@ -35,7 +35,8 @@ public class CSConstants {
 
 
     public static final String SESSION_DETAILS_SESSIONID = "sessionid";
-    public static final String SCHEDULE_BUILDER_USERID_PREF = "userid";
+    //  make sure we don't confuse 2010's userid with 2011's userid
+    public static final String SCHEDULE_BUILDER_USERID_PREF = "userid2011";
 
     public static final String FIRST_RUN_PREF = "first_run_";
 

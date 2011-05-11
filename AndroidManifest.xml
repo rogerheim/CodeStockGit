@@ -85,6 +85,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".GetCSUserIDActivity" android:theme="@android:style/Theme.Dialog"
+                android:label="My Sessions"/>
+
+        <activity android:name=".GetCSUserEmailActivity" android:theme="@android:style/Theme.Dialog"
+                  android:label="Email Address"/>
+
         <receiver android:name=".library.CSBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
