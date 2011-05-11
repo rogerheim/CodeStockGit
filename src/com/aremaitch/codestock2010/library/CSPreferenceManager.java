@@ -286,5 +286,11 @@ public class CSPreferenceManager {
         return createSharedPreferences().getBoolean(CSConstants.START_AGENDA_BASEDON_DATETIME_PREF, true);
     }
 
+    public boolean isParticipatingInAnalytics() {
+        return createSharedPreferences().getBoolean(CSConstants.ANALYTICS_PREF, true);
+    }
 
+    public void setParticipatingInAnalytics(boolean value) {
+        createSharedPreferences().edit().putBoolean(CSConstants.ANALYTICS_PREF, value).commit();
+    }
 }

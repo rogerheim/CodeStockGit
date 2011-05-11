@@ -260,6 +260,34 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         twitterCat.addPreference(tweetDaysToKeep);
 
         /*
+         *      Navigation category
+         */
+
+        PreferenceCategory navCat = new PreferenceCategory(this);
+        navCat.setTitle(R.string.pref_nav_cat_title);
+        root.addPreference(navCat);
+
+        CheckBoxPreference startAgendaBasedOnDateTime = new CheckBoxPreference(this);
+        startAgendaBasedOnDateTime.setKey(CSConstants.START_AGENDA_BASEDON_DATETIME_PREF);
+        startAgendaBasedOnDateTime.setDefaultValue(true);
+        startAgendaBasedOnDateTime.setTitle(R.string.pref_nav_agenda_title);
+        startAgendaBasedOnDateTime.setSummaryOn(R.string.pref_nav_agenda_summary_on);
+        startAgendaBasedOnDateTime.setSummaryOff(R.string.pref_nav_agenda_summary_off);
+        navCat.addPreference(startAgendaBasedOnDateTime);
+
+        /*
+         *      Analytics opt-out
+         */
+        PreferenceCategory analyticsCat = new PreferenceCategory(this);
+        analyticsCat.setTitle(R.string.pref_analytics_cat_title);
+        root.addPreference(analyticsCat);
+        PreferenceScreen analyticsPref = getPreferenceManager().createPreferenceScreen(this);
+        analyticsPref.setTitle(R.string.pref_analytics_opt_title);
+        analyticsPref.setIntent(new Intent(this, AnalyticsOptOutActivity.class));
+        analyticsCat.addPreference(analyticsPref);
+
+
+        /*
          *      Tools category
          */
         PreferenceCategory toolsCat = new PreferenceCategory(this);
@@ -275,21 +303,6 @@ public class CSPreferencesActivity extends PreferenceActivity implements SharedP
         resetTweets.setNegativeButtonText(getString(R.string.no_string));
         toolsCat.addPreference(resetTweets);
 
-        /*
-         *      Navigation category
-         */
-
-        PreferenceCategory navCat = new PreferenceCategory(this);
-        navCat.setTitle(R.string.pref_nav_cat_title);
-        root.addPreference(navCat);
-
-        CheckBoxPreference startAgendaBasedOnDateTime = new CheckBoxPreference(this);
-        startAgendaBasedOnDateTime.setKey(CSConstants.START_AGENDA_BASEDON_DATETIME_PREF);
-        startAgendaBasedOnDateTime.setDefaultValue(true);
-        startAgendaBasedOnDateTime.setTitle(R.string.pref_nav_agenda_title);
-        startAgendaBasedOnDateTime.setSummaryOn(R.string.pref_nav_agenda_summary_on);
-        startAgendaBasedOnDateTime.setSummaryOff(R.string.pref_nav_agenda_summary_off);
-        navCat.addPreference(startAgendaBasedOnDateTime);
 
         /*
          *      About category

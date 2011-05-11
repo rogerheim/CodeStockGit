@@ -91,6 +91,10 @@
         <activity android:name=".GetCSUserEmailActivity" android:theme="@android:style/Theme.Dialog"
                   android:label="Email Address"/>
 
+        <activity android:name=".AnalyticsOptOutActivity"
+                  android:theme="@android:style/Theme.Dialog"
+                  android:label="Analytics Participation"/>
+
         <receiver android:name=".library.CSBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

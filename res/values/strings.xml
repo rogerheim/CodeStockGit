@@ -97,6 +97,11 @@
     <string name="pref_twitter_keep_title">Tweet Days to Keep</string>
     <string name="pref_twitter_keep_summary">How many days of tweets do you want to keep?</string>
     <string name="pref_twitter_keep_dlg_title">Days of Tweets to Keep</string>
+
+    <string name="pref_analytics_cat_title">Analytics</string>
+    <string name="pref_analytics_opt_title">Analytics Participation</string>
+    <string name="analyticsoptout_prompt">The CodeStock app collects aggregate usage data. The data collected includes which parts of the app are used and for how long, phone model, Android version, and carrier. No personally identifiable information is collected.\n\nIf you would prefer not to participate, uncheck \'Participate\' below.</string>
+
     <string name="pref_tools_cat_title">Tools</string>
     <string name="pref_tools_reset_title">Reset Tweets</string>
     <string name="pref_tools_reset_summary">Clear out tweet database and resets last retrieved/displayed</string>
@@ -108,6 +113,7 @@
     <string name="pref_nav_agenda_summary_off">Agenda display will always start with the first slot on Friday</string>
     <string name="pref_about_cat_title">About</string>
     <string name="pref_about_about_title">About CodeStock...</string>
+
 
 	<!-- Put strings that do not need to be localized below this marker -->
     <!-- Data feed url's -->
