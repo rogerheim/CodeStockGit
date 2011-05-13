@@ -114,7 +114,19 @@
     <string name="pref_about_cat_title">About</string>
     <string name="pref_about_about_title">About CodeStock...</string>
 
-
+    <string name="sessiontweet_imhere_instructions">Where are you?</string>
+    <string name="sessiontweet_imgoing_instructions">Where are you going?</string>
+    <string name="sessiontweet_tweet_button">Tweet</string>
+    <string name="sessiontweet_nevermind_button">Nevermind</string>
+    <string name="sessiondm_instructions">Rate this session\n(0 stars=Hate It; 5 stars=Love It)\nNote: you have to follow CodeStock and it may take up to 15 minutes for CodeStock to follow you back.</string>
+    <string name="sessiondm_dm_button">DM</string>
+    <string name="sessiondm_nevermind_button">Nevermind</string>
+    <string name="sessiontweet_unable_to_send">Unable to send your tweet</string>
+    <string name="sessiontweet_success">Your tweet was sent!</string>
+    <string name="sessiontweet_could_not_shorten">Unable to shorten the session link</string>
+    <string name="sessiondm_unable_to_send">Unable to send your rating direct message; have you followed CodeStock?</string>
+    <string name="sessiondm_success">Thanks for the feedback; your DM has been sent.</string>
+    
 	<!-- Put strings that do not need to be localized below this marker -->
     <!-- Data feed url's -->
     <string name="json_data_url">http://codestock.org/api/v1.0.svc/AllSessionsJson</string>

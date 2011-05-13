@@ -16,48 +16,39 @@
 
 package com.aremaitch.codestock2010;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import android.content.Context;
-import android.text.*;
-import android.text.style.ImageSpan;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import com.aremaitch.codestock2010.library.*;
-import com.aremaitch.utils.NetworkUtils;
-import org.xml.sax.XMLReader;
-
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
+import android.text.*;
+import android.text.style.ImageSpan;
 import android.text.style.TypefaceSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.TransformFilter;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
+import com.aremaitch.codestock2010.library.*;
 import com.aremaitch.codestock2010.repository.DataHelper;
 import com.aremaitch.codestock2010.repository.Session;
 import com.aremaitch.utils.ACLogger;
+import com.aremaitch.utils.NetworkUtils;
+import org.xml.sax.XMLReader;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DisplaySessionDetailsActivity extends Activity {
 
@@ -80,6 +71,9 @@ public class DisplaySessionDetailsActivity extends Activity {
     private View digitsContainer;
     private TextView aboutHeaderBar;
     QuickActionMenuManager qaMgr;
+    private static final int TWEET_MENU_IAMHERE = Menu.FIRST;
+    private static final int TWEET_MENU_IAMGOING = Menu.FIRST + 1;
+    private static final int TWEET_MENU_DMFEEDBACK = Menu.FIRST + 2;
 
     //TODO: refactor photo downloading code into its own class/source file
 
@@ -140,6 +134,7 @@ public class DisplaySessionDetailsActivity extends Activity {
 		// the browser. Back will then return here. If we alreay have the session data, do not
 		// get it again.
 		super.onStart();
+        AnalyticsManager.logStartSession(this);
 
         RelativeLayout sessionDetailsContainer = (RelativeLayout)findViewById(R.id.session_details_layout);
         scroller = (ScrollView) findViewById(R.id.session_details_scroller);
@@ -169,9 +164,14 @@ public class DisplaySessionDetailsActivity extends Activity {
             AnalyticsManager.logSessionPageViewed(this, sessionid);
 		}
 	}
-	
 
-	@Override
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AnalyticsManager.logEndSession(this);
+    }
+
+    @Override
 	public Object onRetainNonConfigurationInstance() {
 		if (task != null) {
 			task.detach();
@@ -179,7 +179,42 @@ public class DisplaySessionDetailsActivity extends Activity {
 		}
 		return null;
 	}
-	
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (new CSPreferenceManager(this).isTwitterUpdateEnabled()) {
+            menu.add(Menu.NONE, TWEET_MENU_IAMHERE, Menu.NONE, "Tweet I'm Here!");
+            menu.add(Menu.NONE, TWEET_MENU_IAMGOING, Menu.NONE, "Tweet I'm Going!");
+            menu.add(Menu.NONE, TWEET_MENU_DMFEEDBACK, Menu.NONE, "DM Feedback");
+            return true;
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (new CSPreferenceManager(this).isTwitterUpdateEnabled()) {
+
+            switch (item.getItemId()) {
+                case TWEET_MENU_IAMHERE:
+                    SessionTweetActivity.startMe(this, SessionTweetActivity.SESSION_TWEET_IAMHERE, session.getUrl(), session.getId());
+                    return true;
+
+                case TWEET_MENU_IAMGOING:
+                    SessionTweetActivity.startMe(this, SessionTweetActivity.SESSION_TWEET_IAMGOING, session.getUrl(), session.getId());
+                    return true;
+
+                case TWEET_MENU_DMFEEDBACK:
+                    SessionDMTweetActivity.startMe(this, session.getRoom(), session.getId());
+                    return true;
+
+                default:
+                    return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initializeCountdownClock() {
         cMgr = new CountdownManager();
         digitsContainer = findViewById(R.id.countdown_digit_container);

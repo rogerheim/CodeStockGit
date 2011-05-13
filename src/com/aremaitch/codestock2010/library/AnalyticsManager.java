@@ -17,7 +17,6 @@ package com.aremaitch.codestock2010.library;
 
 import android.content.Context;
 import com.aremaitch.codestock2010.R;
-import com.aremaitch.utils.ACLogger;
 import com.flurry.android.FlurryAgent;
 
 import java.util.HashMap;
@@ -73,4 +72,31 @@ public class AnalyticsManager {
         }
     }
 
+    public static void logImGoingTweet(Context ctx, boolean success, long sessionid) {
+        if (new CSPreferenceManager(ctx).isParticipatingInAnalytics()) {
+            Map<String, String> parameters = new HashMap<String, String>();
+            parameters.put("session_id", String.valueOf(sessionid));
+            FlurryAgent.logEvent(success ? FlurryEvent.IMGOING_TWEET_SENT : FlurryEvent.IMGOING_TWEET_FAILED,
+                    parameters);
+        }
+    }
+
+    public static void logImHereTweet(Context ctx, boolean success, long sessionid) {
+        if (new CSPreferenceManager(ctx).isParticipatingInAnalytics()) {
+            Map<String, String> parameters = new HashMap<String, String>();
+            parameters.put("session_id", String.valueOf(sessionid));
+            FlurryAgent.logEvent(success ? FlurryEvent.IMHERE_TWEET_SENT : FlurryEvent.IMHERE_TWEET_FAILED,
+                    parameters);
+        }
+    }
+
+    public static void logFeedbackDM(Context ctx, boolean success, long sessionid, float rating) {
+        if (new CSPreferenceManager(ctx).isParticipatingInAnalytics()) {
+            Map<String, String> parameters = new HashMap<String, String>();
+            parameters.put("session_id", String.valueOf(sessionid));
+            parameters.put("rating", String.valueOf(rating));
+            FlurryAgent.logEvent(success ? FlurryEvent.FEEDBACK_DM_SENT : FlurryEvent.FEEDBACK_DM_FAILED,
+                    parameters);
+        }
+    }
 }

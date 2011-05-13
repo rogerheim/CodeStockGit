@@ -15,11 +15,6 @@
 
 package com.aremaitch.codestock2010.library;
 
-import com.flurry.android.FlurryAgent;
-
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Constants for Flurry analytics
  */
@@ -63,5 +58,13 @@ public class FlurryEvent {
     public static final String AGENDA_DL_START = "agenda_dl_start";
     public static final String AGENDA_DL_STOP = "agenda_dl_stop";
     public static final String AGENDA_DL_FAILED = "agenda_dl_failed";
+
+    public static final String IMGOING_TWEET_SENT = "imgoing_tweet_sent";
+    public static final String IMGOING_TWEET_FAILED = "imgoing_tweet_failed";
+    public static final String IMHERE_TWEET_SENT = "imhere_tweet_sent";
+    public static final String IMHERE_TWEET_FAILED = "imhere_tweet_failed";
+    public static final String FEEDBACK_DM_SENT = "feedback_dm_sent";
+    public static final String FEEDBACK_DM_FAILED = "feedback_dm_failed";
+    
 
 }

@@ -95,6 +95,14 @@
                   android:theme="@android:style/Theme.Dialog"
                   android:label="Analytics Participation"/>
 
+        <activity android:name=".SessionTweetActivity"
+                  android:theme="@android:style/Theme.Dialog"
+                  android:label="Tweet"/>
+
+        <activity android:name=".SessionDMTweetActivity"
+                  android:theme="@android:style/Theme.Dialog"
+                  android:label="DM Feedback"/>
+
         <receiver android:name=".library.CSBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

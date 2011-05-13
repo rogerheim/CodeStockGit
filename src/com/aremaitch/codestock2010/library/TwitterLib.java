@@ -16,7 +16,9 @@
 
 package com.aremaitch.codestock2010.library;
 
+import android.content.Context;
 import android.text.TextUtils;
+import com.aremaitch.codestock2010.R;
 import com.aremaitch.utils.ACLogger;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
@@ -40,6 +42,20 @@ public class TwitterLib {
     private TwitterStream tStream = null;
 
     public TwitterLib(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
+        buildObject(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+    }
+
+    public TwitterLib(Context ctx) {
+        // Use this method to have the library get the keys itself.
+        String consumerKey = ctx.getString(R.string.twitter_oauth_key);
+        String consumerSecret = ctx.getString(R.string.twitter_oauth_secret);
+        CSPreferenceManager preferenceManager = new CSPreferenceManager(ctx);
+        String accessToken = preferenceManager.getTwitterAccessToken();
+        String accessTokenSecret = preferenceManager.getTwitterAccessTokenSecret();
+        buildObject(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+    }
+
+    private void buildObject(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setOAuthConsumerKey(consumerKey)
             .setDebugEnabled(true)
@@ -49,7 +65,6 @@ public class TwitterLib {
 
         Configuration config = cb.build();
         t = new TwitterFactory(config).getInstance();
-
     }
 
     public void startMonitoringStream(String[] hashTags, long[] userIds, StatusListener statusListener, ConnectionLifeCycleListener connectionLifeCycleListener)
@@ -116,5 +131,31 @@ public class TwitterLib {
         return result;
     }
 
+    public boolean sendTweet(String tweetText) {
+        boolean result = false;
+        try {
+            t.updateStatus(tweetText);
+            result = true;
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean sendRatingDM(String dmText) {
+        boolean result = false;
+        try {
+            t.sendDirectMessage(TwitterConstants.CODESTOCK_USERID, dmText);
+            result = true;
+            ACLogger.info(CSConstants.LOG_TAG, "successfully sent dm rating: " + dmText);
+        } catch (TwitterException e) {
+            if (e.getStatusCode() == 403) {
+                ACLogger.info(CSConstants.LOG_TAG, "could not dm rating: " + e.getMessage());
+            } else {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
 
 }
