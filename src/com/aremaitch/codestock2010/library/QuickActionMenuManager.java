@@ -15,6 +15,7 @@
 
 package com.aremaitch.codestock2010.library;
 
+import android.content.Context;
 import android.view.View;
 import com.aremaitch.codestock2010.*;
 
@@ -30,38 +31,51 @@ public class QuickActionMenuManager {
     public void initializeQuickActionMenu() {
 
         qam = new QuickActionMenu(anchorView);
-        qam.addActionItem(new ActionItem("Home", null, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                StartActivity.startMe(view.getContext());
-            }
-        }));
-        qam.addActionItem(new ActionItem("Map", null, new View.OnClickListener() {
+        Context ctx = anchorView.getContext();
 
-            @Override
-            public void onClick(View view) {
-                MapActivity.startMe(view.getContext());
-            }
-        }));
-        qam.addActionItem(new ActionItem("Sessions", null, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SessionTracksActivity.startMe(view.getContext());
-            }
-        }));
-        qam.addActionItem(new ActionItem("Agenda", null, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AgendaActivity.startMe(view.getContext());
-            }
-        }));
+        //  Don't create an ActionItem for the activity that called us.
+        if (!(ctx instanceof StartActivity)) {
+            qam.addActionItem(new ActionItem("Home", null, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    StartActivity.startMe(view.getContext());
+                }
+            }));
+        }
+        if (!(ctx instanceof MapActivity)) {
+            qam.addActionItem(new ActionItem("Map", null, new View.OnClickListener() {
 
-        qam.addActionItem(new ActionItem("My Schedule", null, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MySessionsActivity.startMe(view.getContext());
-            }
-        }));
+                @Override
+                public void onClick(View view) {
+                    MapActivity.startMe(view.getContext());
+                }
+            }));
+        }
+        if (!(ctx instanceof SessionTracksActivity)) {
+            qam.addActionItem(new ActionItem("Sessions", null, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SessionTracksActivity.startMe(view.getContext());
+                }
+            }));
+        }
+        if (!(ctx instanceof AgendaActivity)) {
+            qam.addActionItem(new ActionItem("Agenda", null, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AgendaActivity.startMe(view.getContext());
+                }
+            }));
+        }
+
+        if (!(ctx instanceof MySessionsActivity)) {
+            qam.addActionItem(new ActionItem("My Schedule", null, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MySessionsActivity.startMe(view.getContext());
+                }
+            }));
+        }
         qam.setAnimationStyle(QuickActionMenu.ANIM_AUTO);
 
         anchorView.setOnClickListener(new View.OnClickListener() {
