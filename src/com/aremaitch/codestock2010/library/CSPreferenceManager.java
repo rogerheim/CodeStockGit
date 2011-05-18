@@ -109,7 +109,11 @@ public class CSPreferenceManager {
      * @return Number of minutes between Twitter updates.
      */
     public int getTwitterUpdateInterval() {
-        return Integer.parseInt(createSharedPreferences().getString(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF, "5"));
+        //   Bug fix: remove option for real time because it would require using the streaming api
+        //  and not allowing the phone to sleep.
+        int interval =Integer.parseInt(createSharedPreferences().getString(TwitterConstants.TWITTER_BK_UPD_INTERVAL_PREF, "5"));
+        if (interval <= 0) interval = 5;
+        return interval;
     }
 
     /**

@@ -145,6 +145,9 @@ public class TwitterDataHelper {
         db.insert(DELETED_TWEETS_TABLE, null, newRow);
     }
 
+    //  Always run this one; Twitter wants clients to delete tweets from a local
+    //  store that were deleted from the service. Also, the delete notification
+    //  is not guaranteed to come after the original tweet.
     protected void cleanUpDeletedTweets(SQLiteDatabase db) {
         Cursor c = null;
         try {
@@ -167,6 +170,10 @@ public class TwitterDataHelper {
     }
 
     protected void cleanUpOldTweets(SQLiteDatabase db, int daysToKeep) {
+        //  Bug Fix: If Keep forever was selected we shouldn't delete anything
+        if (daysToKeep <= 0)
+            return;
+        
         long oldestTweetToDelete = System.currentTimeMillis() - (daysToKeep * MS_IN_ONE_DAY);
         db.execSQL("delete from " + TWEETS_TABLE + " where createdat < ?", new Long[] {oldestTweetToDelete});
     }

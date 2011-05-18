@@ -16,21 +16,21 @@
 
 <resources>
     <!-- Tweet background update -->
+    <!-- Bug fix: remove Real-Time option -->
     <string-array name="twitter_bk_upd_interval_entries">
         <item>Every 5 minutes</item>
         <item>Every 15 minutes</item>
         <item>Every 30 minutes</item>
         <item>Every 60 minutes</item>
-        <item>Real-Time</item>
     </string-array>
 
     <!-- These should be integer-array. See http://code.google.com/p/android/issues/detail?id=2096 -->
+    <!-- Bug fix: remove Real-Time option -->
     <string-array name="twitter_bk_upd_interval_entryvalues">
         <item>5</item>
         <item>15</item>
         <item>30</item>
         <item>60</item>
-        <item>-2</item>
     </string-array>
 
     <!-- Tweet display duration -->
