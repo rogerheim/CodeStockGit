@@ -30,7 +30,11 @@
         android:text="@string/sessiontweet_imgoing_instructions"
         />
 
-    <EditText
+      <!-- Note: Gingerbread will ignore actionSend for a multi-line EditText and will
+     force IME_FLAG_NO_ENTER_ACTION. Only way around it seems to be to subclass EditText, override
+     onCreateInputConnection and reset EditorInfo.imeOptions. But Enter will insert an Enter in
+      the EditView -->
+    <com.aremaitch.codestock2010.SessionTweetEditText
         android:id="@+id/sessiontweet_text"
         android:layout_height="0px"
         android:layout_width="fill_parent"
@@ -41,8 +45,17 @@
         android:maxLength="140"
         android:lines="5"
         android:gravity="top"
+        android:imeOptions="actionSend"
         />
 
+    <TextView
+        android:id="@+id/sessiontweet_charcount"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:textSize="10sp"
+        />
+    
     <LinearLayout
         android:id="@+id/sessiontweet_buttons"
         android:layout_height="wrap_content"
