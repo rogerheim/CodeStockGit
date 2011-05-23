@@ -21,19 +21,37 @@
               android:orientation="vertical"
         >
 
-    <TextView
-        android:id="@+id/sessiontweet_instructions"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="@string/sessiontweet_imgoing_instructions"
-        />
+    <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal"
+            >
 
-      <!-- Note: Gingerbread will ignore actionSend for a multi-line EditText and will
-     force IME_FLAG_NO_ENTER_ACTION. Only way around it seems to be to subclass EditText, override
-     onCreateInputConnection and reset EditorInfo.imeOptions. But Enter will insert an Enter in
-      the EditView -->
+        <TextView
+                android:id="@+id/sessiontweet_instructions"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="@string/sessiontweet_imgoing_instructions"
+                />
+
+        <ProgressBar
+                android:id="@+id/sessiontweet_bitly_progress"
+                style="@android:style/Widget.ProgressBar.Small"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:indeterminate="true"
+                android:visibility="visible"
+                />
+    </LinearLayout>
+
+
+    <!-- Note: Gingerbread will ignore actionSend for a multi-line EditText and will
+ force IME_FLAG_NO_ENTER_ACTION. Only way around it seems to be to subclass EditText, override
+ onCreateInputConnection and reset EditorInfo.imeOptions. But Enter will insert an Enter in
+  the EditView -->
     <com.aremaitch.codestock2010.SessionTweetEditText
         android:id="@+id/sessiontweet_text"
         android:layout_height="0px"
@@ -46,6 +64,7 @@
         android:lines="5"
         android:gravity="top"
         android:imeOptions="actionSend"
+        android:visibility="gone"
         />
 
     <TextView

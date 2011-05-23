@@ -26,11 +26,8 @@ import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.*;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
-import android.widget.Toast;
 import com.aremaitch.codestock2010.library.AnalyticsManager;
 import com.aremaitch.codestock2010.library.BitlyManager;
 import com.aremaitch.codestock2010.library.TwitterLib;
@@ -170,6 +167,8 @@ public class SessionTweetActivity extends Activity {
                 if (TextUtils.isEmpty(shortenedUrl)) {
                     Toast.makeText(SessionTweetActivity.this, getString(R.string.sessiontweet_could_not_shorten), Toast.LENGTH_SHORT).show();
                 } else {
+                    ((ProgressBar)findViewById(R.id.sessiontweet_bitly_progress)).setVisibility(View.GONE);
+                    tweet.setVisibility(View.VISIBLE);
                     switch (which) {
                         case SESSION_TWEET_IAMHERE:
                             tweet.setText("I'm at session " + shortenedUrl + " at #codestock");
