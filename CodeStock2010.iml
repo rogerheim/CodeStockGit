@@ -3,6 +3,8 @@
   <component name="EclipseModuleManager" forced_jdk="true">
     <libelement value="jar://C:/lib/zxing-1.5/android-integration/android-integration.jar!/" />
     <libelement value="jar://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/lib/twitter4j-core-2.1.9-SNAPSHOT.jar!/" />
+    <libelement value="file://C:/lib/zxing-1.5/android-integration/android-integration.jar" />
+    <libelement value="file://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/lib/twitter4j-core-2.1.9-SNAPSHOT.jar" />
     <conelement value="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK" />
     <src_description expected_position="1">
       <src_folder value="file://$MODULE_DIR$/gen" expected_position="1" />
@@ -40,10 +42,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK" level="application" />
     <orderEntry type="module-library">
       <library name="android-integration.jar">
         <CLASSES>
-          <root url="jar://C:/lib/zxing-1.5/android-integration/android-integration.jar!/" />
+          <root url="file://C:/lib/zxing-1.5/android-integration/android-integration.jar" />
         </CLASSES>
         <JAVADOC>
           <root url="file://C:/lib/zxing-1.5/docs/javadoc" />
@@ -51,8 +54,20 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Twitter4j-2.2.1" level="project" />
-    <orderEntry type="library" name="FlurryAnalytics" level="project" />
+    <orderEntry type="module-library">
+      <library name="twitter4j-core-2.1.9-SNAPSHOT.jar">
+        <CLASSES>
+          <root url="file://C:/lib/twitter4j/twitter4j-2.1.9-SNAPSHOT/lib/twitter4j-core-2.1.9-SNAPSHOT.jar" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://twitter4j.org/en/oldjavadocs/2.1.9-SNAPSHOT" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="Flurry" level="project" />
+    <orderEntry type="library" name="Twitter4j" level="project" />
+    <orderEntry type="library" name="ZXingIntegration" level="project" />
   </component>
 </module>
 
