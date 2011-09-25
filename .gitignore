@@ -1,5 +1,6 @@
 bin
 gen
+out
 res/values/twitter_oauth_do_not_commit_to_sc.xml
 res/values/flurry_analytics_do_not_commit.xml
 *.iws
